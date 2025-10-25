@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "max30102.h": "c",
+        "algorithm": "cpp",
+        "compare": "cpp",
+        "cstdint": "cpp"
+    }
+}
