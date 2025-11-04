@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32 BLE</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>ESP32 BLE</h1>
+
+        <div id="status" class="status disconnected">
+            Disconnected
+        </div>
+
+        <button id="connectBtn" class="btn-connect">Connect to ESP32</button>
+
+        <div class="data-display">
+            <div class="data-label">Touch the esp's pin to update the value:</div>
+            <div id="data" class="data-value">No data received yet</div>
+        </div>
+
+        <div class="log" id="log">
+            <div class="log-entry info">System ready. Click Connect to start.</div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
