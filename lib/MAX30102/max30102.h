@@ -10,7 +10,7 @@ extern "C" {
 #include "esp_log.h"
 #include "max30102_defs.h"
 /*! @todo Implement build environment variable to select driver header */
-#include "MAX30102_ESP32C3.h"
+#include "driver/MAX30102_ESP32C3.h"
 
 /**
  * \ingroup max30102
@@ -209,8 +209,6 @@ void max30102_parse_sensor_data(const uint8_t *reg_data, struct max30102_data *d
  *
  */
 uint8_t max30102_get_bpm(int32_t *data);
-uint8_t max30102_get_bpm_perfected(int32_t *data);
-
 
 #ifdef __cplusplus
 }

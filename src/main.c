@@ -68,13 +68,13 @@ static void i2c_test_bpm(void *arg){
 
         //sets sensor to HR mode
         ret = max30102_set_sensor_mode(MAX30102_HR_MODE, &device);
-        device.delay_us(700000);
-        
-        //reads data from sensor
+        // device.delay_us(10000);
+
+        //reads data from sensor (un secondo per raccogliere MAX30102_BPM_SAMPLES_SIZE campioni)
         for (i = 0; i < MAX30102_BPM_SAMPLES_SIZE; i++){
             ret = max30102_get_sensor_data(MAX30102_BPM, &mess_data, &device);
             samples[i] = mess_data.bpm32;
-            device.delay_us(20000);
+            device.delay_us(20000); 
         }
         bpm = max30102_get_bpm_perfected(samples);
 
@@ -89,9 +89,9 @@ static void i2c_test_bpm(void *arg){
             ESP_LOGW(TAG, "%s: No ack, sensor not connected...skip...", esp_err_to_name(ret));
         }
         xSemaphoreGive(print_mux);
-        device.delay_us(20000);
     }
     vSemaphoreDelete(print_mux);
+    // device.delay_us(10000);
     vTaskDelete(NULL);
 }
 static void i2c_test_task(void *arg)
@@ -208,7 +208,7 @@ void app_main(void)
     // Setup the LEDs current amplitude
     // - Aprox. 3 mA
     /* Prova con valori più bassi (0x05 - 0x0A) per evitare saturazione */
-    ret = max30102_set_led_amplitude(0x0F, &device);
+    ret = max30102_set_led_amplitude(0x1F, &device);
     device.delay_us(40000);
 
     // For this example there is only one task which setup the MAX30102, and then

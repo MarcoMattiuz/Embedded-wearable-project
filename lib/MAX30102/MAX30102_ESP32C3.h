@@ -1,6 +1,6 @@
 #include "driver/i2c.h"
 #include "sdkconfig.h"
-#include "max30102_defs.h"
+#include "../max30102_defs.h"
 
 #define _I2C_NUMBER(num) I2C_NUM_##num
 #define I2C_NUMBER(num) _I2C_NUMBER(num)

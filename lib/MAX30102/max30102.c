@@ -31,7 +31,7 @@ static int8_t null_ptr_check(const struct max30102_dev *dev);
  *
  */
 static void interleave_reg_addr(const uint8_t *reg_addr, uint8_t *temp_buff, const uint8_t *reg_data, uint8_t len);
-static int32_t avg_filter = 0;  // Mantiene il valore tra le chiamate
+
 /****************** Global Function Definitions *******************************/
 
 /*!
@@ -268,7 +268,7 @@ int8_t max30102_get_sensor_data(uint8_t sensor_comp, struct max30102_data *comp_
 
         if (rslt == MAX30102_OK)
         {
-            
+            /* Parse the read data from the sensor */
             max30102_parse_sensor_data(reg_data, comp_data);
         }
     }
@@ -294,44 +294,12 @@ void max30102_parse_sensor_data(const uint8_t *reg_data, struct max30102_data *d
     data_xlsb = (uint32_t)reg_data[1] << 8;
     data_lsb = (uint32_t)reg_data[2];
     data->bpm32 = data_msb | data_xlsb | data_lsb;
-    data->bpm = (double)data->bpm32 / 16384.0; //has to match the setting of SPO2 config register
+    data->bpm = (double)data->bpm32 / 16384.0;
 }
-/*!
- * @brief This internal API implements a simple DC removal filter.
- */
-int16_t averageDCEstimator(int32_t *p, uint16_t x)
-{
-  *p += ((((long) x << 15) - *p) >> 4); //>>4 = alpha = 1/2^4
-                                        //<<15 = scaling to 15 bits = 2^15
-  return (*p >> 15); // Scale back to original range
-}
-
 
 /*!
  * @brief This API process data buffer to get BPM value.
  */
-uint8_t max30102_get_bpm_perfected(int32_t *data){
-    uint8_t i;
-    
-    for (i = 0; i < MAX30102_BPM_SAMPLES_SIZE; i++){
-        printf("Sample %d: %d\n", i, (int)data[i]);
-        int16_t dc_estimate = averageDCEstimator(&avg_filter, data[i]);
-        int16_t ac_signal = data[i] - dc_estimate;  
-        data[i] = ac_signal;  // Save AC signal, not DC
-        printf("DC: %d, AC: %d\n", dc_estimate, ac_signal);
-    }
-
-    /*
-    Negativo → [ZERO CROSSING] → Positivo (picco) → [ZERO CROSSING] → Negativo (valle) → ...
-    ↑                           ↑                       ↑                    ↑
- Diastole              Inizio Sistole              Fine Sistole         Diastole
-    */
-   for(i=0;i<MAX30102_BPM_SAMPLES_SIZE;i++){
-    
-   }
-    return 1;
-}
- //TODO: migliorare l'algoritmo di calcolo del BPM
 uint8_t max30102_get_bpm(int32_t *data)
 {
     uint8_t i;
@@ -349,39 +317,19 @@ uint8_t max30102_get_bpm(int32_t *data)
     }
     avg = acc / MAX30102_BPM_SAMPLES_SIZE;
 
-    // media dei valori avg
-    if(avg < 3000){
-        printf("Too low signal\n");
-    }
-    printf("AVG: %d \n", (int) avg);
     for (i = 0; i < MAX30102_BPM_SAMPLES_SIZE; i++){
         data[i] -= avg;
     }
 
-    // Calculate threshold based on signal variation after removing DC component
-    int32_t maxVal = 0, minVal = 0;
-    for (i = 0; i < MAX30102_BPM_SAMPLES_SIZE; i++){
-        if (data[i] > maxVal) maxVal = data[i];
-        if (data[i] < minVal) minVal = data[i];
-    }
-    int32_t threshold = (maxVal - minVal) / 10;  // 10% of peak-to-peak variation
-    
-    printf("Max: %d, Min: %d, Threshold: %d\n", (int)maxVal, (int)minVal, (int)threshold);
-    
     for (i = 0; i < (MAX30102_BPM_SAMPLES_SIZE - 1); i++){
-        // Look for significant zero crossings with threshold
-        if (crossSample == MAX30102_BPM_NO_SAMPLES && data[i] > threshold && data[i+1] <= -threshold){
-            //first zero crossing found
+        if (crossSample == MAX30102_BPM_NO_SAMPLES && data[i] > 0 && data[i+1] <= 0){
             crossSample = i;
-            printf("First crossing at: %d\n", i);
             continue;
         }
 
         if (crossSample != MAX30102_BPM_NO_SAMPLES){
-            if (afterCrossSample == MAX30102_BPM_NO_SAMPLES && data[i] > threshold && data[i+1] <= -threshold){
-                //second zero crossing found
+            if (afterCrossSample == MAX30102_BPM_NO_SAMPLES && data[i] > 0 && data[i+1] <= 0){
                 afterCrossSample = i;
-                printf("Second crossing at: %d\n", i);
             }
         }
 
@@ -391,16 +339,11 @@ uint8_t max30102_get_bpm(int32_t *data)
         }
     }
 
-    periodAvg = 0.4 * (double)delaySamples;  
-    uint8_t retBPM = 60.0 / periodAvg;
-    
-  
-    
-    
-    printf("delaySamples: %d, periodAvg: %.3f, retBPM: %d \n", delaySamples, periodAvg, (int) retBPM);
-    return retBPM;
+    periodAvg = 0.04 * (double)delaySamples;
+
+    return (uint8_t)(60.0 / periodAvg);
 }
-//TODO: implement spo2 calculation
+
 /*!
  * @brief This internal API interleaves the register address between the
  * register data buffer for burst write operation.

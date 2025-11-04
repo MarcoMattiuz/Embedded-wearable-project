@@ -4,5 +4,6 @@
         "algorithm": "cpp",
         "compare": "cpp",
         "cstdint": "cpp"
-    }
+    },
+    "idf.pythonInstallPath": "/opt/homebrew/bin/python3"
 }

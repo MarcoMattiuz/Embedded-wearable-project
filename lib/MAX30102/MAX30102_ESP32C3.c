@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include "MAX30102_ESP32C3.h"
 
-
-#define I2C_MASTER_NUM I2C_NUM_0  // usa I2C controller 0
 /**
     @brief Read MAX30102 through I2C port
 
@@ -23,7 +21,7 @@ MAX30102_INTF_RET_TYPE esp32c3_read_max30102(uint8_t reg_addr, uint8_t *reg_data
     i2c_master_write_byte(cmd, MAX30102_SENSOR_ADDR << 1 | WRITE_BIT, ACK_CHECK_EN);
     i2c_master_write_byte(cmd, reg_addr, ACK_CHECK_EN);
     i2c_master_stop(cmd);
-    ret = i2c_master_cmd_begin(I2C_MASTER_NUM, cmd, pdMS_TO_TICKS(1000));
+    ret = i2c_master_cmd_begin(I2C_MASTER_NUM, cmd, 1000 / portTICK_RATE_MS);
     i2c_cmd_link_delete(cmd);
     
     cmd = i2c_cmd_link_create();
@@ -37,7 +35,7 @@ MAX30102_INTF_RET_TYPE esp32c3_read_max30102(uint8_t reg_addr, uint8_t *reg_data
 
     i2c_master_read_byte(cmd, reg_data + i, NACK_VAL);
     i2c_master_stop(cmd);
-    ret = i2c_master_cmd_begin(I2C_MASTER_NUM, cmd, pdMS_TO_TICKS(1000));
+    ret = i2c_master_cmd_begin(I2C_MASTER_NUM, cmd, 1000 / portTICK_RATE_MS);
     i2c_cmd_link_delete(cmd);
     
     return ret;
@@ -70,7 +68,7 @@ MAX30102_INTF_RET_TYPE esp32c3_write_max30102(uint8_t reg_addr, const uint8_t *r
     }
 
     i2c_master_stop(cmd);
-    ret = i2c_master_cmd_begin(I2C_MASTER_NUM, cmd, pdMS_TO_TICKS(1000));
+    ret = i2c_master_cmd_begin(I2C_MASTER_NUM, cmd, 1000 / portTICK_RATE_MS);
     i2c_cmd_link_delete(cmd);
 
     return ret;
@@ -85,5 +83,5 @@ MAX30102_INTF_RET_TYPE esp32c3_write_max30102(uint8_t reg_addr, const uint8_t *r
  */
 void esp32c3_delay_us_max30102(uint32_t period)
 {
-    vTaskDelay(pdMS_TO_TICKS(period / 1000));
+    vTaskDelay((period / 1000) / portTICK_RATE_MS);
 }
