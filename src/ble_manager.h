@@ -1,0 +1,51 @@
+#ifndef BLE_MANAGER_H
+#define BLE_MANAGER_H
+
+#include <stdint.h>
+#include <stdbool.h>
+#include "host/ble_gap.h"
+
+/* Device Custom Service UUID */
+#define DEVICE_CUSTOM_SERVICE_UUID 0x1847
+/* Current Time characteristic */
+#define TIME_CHAR_UUID 0x2A2B
+/* Float32 characteristic */
+#define FLOAT32_CHAR_UUID 0x0014
+
+/* Current Time characteristic format */
+typedef struct __attribute__((packed)) {
+    uint16_t year;
+    uint8_t month;
+    uint8_t day;
+    uint8_t hours;
+    uint8_t minutes;
+    uint8_t seconds;
+    uint8_t day_of_week;  // 1=Monday, 7=Sunday, 0=Unknown
+    uint8_t fractions256; // 1/256th of a second
+    uint8_t adjust_reason; // Bit field for time adjustment reasons
+} current_time_t;
+
+/* Callback function types */
+typedef void (*ble_notify_state_cb_t)(bool enabled);
+typedef void (*ble_time_write_cb_t)(current_time_t *time_data);
+
+/* Initialize BLE manager */
+int ble_manager_init(const char *device_name);
+
+/* Send notification with float32 data */
+int ble_manager_notify_time(uint16_t conn_handle, uint16_t char_handle, const void *data, uint16_t len);
+
+/* Get connection status */
+bool ble_manager_is_connected(void);
+
+/* Get current connection handle */
+uint16_t ble_manager_get_conn_handle(void);
+
+/* Get float32 characteristic handle */
+uint16_t ble_manager_get_float32_char_handle(void);
+
+/* Register callbacks */
+void ble_manager_register_notify_state_cb(ble_notify_state_cb_t cb);
+void ble_manager_register_time_write_cb(ble_time_write_cb_t cb);
+
+#endif
