@@ -11,7 +11,7 @@ int head_beat_count = 0;
 
 
 
-esp_err_t max30102_set_register(struct max30102_dev *device, uint8_t reg,uint8_t mode){
+esp_err_t max30102_set_register(struct i2c_device *device, uint8_t reg,uint8_t mode){
     uint8_t txbuf[2];
     txbuf[0] = reg;
     txbuf[1] = mode;
@@ -19,7 +19,7 @@ esp_err_t max30102_set_register(struct max30102_dev *device, uint8_t reg,uint8_t
     return esp_ret;
 }
 
-esp_err_t init_multiled_mode(struct max30102_dev *device, uint8_t led_red_power, uint8_t led_ir_power, uint8_t SPO2_config) {
+esp_err_t init_multiled_mode(struct i2c_device *device, uint8_t led_red_power, uint8_t led_ir_power, uint8_t SPO2_config) {
     esp_err_t esp_ret;
     esp_ret = max30102_set_register(device, MAX30102_MODE_CFG_ADDR, MAX30102_RESET);
     if (esp_ret != ESP_OK) {
@@ -50,7 +50,7 @@ esp_err_t init_multiled_mode(struct max30102_dev *device, uint8_t led_red_power,
 }
 
 
-esp_err_t init_hr_mode(struct max30102_dev *device, uint8_t led_red_power, uint8_t led_ir_power, uint8_t SPO2_config) {
+esp_err_t init_hr_mode(struct i2c_device *device, uint8_t led_red_power, uint8_t led_ir_power, uint8_t SPO2_config) {
     esp_err_t esp_ret;
     esp_ret = max30102_set_register(device, MAX30102_MODE_CFG_ADDR, MAX30102_RESET);
     if (esp_ret != ESP_OK) {
@@ -79,7 +79,7 @@ esp_err_t init_hr_mode(struct max30102_dev *device, uint8_t led_red_power, uint8
 
 
 
-esp_err_t reset_fifo_registers(struct max30102_dev *device) {
+esp_err_t reset_fifo_registers(struct i2c_device *device) {
     esp_err_t esp_ret;
     esp_ret = max30102_set_register(device, MAX30102_FIFO_WR_PTR_ADDR, 0x00);
     if (esp_ret != ESP_OK) {
@@ -119,7 +119,7 @@ static bool update_ir_buffers(uint32_t value) {
 }
 
 
-void max30102_i2c_read_hr_data_one(struct max30102_dev *device) {
+void max30102_i2c_read_hr_data_one(struct i2c_device *device) {
 
     uint8_t fifo_data_addr = MAX30102_FIFO_DATA_ADDR;
     uint8_t sample_data[3]; // 3 bytes per LED1 
@@ -159,7 +159,7 @@ void max30102_i2c_read_hr_data_one(struct max30102_dev *device) {
     }
 }
 
-bool max30102_i2c_read_hr_data_burst(struct max30102_dev *device) {
+bool max30102_i2c_read_hr_data_burst(struct i2c_device *device) {
     
     uint8_t wr_ptr_addr = MAX30102_FIFO_WR_PTR_ADDR;
     uint8_t rd_ptr_addr = MAX30102_FIFO_RD_PTR_ADDR;
@@ -182,8 +182,11 @@ bool max30102_i2c_read_hr_data_burst(struct max30102_dev *device) {
             
             // Leggi 6 bytes dal registro FIFO_DATA
             esp_err_t read_result = i2c_master_transmit_receive(device->i2c_dev_handle, 
-                                                                &fifo_data_addr, 1, 
-                                                                sample_data, 3, 1000);
+                                                                &fifo_data_addr, 
+                                                                1, 
+                                                                sample_data, 
+                                                                3, 
+                                                                1000);
             
             if (read_result == ESP_OK) {
                 
@@ -216,7 +219,7 @@ bool max30102_i2c_read_hr_data_burst(struct max30102_dev *device) {
 
 
 float BPM=0.0f,AVG_BPM=0.0f;
-void max30102_i2c_read_multiled_data_one(struct max30102_dev *device) {
+void max30102_i2c_read_multiled_data_one(struct i2c_device *device) {
 
     // In multiled mode with 2 LEDs, each sample is 6 bytes (3 per LED)
     uint8_t fifo_data_addr = MAX30102_FIFO_DATA_ADDR;
@@ -270,7 +273,7 @@ void max30102_i2c_read_multiled_data_one(struct max30102_dev *device) {
     }
 }
 
-void max30102_i2c_read_multiled_data_one_buffer(struct max30102_dev *device) {
+void max30102_i2c_read_multiled_data_one_buffer(struct i2c_device *device) {
 
     // In multiled mode with 2 LEDs, each sample is 6 bytes (3 per LED)
     uint8_t fifo_data_addr = MAX30102_FIFO_DATA_ADDR;
@@ -314,7 +317,7 @@ void max30102_i2c_read_multiled_data_one_buffer(struct max30102_dev *device) {
     }
 }
     
-void max30102_i2c_read_multiled_data_burst(struct max30102_dev *device) {
+void max30102_i2c_read_multiled_data_burst(struct i2c_device *device) {
     
     uint8_t wr_ptr_addr = MAX30102_FIFO_WR_PTR_ADDR;
     uint8_t rd_ptr_addr = MAX30102_FIFO_RD_PTR_ADDR;

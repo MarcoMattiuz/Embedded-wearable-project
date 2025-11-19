@@ -227,18 +227,18 @@ typedef void (*max30102_delay_us_fptr_t)(uint32_t period);
 
 
 
-/*!
- * @brief max30102 device structure
- */
-struct max30102_dev
-{
-    /*< Chip Id */
-    uint8_t chip_id;
-    void *intf_ptr;
-    /*< Read function pointer */
-    i2c_master_dev_handle_t i2c_dev_handle;
-    i2c_device_config_t i2c_dev_config;
-};
+// /*!
+//  * @brief max30102 device structure
+//  */
+// struct max30102_dev
+// {
+//     /*< Chip Id */
+//     uint8_t chip_id;
+//     void *intf_ptr;
+//     /*< Read function pointer */
+//     i2c_master_dev_handle_t i2c_dev_handle;
+//     i2c_device_config_t i2c_dev_config;
+// };
 
 
 
