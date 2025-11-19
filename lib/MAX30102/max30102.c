@@ -1,382 +1,373 @@
-/*! @file max30102.c
- * @brief API for MAX30102 Heart rate and SpO2 sensor
- */
-#include "max30102.h"
+#include "MAX30102.h"
 
-/*!
- * @brief This internal API is used to validate the device pointer for
- * null conditions.
- *
- * @param[in] dev : Structure instance of bme280_dev.
- *
- * @return Result of API execution status
- *
- * @retval   0 -> Success.
- * @retval > 0 -> Warning.
- * @retval < 0 -> Fail.
- *
- */
-static int8_t null_ptr_check(const struct max30102_dev *dev);
+uint32_t RED_buffer[MAX30102_BPM_SAMPLES_SIZE] = {0};
+int RED_buffer_index = 0;
+uint32_t IR_buffer[MAX30102_BPM_SAMPLES_SIZE] = {0};
+int IR_buffer_index = 0;
+int16_t RED_ac_buffer[MAX30102_BPM_SAMPLES_SIZE] = {0};
+int16_t IR_ac_buffer[MAX30102_BPM_SAMPLES_SIZE] = {0};
+int head_beat_count = 0;
 
-/*!
- * @brief This internal API interleaves the register address between the
- * register data buffer for burst write operation.
- *
- * @param[in] reg_addr   : Contains the register address array.
- * @param[out] temp_buff : Contains the temporary buffer to store the
- * register data and register address.
- * @param[in] reg_data   : Contains the register data to be written in the
- * temporary buffer.
- * @param[in] len        : No of bytes of data to be written for burst write.
- *
- */
-static void interleave_reg_addr(const uint8_t *reg_addr, uint8_t *temp_buff, const uint8_t *reg_data, uint8_t len);
 
-/****************** Global Function Definitions *******************************/
 
-/*!
- *  @brief This API is the entry point.
- *  It reads the chip-id from the sensor.
- */
-int8_t max30102_init(struct max30102_dev *dev)
-{
-    int8_t rslt;
 
-    /* chip id read try count */
-    uint8_t try_count = 5;
-    uint8_t chip_id = 0;
+esp_err_t max30102_set_register(struct max30102_dev *device, uint8_t reg,uint8_t mode){
+    uint8_t txbuf[2];
+    txbuf[0] = reg;
+    txbuf[1] = mode;
+    esp_err_t esp_ret = i2c_master_transmit(device->i2c_dev_handle, txbuf, sizeof(txbuf), 1000);
+    return esp_ret;
+}
 
-    /* Check for null pointer in the device structure*/
-    rslt = null_ptr_check(dev);
+esp_err_t init_multiled_mode(struct max30102_dev *device, uint8_t led_red_power, uint8_t led_ir_power, uint8_t SPO2_config) {
+    esp_err_t esp_ret;
+    esp_ret = max30102_set_register(device, MAX30102_MODE_CFG_ADDR, MAX30102_RESET);
+    if (esp_ret != ESP_OK) {
+        return esp_ret;
+    }
+    vTaskDelay(pdMS_TO_TICKS(100));
+    esp_ret = max30102_set_register(device, MAX30102_SPO2_CFG_ADDR, SPO2_config);
+    if (esp_ret != ESP_OK) {
+        return esp_ret;
+    }
+    esp_ret = max30102_set_register(device, MAX30102_LED1_PA_ADDR, led_red_power); // Ridotto da 0xFF a 0x1F (~6.4mA)
+    if (esp_ret != ESP_OK) {
+        return esp_ret;
+    }
+    esp_ret = max30102_set_register(device, MAX30102_LED2_PA_ADDR, led_ir_power); // Ridotto da 0xFF a 0x1F (~6.4mA)
+    if (esp_ret != ESP_OK) {
+        return esp_ret;
+    }
+    esp_ret = max30102_set_register(device, MAX30102_SLOT_1_2_ADDR, 0x21);
+    if (esp_ret != ESP_OK) {
+        return esp_ret;
+    }
+    esp_ret = max30102_set_register(device, MAX30102_MODE_CFG_ADDR, MAX30102_MULTILED_MODE);
+    if (esp_ret != ESP_OK) {
+        return esp_ret;
+    }
+    return esp_ret;
+}
 
-    /* Proceed if null check is fine */
-    if (rslt == MAX30102_OK)
-    {
-        while (try_count)
-        {
-            /* Read the chip-id of bme280 sensor */
-            rslt = max30102_get_regs(MAX30102_CHIP_ID_ADDR, &chip_id, 1, dev);
 
-            /* Check for chip id validity */
-            if ((rslt == MAX30102_OK) && (chip_id == MAX30102_CHIP_ID))
-            {
-                dev->chip_id = chip_id;
+esp_err_t init_hr_mode(struct max30102_dev *device, uint8_t led_red_power, uint8_t led_ir_power, uint8_t SPO2_config) {
+    esp_err_t esp_ret;
+    esp_ret = max30102_set_register(device, MAX30102_MODE_CFG_ADDR, MAX30102_RESET);
+    if (esp_ret != ESP_OK) {
+        return esp_ret;
+    }
+    vTaskDelay(pdMS_TO_TICKS(100));
+    esp_ret = max30102_set_register(device, MAX30102_SPO2_CFG_ADDR, SPO2_config);
+    if (esp_ret != ESP_OK) {
+        return esp_ret;
+    }
+    esp_ret = max30102_set_register(device, MAX30102_LED1_PA_ADDR, led_red_power); // Ridotto da 0xFF a 0x1F (~6.4mA)
+    if (esp_ret != ESP_OK) {
+        return esp_ret;
+    }
+    esp_ret = max30102_set_register(device, MAX30102_LED2_PA_ADDR, led_ir_power); // Ridotto da 0xFF a 0x1F (~6.4mA)
+    if (esp_ret != ESP_OK) {
+        return esp_ret;
+    }
+    esp_ret = max30102_set_register(device, MAX30102_MODE_CFG_ADDR, MAX30102_HR_MODE);
+    if (esp_ret != ESP_OK) {
+        return esp_ret;
+    }
+    return esp_ret;
+}
+
+
+
+
+esp_err_t reset_fifo_registers(struct max30102_dev *device) {
+    esp_err_t esp_ret;
+    esp_ret = max30102_set_register(device, MAX30102_FIFO_WR_PTR_ADDR, 0x00);
+    if (esp_ret != ESP_OK) {
+        printf("Failed to reset FIFO write pointer: %d\n", esp_ret);
+        abort();
+    }
+    
+    esp_ret = max30102_set_register(device, MAX30102_FIFO_RD_PTR_ADDR, 0x00);
+    if (esp_ret != ESP_OK) {
+        printf("Failed to reset FIFO read pointer: %d\n", esp_ret);
+        abort();
+    }
+    
+    esp_ret = max30102_set_register(device, MAX30102_FIFO_OVF_CTR_ADDR, 0x00);
+    if (esp_ret != ESP_OK) {
+        printf("Failed to reset FIFO overflow counter: %d\n", esp_ret);
+        abort();
+    }
+    printf("FIFO pointers reset\n");
+    return ESP_OK;
+}
+
+static void update_red_buffers(uint32_t value) {
+    RED_buffer[RED_buffer_index] = value;
+    RED_ac_buffer[RED_buffer_index] = get_RED_AC(value);
+    RED_buffer_index = (RED_buffer_index + 1) % MAX30102_BPM_SAMPLES_SIZE;
+}
+static bool update_ir_buffers(uint32_t value) {
+    IR_buffer[IR_buffer_index] = value;
+    IR_ac_buffer[IR_buffer_index] = get_IR_AC2(value); //TODO: check
+    IR_buffer_index = (IR_buffer_index + 1) % MAX30102_BPM_SAMPLES_SIZE;
+    if(IR_buffer_index==MAX30102_BPM_SAMPLES_SIZE-1){
+        return true;
+    }
+    return false;
+    
+}
+
+
+void max30102_i2c_read_hr_data_one(struct max30102_dev *device) {
+
+    uint8_t fifo_data_addr = MAX30102_FIFO_DATA_ADDR;
+    uint8_t sample_data[3]; // 3 bytes per LED1 
+
+    // Read 6 bytes from the FIFO_DATA register
+    esp_err_t read_result = i2c_master_transmit_receive(device->i2c_dev_handle,
+                                                        &fifo_data_addr, 1,
+                                                        sample_data, 3, 1000);
+    
+    if (read_result == ESP_OK) {
+        // Increment sample counter for this sample
+        
+        
+        // Reconstruct 18-bit values for each LED
+        uint32_t led1_value = ((uint32_t)sample_data[0] << 16) | /* LED1 is RED */
+                                ((uint32_t)sample_data[1] << 8) | 
+                                sample_data[2];
+        led1_value &= 0x3FFFF; // Mask for 18 bits
+        
+
+        
+       
+        printf("RED: %lu, ", led1_value);
+        if(led1_value < 10000) {
+            // Skip invalid readings
+            printf(" --- Invalid IR reading --- \n");
+        }else{
+            // int red_ac_curr = get_RED_AC(led1_value);
+            int ir_ac_curr = get_IR_AC2(led1_value);
+            printf("IR_AC: %d\n",ir_ac_curr);
+        }
+        
+        
+    } else {
+        printf("Failed to read FIFO data: %d\n", read_result);
+        abort();
+    }
+}
+
+bool max30102_i2c_read_hr_data_burst(struct max30102_dev *device) {
+    
+    uint8_t wr_ptr_addr = MAX30102_FIFO_WR_PTR_ADDR;
+    uint8_t rd_ptr_addr = MAX30102_FIFO_RD_PTR_ADDR;
+    uint8_t wr_ptr, rd_ptr;
+
+    i2c_master_transmit_receive(device->i2c_dev_handle, &wr_ptr_addr, 1, &wr_ptr, 1, 1000);
+    i2c_master_transmit_receive(device->i2c_dev_handle, &rd_ptr_addr, 1, &rd_ptr, 1, 1000);
+
+    uint8_t num_samples = (wr_ptr - rd_ptr) & 0x1F;  // FIFO è profonda 32 campioni (5 bit)
+    
+    // printf("Running... WR_PTR: %d, RD_PTR: %d, Samples: %d\n", wr_ptr, rd_ptr, num_samples);
+    
+    if (num_samples > 0) {
+        
+        // printf("Reading %d samples from FIFO...\n", num_samples);
+        for (int i = 0; i < num_samples; i++) {
+            // In modalità MULTILED con 2 LED, ogni campione è di 6 bytes (3 per LED)
+            uint8_t fifo_data_addr = MAX30102_FIFO_DATA_ADDR;
+            uint8_t sample_data[3]; // 3 bytes per LED1 + 3 bytes per LED2
+            
+            // Leggi 6 bytes dal registro FIFO_DATA
+            esp_err_t read_result = i2c_master_transmit_receive(device->i2c_dev_handle, 
+                                                                &fifo_data_addr, 1, 
+                                                                sample_data, 3, 1000);
+            
+            if (read_result == ESP_OK) {
+                
+                // Ricostruisci i valori a 18 bit per ciascun LED
+                uint32_t led1_value = ((uint32_t)sample_data[0] << 16) | 
+                                        ((uint32_t)sample_data[1] << 8) | 
+                                        sample_data[2];
+                led1_value &= 0x3FFFF; // Maschera per 18 bit
+                if(led1_value >= 10000){
+                    if(update_ir_buffers(led1_value)){
+                    return true; //buffer pieno
+                    }
+                }else{
+                    printf("--not reading properly--\n");
+                }
+                
+                
+            } else {
+                printf("Failed to read FIFO data: %d\n", read_result);
                 break;
             }
-
-            /* Wait for 1 ms */
-            dev->delay_us(1000);
-            --try_count;
         }
-
-        /* Chip id check failed */
-        if (!try_count)
-        {
-            rslt = MAX30102_E_DEV_NOT_FOUND;
-        }
+    
     }
 
-    return rslt;
+    return false;
 }
 
-/*!
- * @brief This API writes the given data to the register address
- * of the sensor.
- */
-int8_t max30102_set_regs(uint8_t *reg_addr, const uint8_t *reg_data, uint8_t len, struct max30102_dev *dev)
-{
-    int8_t rslt;
-    uint8_t temp_buff[20]; /* Typically not to write more than 10 registers */
 
-    if (len > 10)
-    {
-        len = 10;
-    }
 
-    uint16_t temp_len;
-    uint8_t reg_addr_cnt;
 
-    /* Check for null pointer in the device structure*/
-    rslt = null_ptr_check(dev);
+float BPM=0.0f,AVG_BPM=0.0f;
+void max30102_i2c_read_multiled_data_one(struct max30102_dev *device) {
 
-    /* Check for arguments validity */
-    if ((rslt == MAX30102_OK) && (reg_addr != NULL) && (reg_data != NULL))
-    {
-        if (len != 0)
-        {
-            temp_buff[0] = reg_data[0];
+    // In multiled mode with 2 LEDs, each sample is 6 bytes (3 per LED)
+    uint8_t fifo_data_addr = MAX30102_FIFO_DATA_ADDR;
+    uint8_t sample_data[6]; // 3 bytes per LED1 + 3 bytes per LED2
 
-            /* Burst write mode */
-            if (len > 1)
-            {
-                /* Interleave register address w.r.t data for
-                 * burst write
-                 */
-                interleave_reg_addr(reg_addr, temp_buff, reg_data, len);
-                temp_len = ((len * 2) - 1);
+    // Read 6 bytes from the FIFO_DATA register
+    esp_err_t read_result = i2c_master_transmit_receive(device->i2c_dev_handle,
+                                                        &fifo_data_addr, 1,
+                                                        sample_data, 6, 1000);
+    
+    if (read_result == ESP_OK) {
+        // Increment sample counter for this sample
+        sample_counter++;
+        
+        // Reconstruct 18-bit values for each LED
+        uint32_t led1_value = ((uint32_t)sample_data[0] << 16) | /* LED1 is RED */
+                                ((uint32_t)sample_data[1] << 8) | 
+                                sample_data[2];
+        led1_value &= 0x3FFFF; // Mask for 18 bits
+        uint32_t led2_value = ((uint32_t)sample_data[3] << 16) |  /* LED2 is IR */
+                                ((uint32_t)sample_data[4] << 8) | 
+                                sample_data[5];
+        led2_value &= 0x3FFFF; // Mask for 18 bits
+
+        
+       
+        printf("RED: %lu, IR: %lu, ", led1_value, led2_value);
+        if(led2_value < 10000) {
+            // Skip invalid readings
+            printf(" --- Invalid IR reading --- \n");
+        }else{
+            int red_ac_curr = get_RED_AC(led1_value);
+            int ir_ac_curr = get_IR_AC(led2_value);
+            if(ir_ac_curr < 0){
+                printf("IR_AC: %d       ↓↓↓\n", ir_ac_curr);
+            }else{
+                printf("IR_AC: %d       ↑↑↑\n", ir_ac_curr);
             }
-            else
-            {
-                temp_len = len;
-            }
+            
+            calculateBPM(ir_ac_curr,&BPM,&AVG_BPM);
 
-            dev->intf_rslt = dev->write(reg_addr[0], temp_buff, temp_len);
-
-            /* Check for communication error */
-            if (dev->intf_rslt != MAX30102_INTF_RET_SUCCESS)
-            {
-                rslt = MAX30102_E_COMM_FAIL;
-            }
+            printf(" BPM: %.1f", BPM);
+            printf(" AVG BPM: %.1f", AVG_BPM);
+            printf("\n");
         }
-        else
-        {
-            rslt = MAX30102_E_INVALID_LEN;
-        }
+        
+        
+    } else {
+        printf("Failed to read FIFO data: %d\n", read_result);
+        abort();
     }
-    else
-    {
-        rslt = MAX30102_E_NULL_PTR;
-    }
-
-    return rslt;
 }
 
-/*!
- * @brief This API reads the data from the given register address of the sensor.
- */
-int8_t max30102_get_regs(uint8_t reg_addr, uint8_t *reg_data, uint16_t len, struct max30102_dev *dev)
-{
-    int8_t rslt;
+void max30102_i2c_read_multiled_data_one_buffer(struct max30102_dev *device) {
 
-    /* Check for null pointer in the device structure*/
-    rslt = null_ptr_check(dev);
+    // In multiled mode with 2 LEDs, each sample is 6 bytes (3 per LED)
+    uint8_t fifo_data_addr = MAX30102_FIFO_DATA_ADDR;
+    uint8_t sample_data[6]; // 3 bytes per LED1 + 3 bytes per LED2
 
-    /* Proceed if null check is fine */
-    if ((rslt == MAX30102_OK) && (reg_data != NULL))
-    {
-        /* Read the data  */
-        dev->intf_rslt = dev->read(reg_addr, reg_data, len);
+    // Read 6 bytes from the FIFO_DATA register
+    esp_err_t read_result = i2c_master_transmit_receive(device->i2c_dev_handle,
+                                                        &fifo_data_addr, 1,
+                                                        sample_data, 6, 1000);
+    
+    if (read_result == ESP_OK) {
+        // Increment sample counter for this sample
+        
+        
+        // Reconstruct 18-bit values for each LED
+        uint32_t led1_value = ((uint32_t)sample_data[0] << 16) | /* LED1 is RED */
+                                ((uint32_t)sample_data[1] << 8) | 
+                                sample_data[2];
+        led1_value &= 0x3FFFF; // Mask for 18 bits
+        uint32_t led2_value = ((uint32_t)sample_data[3] << 16) |  /* LED2 is IR */
+                                ((uint32_t)sample_data[4] << 8) | 
+                                sample_data[5];
+        led2_value &= 0x3FFFF; // Mask for 18 bits
 
-        /* Check for communication error */
-        if (dev->intf_rslt != MAX30102_INTF_RET_SUCCESS)
-        {
-            rslt = MAX30102_E_COMM_FAIL;
-        }
+        
+       
+        // printf("RED: %lu, IR: %lu, ", led1_value, led2_value);
+        // if(led2_value < 10000) {
+        //     // Skip invalid readings
+        //     printf(" --- Invalid IR reading --- \n");
+        // }else{
+            // printf("LED2_IR: %lu\n",led2_value);
+            update_red_buffers(led1_value);
+            update_ir_buffers(led2_value);
+        // }
+        
+        
+    } else {
+        printf("Failed to read FIFO data: %d\n", read_result);
+        abort();
     }
-    else
-    {
-        rslt = MAX30102_E_NULL_PTR;
-    }
-
-    return rslt;
 }
+    
+void max30102_i2c_read_multiled_data_burst(struct max30102_dev *device) {
+    
+    uint8_t wr_ptr_addr = MAX30102_FIFO_WR_PTR_ADDR;
+    uint8_t rd_ptr_addr = MAX30102_FIFO_RD_PTR_ADDR;
+    uint8_t wr_ptr, rd_ptr;
 
-/*!
- * @brief This API writes configuration data for FIFO
- */
-int8_t max30102_set_fifo(uint8_t setup, struct max30102_dev *dev)
-{
-    int8_t rslt;
-    uint8_t reg_addr = MAX30102_FIFO_CFG_ADDR;
+    i2c_master_transmit_receive(device->i2c_dev_handle, &wr_ptr_addr, 1, &wr_ptr, 1, 1000);
+    i2c_master_transmit_receive(device->i2c_dev_handle, &rd_ptr_addr, 1, &rd_ptr, 1, 1000);
 
-    rslt = null_ptr_check(dev);
-
-    if (rslt == MAX30102_OK)
-    {
-        rslt = max30102_set_regs(&reg_addr, &setup, 1, dev);
-    }
-
-    return rslt;
-}
-
-/*!
- * @brief This API writes current amplitude data for LEDs
- */
-int8_t max30102_set_led_amplitude(uint8_t amplitude, struct max30102_dev *dev)
-{
-    int8_t rslt;
-    uint8_t reg_addr = MAX30102_LED1_PA_ADDR;
-
-    rslt = null_ptr_check(dev);
-
-    if (rslt == MAX30102_OK)
-    {
-        rslt = max30102_set_regs(&reg_addr, &amplitude, 1, dev);
-        reg_addr = MAX30102_LED2_PA_ADDR;
-
-        dev->delay_us(10000);
-
-        rslt = max30102_set_regs(&reg_addr, &amplitude, 1, dev);
-    }
-
-    return rslt;
-}
-
-/*!
- * @brief This API writes configuration to select the sensor mode
- */
-int8_t max30102_set_spo2(uint8_t sensor_mode, struct max30102_dev *dev)
-{
-    int8_t rslt;
-    uint8_t reg_addr = MAX30102_SPO2_CFG_ADDR;
-
-    rslt = null_ptr_check(dev);
-
-    if (rslt == MAX30102_OK)
-    {
-        rslt = max30102_set_regs(&reg_addr, &sensor_mode, 1, dev);
-    }
-
-    return rslt;
-}
-
-/*!
- * @brief This API sets the power mode of the sensor.
- */
-int8_t max30102_set_sensor_mode(uint8_t sensor_mode, struct max30102_dev *dev)
-{
-    int8_t rslt;
-    uint8_t reg_addr = MAX30102_MODE_CFG_ADDR;
-
-    /* Check for null pointer in the device structure*/
-    rslt = null_ptr_check(dev);
-
-    if (rslt == MAX30102_OK)
-    {
-        rslt = max30102_set_regs(&reg_addr, &sensor_mode, 1, dev);
-    }
-
-    return rslt;
-}
-
-/*!
- * @brief This API reads the sample stored in the FIFO.
- */
-int8_t max30102_get_sensor_data(uint8_t sensor_comp, struct max30102_data *comp_data, struct max30102_dev *dev)
-{
-    int8_t rslt;
-
-    /* Array to store the samples retrieved */
-    uint8_t reg_data[MAX30102_DATA_LEN] = { 0 };
-
-    /* Check for null pointer in the device structure*/
-    rslt = null_ptr_check(dev);
-
-    if ((rslt == MAX30102_OK) && (comp_data != NULL))
-    {
-        rslt = max30102_get_regs(MAX30102_FIFO_DATA_ADDR, reg_data, MAX30102_DATA_LEN, dev);
-
-        if (rslt == MAX30102_OK)
-        {
-            /* Parse the read data from the sensor */
-            max30102_parse_sensor_data(reg_data, comp_data);
-        }
-    }
-    else
-    {
-        rslt = MAX30102_E_NULL_PTR;
-    }
-
-    return rslt;
-}
-
-/*!
- *  @brief This API is used to parse the samples.
- */
-void max30102_parse_sensor_data(const uint8_t *reg_data, struct max30102_data *data)
-{
-    /* Variables to store the sensor data */
-    uint32_t data_xlsb = 0;
-    uint32_t data_lsb = 0;
-    uint32_t data_msb = 0;
-
-    data_msb = (uint32_t)reg_data[0] << 16;
-    data_xlsb = (uint32_t)reg_data[1] << 8;
-    data_lsb = (uint32_t)reg_data[2];
-    data->bpm32 = data_msb | data_xlsb | data_lsb;
-    data->bpm = (double)data->bpm32 / 16384.0;
-}
-
-/*!
- * @brief This API process data buffer to get BPM value.
- */
-uint8_t max30102_get_bpm(int32_t *data)
-{
-    uint8_t i;
-    uint32_t avg;
-    long acc;
-    uint8_t crossSample = MAX30102_BPM_NO_SAMPLES;
-    uint8_t afterCrossSample = MAX30102_BPM_NO_SAMPLES;
-    uint8_t delaySamples = 0;
-    double periodAvg;
-
-    acc = 0;
-    avg = 0;
-    for (i = 0; i < MAX30102_BPM_SAMPLES_SIZE; i++){
-        acc += data[i];
-    }
-    avg = acc / MAX30102_BPM_SAMPLES_SIZE;
-
-    for (i = 0; i < MAX30102_BPM_SAMPLES_SIZE; i++){
-        data[i] -= avg;
-    }
-
-    for (i = 0; i < (MAX30102_BPM_SAMPLES_SIZE - 1); i++){
-        if (crossSample == MAX30102_BPM_NO_SAMPLES && data[i] > 0 && data[i+1] <= 0){
-            crossSample = i;
-            continue;
-        }
-
-        if (crossSample != MAX30102_BPM_NO_SAMPLES){
-            if (afterCrossSample == MAX30102_BPM_NO_SAMPLES && data[i] > 0 && data[i+1] <= 0){
-                afterCrossSample = i;
+    uint8_t num_samples = (wr_ptr - rd_ptr) & 0x1F;  // FIFO è profonda 32 campioni (5 bit)
+    
+    // printf("Running... WR_PTR: %d, RD_PTR: %d, Samples: %d\n", wr_ptr, rd_ptr, num_samples);
+    
+    if (num_samples > 0) {
+        
+        // printf("Reading %d samples from FIFO...\n", num_samples);
+        for (int i = 0; i < num_samples; i++) {
+            // In modalità MULTILED con 2 LED, ogni campione è di 6 bytes (3 per LED)
+            uint8_t fifo_data_addr = MAX30102_FIFO_DATA_ADDR;
+            uint8_t sample_data[6]; // 3 bytes per LED1 + 3 bytes per LED2
+            
+            // Leggi 6 bytes dal registro FIFO_DATA
+            esp_err_t read_result = i2c_master_transmit_receive(device->i2c_dev_handle, 
+                                                                &fifo_data_addr, 1, 
+                                                                sample_data, 6, 1000);
+            
+            if (read_result == ESP_OK) {
+                // Increment sample counter for each sample read
+                sample_counter++;
+                
+                // Ricostruisci i valori a 18 bit per ciascun LED
+                uint32_t led1_value = ((uint32_t)sample_data[0] << 16) | 
+                                        ((uint32_t)sample_data[1] << 8) | 
+                                        sample_data[2];
+                led1_value &= 0x3FFFF; // Maschera per 18 bit
+                update_red_buffers(led1_value);
+                uint32_t led2_value = ((uint32_t)sample_data[3] << 16) | 
+                                        ((uint32_t)sample_data[4] << 8) | 
+                                        sample_data[5];
+                led2_value &= 0x3FFFF; // Maschera per 18 bit
+                update_ir_buffers(led2_value);
+            } else {
+                printf("Failed to read FIFO data: %d\n", read_result);
+                break;
             }
         }
-
-        if (crossSample != MAX30102_BPM_NO_SAMPLES && afterCrossSample != MAX30102_BPM_NO_SAMPLES){
-            delaySamples = afterCrossSample - crossSample;
-            break;
-        }
+    
     }
 
-    periodAvg = 0.04 * (double)delaySamples;
-
-    return (uint8_t)(60.0 / periodAvg);
-}
-
-/*!
- * @brief This internal API interleaves the register address between the
- * register data buffer for burst write operation.
- */
-static void interleave_reg_addr(const uint8_t *reg_addr, uint8_t *temp_buff, const uint8_t *reg_data, uint8_t len)
-{
-    uint8_t index;
-
-    for (index = 1; index < len; index++)
-    {
-        temp_buff[(index * 2) - 1] = reg_addr[index];
-        temp_buff[index * 2] = reg_data[index];
+    //TODO: check this
+    esp_err_t esp_ret = reset_fifo_registers(device);
+    if (esp_ret != ESP_OK) {        
+        printf("Failed to reset FIFO registers after burst read: %d\n", esp_ret);
+        abort();
     }
-}
-
-/*!
- * @brief This internal API is used to validate the device structure pointer for
- * null conditions.
- */
-static int8_t null_ptr_check(const struct max30102_dev *dev)
-{
-    int8_t rslt;
-
-    if ((dev == NULL) || (dev->read == NULL) || (dev->write == NULL) || (dev->delay_us == NULL))
-    {
-        /* Device structure pointer is not valid */
-        rslt = MAX30102_E_NULL_PTR;
-    }
-    else
-    {
-        /* Device structure is fine */
-        rslt = MAX30102_OK;
-    }
-
-    return rslt;
+    
 }

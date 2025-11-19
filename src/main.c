@@ -1,219 +1,130 @@
-/* MAX30102 example application
-
-This example shows the basic use (configuration, initialization, read) of the
-MAX30102 API
-
-*/
 #include <stdio.h>
-#include "esp_log.h"
-#include "driver/i2c.h"
-#include "sdkconfig.h"
-#include "max30102.h"
+#include "MAX30102_definitions.h"
+#include "driver/i2c_master.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "MAX30102.h"
 
-static const char *TAG = "exampleApp";
-
-#define I2C_MASTER_SCL_IO 22               /*!< gpio number for I2C master clock */
-#define I2C_MASTER_SDA_IO 21               /*!< gpio number for I2C master data  */
-
-#define I2C_MASTER_FREQ_HZ 100000        /*!< I2C master clock frequency */
-#define I2C_MASTER_TX_BUF_DISABLE 0                           /*!< I2C master doesn't need buffer */
-#define I2C_MASTER_RX_BUF_DISABLE 0                           /*!< I2C master doesn't need buffer */
-
-
-SemaphoreHandle_t print_mux = NULL;
-
-/* The following data structures are used to interact with MAX30102 */
-static MAX30102_DEVICE device;
-static MAX30102_DATA mess_data;
-static int32_t samples[MAX30102_BPM_SAMPLES_SIZE];
+// pin definitions
+static const i2c_port_num_t i2c_port = I2C_NUM_0; // I2C port number
+static const gpio_num_t i2c_sda_pin = GPIO_NUM_21; // I2C SDA pin
+static const gpio_num_t i2c_scl_pin = GPIO_NUM_22; // I2C SCL pin
+static const uint8_t i2c_glitch_ignore_cnt = 7; // Glitch filter
+static const uint32_t i2c_master_freq_hz = 100000; // I2C master frequency
+static const uint8_t i2c_max30102_addr = 0x57; // MAX30102 I2C address
+struct ppg_task_params {
+    struct max30102_dev *device;
+    i2c_master_bus_handle_t bus;
+};
 
 //
-// I2C master initialization
-//
-static esp_err_t i2c_master_init(void)
-{
-    int i2c_master_port = I2C_NUM_0;
-    i2c_config_t conf = {
-        .mode = I2C_MODE_MASTER,
-        .sda_io_num = I2C_MASTER_SDA_IO,
-        .sda_pullup_en = GPIO_PULLUP_ENABLE,
-        .scl_io_num = I2C_MASTER_SCL_IO,
-        .scl_pullup_en = GPIO_PULLUP_ENABLE,
-        .master.clk_speed = I2C_MASTER_FREQ_HZ,
-        // .clk_flags = 0,          /*!< Optional, you can use I2C_SCLK_SRC_FLAG_* flags to choose i2c source clock here. */
+static i2c_master_bus_handle_t i2c_bus;
+static struct ppg_task_params parameters_ppg1;
+static struct max30102_dev max30102_device;
+
+void PPG_sensor_task(void *parameters){
+    //get parameters
+    struct ppg_task_params *params = (struct ppg_task_params *) parameters;
+    struct max30102_dev *device = params->device;
+    i2c_master_bus_handle_t i2c_bus = params->bus;
+    esp_err_t esp_ret;
+
+    //setup device
+    device->i2c_dev_config.dev_addr_length = I2C_ADDR_BIT_LEN_7;
+    device->i2c_dev_config.device_address = i2c_max30102_addr;
+    device->i2c_dev_config.scl_speed_hz = i2c_master_freq_hz;
+
+    //initialize max30102_dev on the bus
+    esp_ret = i2c_master_bus_add_device(i2c_bus, &device->i2c_dev_config, &device->i2c_dev_handle);
+    if (esp_ret != ESP_OK) {
+        printf("Failed to add MAX30102 device to I2C bus: %d\n", esp_ret);
+        abort();
+    }
+    
+    // Initialize MAX30102 in hr mode with balanced LED power
+    esp_ret = init_hr_mode(device,0x1F, 0x1F, MAX30102_SPO2_RANGE_4096 | MAX30102_SPO2_50_SPS | MAX30102_SPO2_LED_PW_411);
+    if (esp_ret != ESP_OK) {
+        printf("Failed to initialize multi-LED mode: %d\n", esp_ret);
+        abort();
+    }
+
+    // set FIFO configuration: sample averaging = 4 (every sample is avg of 4 misurations), rollover enabled, almost full = 10
+    esp_ret = max30102_set_register(device, MAX30102_FIFO_CFG_ADDR, MAX30102_SMP_AVE_2 | MAX30102_FIFO_ROLL_OVER | 0x0A);
+    if (esp_ret != ESP_OK) {
+        printf("Failed to configure FIFO: %d\n", esp_ret);
+        abort();
+    }
+
+    // Reset FIFO pointers
+    esp_ret = reset_fifo_registers(device);
+    if (esp_ret != ESP_OK) {
+        printf("Failed to reset FIFO registers: %d\n", esp_ret);
+        abort();
+    }
+     
+    
+
+    float BPM=0.0f;
+    float AVG_BPM=0.0f;
+    while (1)
+    {   
+        // max30102_i2c_read_multiled_data_one(device);
+        // for(int i=0;i<MAX30102_BPM_SAMPLES_SIZE;i++){
+        //     max30102_i2c_read_multiled_data_one_buffer(device);
+        // }
+        // vTaskDelay(100 / portTICK_PERIOD_MS); 
+        // for(int i=0;i<MAX30102_BPM_SAMPLES_SIZE;i++){
+        //     printf("%d - IR_RAW: %lu - IR_AC: %d\n",i,IR_buffer[i],IR_ac_buffer[i]);
+        // }
+       
+        if(max30102_i2c_read_hr_data_burst(device)){
+            for(int i=0;i<MAX30102_BPM_SAMPLES_SIZE;i++){
+                printf("%d - IR_RAW: %lu - IR_AC: %d\n",i,IR_buffer[i],IR_ac_buffer[i]);
+                calculateBPM(IR_ac_buffer[i],&BPM,&AVG_BPM);
+            }
+            printf("BPM: %f,AVG_BPM: %f\n",BPM,AVG_BPM);
+            vTaskDelay(100/ portTICK_PERIOD_MS);
+        }
+
+        // vTaskDelay(100/ portTICK_PERIOD_MS);
+    }
+}
+
+void init_I2C_bus(i2c_master_bus_handle_t *i2c_bus){
+    esp_err_t esp_ret;
+    i2c_master_bus_config_t bus_config = {
+        .i2c_port = i2c_port,
+        .sda_io_num = i2c_sda_pin,
+        .scl_io_num = i2c_scl_pin,
+        .clk_source = I2C_CLK_SRC_DEFAULT,
+        .glitch_ignore_cnt = i2c_glitch_ignore_cnt,
+        .flags.enable_internal_pullup = 1,
     };
-    
-    esp_err_t err = i2c_param_config(i2c_master_port, &conf);
-    
-    if (err != ESP_OK) 
-    {
-        return err;
-    }
 
-    return i2c_driver_install(i2c_master_port, conf.mode, I2C_MASTER_RX_BUF_DISABLE, I2C_MASTER_TX_BUF_DISABLE, 0);
+    // Initialize I2C bus
+    esp_ret = i2c_new_master_bus(&bus_config, i2c_bus);
+    if (esp_ret != ESP_OK) {
+        printf("Failed to create I2C master bus: %d\n", esp_ret);
+        abort();
+    }
 }
+void app_main() {
 
-//
-// Test task
-//
+    // Inizializza I2C prima di usarlo
+    init_I2C_bus(&i2c_bus);
 
-static void i2c_test_bpm(void *arg){
-    uint8_t ret = MAX30102_OK;
-    uint32_t task_idx = (uint32_t)arg;
-    uint8_t bpm;
-    int cnt = 0, i;
+    // Inizializza i parametri per il task
+    parameters_ppg1.bus = i2c_bus;
+    parameters_ppg1.device = &max30102_device;
 
-    while(1){
-        ESP_LOGI(TAG, "T: %d test #: %d", task_idx, cnt++);
+    xTaskCreate(
+        PPG_sensor_task,
+        "PPG_sensor_task",
+        4096,
+        &parameters_ppg1,   
+        5,
+        NULL
+    );
 
-        //sets sensor to HR mode
-        ret = max30102_set_sensor_mode(MAX30102_HR_MODE, &device);
-        // device.delay_us(10000);
-
-        //reads data from sensor (un secondo per raccogliere MAX30102_BPM_SAMPLES_SIZE campioni)
-        for (i = 0; i < MAX30102_BPM_SAMPLES_SIZE; i++){
-            ret = max30102_get_sensor_data(MAX30102_BPM, &mess_data, &device);
-            samples[i] = mess_data.bpm32;
-            device.delay_us(20000); 
-        }
-        bpm = max30102_get_bpm_perfected(samples);
-
-        xSemaphoreTake(print_mux, portMAX_DELAY);
-        if (ret == MAX30102_OK) 
-        {
-            // printf("Sensor ID: %p\n", device.chip_id);
-            printf("BPM: %d \n", (int) bpm);
-        } 
-        else 
-        {
-            ESP_LOGW(TAG, "%s: No ack, sensor not connected...skip...", esp_err_to_name(ret));
-        }
-        xSemaphoreGive(print_mux);
-    }
-    vSemaphoreDelete(print_mux);
-    // device.delay_us(10000);
-    vTaskDelete(NULL);
-}
-static void i2c_test_task(void *arg)
-{
-    uint8_t ret = MAX30102_OK;
-    uint32_t task_idx = (uint32_t)arg;
-    uint8_t bpmBuffer[8];
-    uint8_t bpmIdx = 0;
-    uint32_t bpmAvg = 0;
-    const uint8_t bpmAvgSize = 8;
-    int cnt = 0, i;
-
-    // Here is the main loop. Periodically reads and print the parameters
-    // measured from MAX30102.
-    while (1) 
-    {
-        ESP_LOGI(TAG, "T: %d test #: %d", task_idx, cnt++);
-
-        // Setup the sensor operation mode for heart rate, wait for a 700 ms
-        // and then, read the data buffer. The read is made by
-        // passing the mess_data struct, which contains the
-        // meas result.
-        // After getting the values, get a semaphore in order to
-        // print the information for monitoring
-
-        ret = max30102_set_sensor_mode(MAX30102_HR_MODE, &device);
-        device.delay_us(700000);
-    
-        for (i = 0; i < MAX30102_BPM_SAMPLES_SIZE; i++){
-            ret = max30102_get_sensor_data(MAX30102_BPM, &mess_data, &device);
-            samples[i] = mess_data.bpm32;
-            device.delay_us(20000);
-        }
-
-        // Once the data buffer is full, we need to get the BPM measurement.
-        // In order to improve performance, the BPM mess is filtered (mean)
-        // 
-        bpmAvg = 0;
-        for (i = bpmAvgSize - 1; i; i--){
-            bpmBuffer[i] = bpmBuffer[i-1];
-        }
-
-        bpmBuffer[0] = max30102_get_bpm(samples);
-        printf("BPM: %d \n", (int) bpmBuffer[0]);
-        for (i = 0; i < bpmAvgSize; i++){
-            bpmAvg += bpmBuffer[i];
-        }
-
-        bpmAvg /= bpmAvgSize;
-
-        xSemaphoreTake(print_mux, portMAX_DELAY);
-
-        // Print information retrieved. If the connection was successful, print
-        // the sensor ID and the BPM average value.
-        // If the connection is NOK, print an error message.
-        if (ret == MAX30102_OK) 
-        {
-            // printf("Sensor ID: %p\n", device.chip_id);
-            printf("avgBPM: %d \n", (int) bpmAvg);
-        } 
-        else 
-        {
-            ESP_LOGW(TAG, "%s: No ack, sensor not connected...skip...", esp_err_to_name(ret));
-        }
-
-        // Give the semaphore taken and wait for the next read.
-        xSemaphoreGive(print_mux);
-        device.delay_us(20000);
-    }
-
-    vSemaphoreDelete(print_mux);
-    vTaskDelete(NULL);
-}
-
-//
-// This is the entry point for the example application. This shows how to
-// use the MAX30102 API functions and data structures.
-//
-void app_main(void)
-{
-    int8_t ret;
-    print_mux = xSemaphoreCreateMutex();
-
-    // Before access to the MAX30102, we need to setup the device handler
-    // by assign the platform specific functions which brings access
-    // to the communication port. These functions are implemented in
-    // API/driver/MAX30102_ESP32C3.c file.
-    device.read = esp32c3_read_max30102;
-    device.write = esp32c3_write_max30102;
-    device.delay_us = esp32c3_delay_us_max30102;
-
-    // The first step is to initialize the I2C peripheral as usual
-    ESP_ERROR_CHECK(i2c_master_init());
-
-    // After I2C initialization, BME280 initialization could be done.
-    if (MAX30102_E_DEV_NOT_FOUND == max30102_init(&device))
-    {
-        ESP_LOGW(TAG, "MAX30102 sensor is not connected.");
-        while(1);
-    }
-
-    // Setup some adquisition parameters
-    // - ADC range for 16384 counts.
-    // - 50 samples per second.
-    // - 411 microseconds pulse width for LEDs.
-    ret = max30102_set_spo2(MAX30102_SPO2_RANGE_16384 | MAX30102_SPO2_100_SPS | MAX30102_SPO2_LED_PW_411, &device);
-    device.delay_us(40000);
-
-    // Setup the FIFO
-    // - No samples average.
-    ret = max30102_set_fifo(MAX30102_SMP_AVE_NO, &device);
-    device.delay_us(40000);
-
-    // Setup the LEDs current amplitude
-    // - Aprox. 3 mA
-    /* Prova con valori più bassi (0x05 - 0x0A) per evitare saturazione */
-    ret = max30102_set_led_amplitude(0x1F, &device);
-    device.delay_us(40000);
-
-    // For this example there is only one task which setup the MAX30102, and then
-    // reads the parameters periodically.
-    // xTaskCreate(i2c_test_task, "i2c_test_task_0", 1024 * 2, (void *)0, 10, NULL);
-    xTaskCreate(i2c_test_bpm, "i2c_test_bpm_0", 1024 * 2, (void *)0, 10, NULL);
 
 }
