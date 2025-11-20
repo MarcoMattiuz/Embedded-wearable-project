@@ -1,5 +1,5 @@
 #include <stdint.h>
-#include <sh1106_driver/lcd_sh1106_driver.h>
+#include <driver/lcd_sh1106_driver.h>
 #include "esp_lcd_types.h"
 
 esp_lcd_panel_handle_t lcd_init();

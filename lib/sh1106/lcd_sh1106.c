@@ -10,7 +10,7 @@ bit 0 of page 0 is top leftmost pixel
 #include "freertos/FreeRTOS.h"
 #include "driver/i2c_master.h"
 #include "esp_lcd_io_i2c.h"
-#include "sh1106_driver/lcd_sh1106_driver.h"
+#include "driver/lcd_sh1106_driver.h"
 
 #include "esp_lcd_panel_io.h"
 #include "esp_lcd_panel_ops.h"
