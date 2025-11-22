@@ -134,12 +134,12 @@ void app_main() {
         NULL
     );
 
-    xTaskCreate(
-        task_acc,
-        "task_acc_debug",
-        4096,
-        &mpu6050_device, 
-        1,
-        NULL
-    );
+    // xTaskCreate(
+    //     task_acc,
+    //     "task_acc_debug",
+    //     4096,
+    //     &mpu6050_device, 
+    //     1,
+    //     NULL
+    // );
 }
