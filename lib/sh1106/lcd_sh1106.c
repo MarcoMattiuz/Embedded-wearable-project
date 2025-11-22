@@ -11,7 +11,7 @@ bit 0 of page 0 is top leftmost pixel
 #include "driver/i2c_master.h"
 #include "esp_lcd_io_i2c.h"
 #include "driver/lcd_sh1106_driver.h"
-
+#include "I2C_api.h"
 #include "esp_lcd_panel_io.h"
 #include "esp_lcd_panel_ops.h"
 
@@ -19,9 +19,6 @@ bit 0 of page 0 is top leftmost pixel
 #include "font5x7.h"
 #include "bitmaps.h"
 
-#define I2C_SDA_GPIO GPIO_NUM_21
-#define I2C_SCL_GPIO GPIO_NUM_22
-#define I2C_HOST I2C_NUM_0
 
 // map ascii charachter in 5*7 font to the buffer at x,y
 void drawCharToBuffer(char c, uint8_t *buffer_data, int x, int y)
@@ -122,6 +119,8 @@ esp_lcd_panel_handle_t lcd_init()
     /* I2C CONFIGURATION */
 
     // i2c bus configuration
+    
+    /*
     i2c_master_bus_config_t bus_config = {
         .i2c_port = I2C_HOST,              // I2C port number
         .sda_io_num = I2C_SDA_GPIO,        // GPIO number for I2C sda signal
@@ -135,11 +134,12 @@ esp_lcd_panel_handle_t lcd_init()
             .allow_pd = false,              // just using the default value
         },
     };
+    */
 
-    // Create the i2c bus handle
+    // get i2c bus handle
     i2c_master_bus_handle_t i2c_bus_handle = NULL;
-    ESP_ERROR_CHECK(i2c_new_master_bus(&bus_config, &i2c_bus_handle));
-
+    init_I2C_bus_PORT0(&i2c_bus_handle);
+    
     // Create the i2c io handle
     esp_lcd_panel_io_handle_t io_handle = NULL;
     esp_lcd_panel_io_i2c_config_t io_config = ESP_SH1106_DEFAULT_IO_CONFIG;

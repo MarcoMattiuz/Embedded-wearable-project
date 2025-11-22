@@ -66,7 +66,8 @@ void fn_WEATHER()
     switch (weather)
     {
     case SUNNY:
-        drawBitmapToBuffer(sunnyBitmap, buffer_data, 0, 0, 64, 64);
+        //drawBitmapToBuffer(sunnyBitmap, buffer_data, 0, 0, 64, 64);
+        drawStringToBuffer("sdaoihdsaoisdaoi",buffer_data,0,0);
         drawBufferToLcd(buffer_data, panel_handle);
         break;
     default:
