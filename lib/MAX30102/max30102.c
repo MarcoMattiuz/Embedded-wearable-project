@@ -109,7 +109,7 @@ static void update_red_buffers(uint32_t value) {
 }
 static bool update_ir_buffers(uint32_t value) {
     IR_buffer[IR_buffer_index] = value;
-    IR_ac_buffer[IR_buffer_index] = get_IR_AC2(value); //TODO: check
+    IR_ac_buffer[IR_buffer_index] = get_IR_AC2(value);
     IR_buffer_index = (IR_buffer_index + 1) % MAX30102_BPM_SAMPLES_SIZE;
     if(IR_buffer_index==MAX30102_BPM_SAMPLES_SIZE-1){
         return true;
