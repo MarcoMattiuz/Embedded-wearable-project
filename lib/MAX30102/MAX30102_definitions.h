@@ -173,7 +173,7 @@
 #define MAX30102_ALL                                UINT8_C(0x07)
 
 // /**\name Settings selection macros */
-#define MAX30102_BPM_SAMPLES_SIZE 128 /*!< The size of the buffer for the samples from sensor */
+#define MAX30102_BPM_SAMPLES_SIZE 150 /*!< The size of the buffer for the samples from sensor */
 #define MAX30102_BPM_PERIOD_SAMPLE_SIZE 4 /*!< The size of the buffer for average period */
 // #define MAX30102_BPM_NO_SAMPLES MAX30102_BPM_SAMPLES_SIZE + 1 /*!< Dummy value for zero-crossing detection indexes */
 

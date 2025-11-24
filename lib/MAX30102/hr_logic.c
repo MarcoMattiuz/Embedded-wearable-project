@@ -6,8 +6,8 @@ static int32_t IR_dc_estimate = 0;
 int16_t cbuf[32];
 uint8_t offset = 0;
 // Peak detection variables
-int16_t IR_AC_Max = 20;
-int16_t IR_AC_Min = -20;
+int16_t IR_AC_Max = -2000;
+int16_t IR_AC_Min = 2000;
 int16_t IR_AC_Signal_min = 0;
 int16_t IR_AC_Signal_max = 0;
 int16_t IR_Average_Estimated;
@@ -165,8 +165,8 @@ bool beat_detected(int16_t ir_ac) {
         }
 
         // reset min/max
-        IR_AC_Max = 0;
-        IR_AC_Min = 0;
+        IR_AC_Max = -2000;
+        IR_AC_Min = 2000;
     }
 
     // Durante la fase positiva -> trova max
@@ -180,39 +180,13 @@ bool beat_detected(int16_t ir_ac) {
     return beat;
 }
 
-// void calculateBPM(int ir_ac_curr,float *BPM,float *AVG_BPM){
-//     if(beat_detected(ir_ac_curr)) {
-//         printf("!!!!!!!!!!!!!!!!!!!!BEAT!!!!!!!!!!!!!!!!!!!!");
-//         // Calculate BPM based on sample intervals, not time
-//         long sampleDelta = sample_counter - lastBeatSample;
-//         lastBeatSample = sample_counter;
-//         oldBPM = *BPM;
-        
-//         // Convert sample interval to BPM: (samples/beat) * (50 samples/sec) * (60 sec/min)
-//         if(sampleDelta > 0) {
-//             *BPM = (60.0f * SAMPLE_RATE) / sampleDelta;
-//             printf(" ---->BPM: %.1f", *BPM);
-//             if (*BPM < 255 && *BPM > 20)
-//             {
-//                 printf("-----AVG__BPM------");
-//                 rates[rateSpot++] = *BPM; //Store this reading in the array
-//                 rateSpot %= RATE_SIZE; //Wrap variable
 
-//                 //Take average of readings
-//                 *AVG_BPM = 0;
-//                 for (int x = 0 ; x < RATE_SIZE ; x++)
-//                     *AVG_BPM += rates[x];
-//                 *AVG_BPM /= RATE_SIZE;
-//             }
-//         }
-//     }
-// }
 
 void calculateBPM(int16_t ir_ac, float *BPM, float *AVG_BPM) {
 
     // Aumenta il contatore globale dei campioni
     sample_counter++;
-
+    // printf("sample_counter: %ld.    ",sample_counter);
     // Se è stato rilevato un battito
     if (beat_detected(ir_ac)) {
 
@@ -232,7 +206,7 @@ void calculateBPM(int16_t ir_ac, float *BPM, float *AVG_BPM) {
         float currBPM = 60.0f * SAMPLE_RATE / delta;
 
         // Filtri per stabilità
-        if (currBPM > 30 && currBPM < 200) {
+        if (currBPM > 30 && currBPM < 220) {
 
             // Memorizza BPM e crea media scorrevole
             rates[rateSpot] = currBPM;

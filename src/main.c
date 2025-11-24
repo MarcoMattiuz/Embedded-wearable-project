@@ -65,12 +65,19 @@ void PPG_sensor_task(void* parameters){
     //i2c_master_bus_handle_t i2c_bus = params->bus;
     esp_err_t esp_ret;  
     
-    // Initialize MAX30102 in hr mode with balanced LED power
-    esp_ret = init_hr_mode(device,0x1F, 0x1F, MAX30102_SPO2_RANGE_4096 | MAX30102_SPO2_50_SPS | MAX30102_SPO2_LED_PW_411);
+    
+    esp_ret = init_multiled_mode(device,0x1F, 0x1F, MAX30102_SPO2_RANGE_4096 | MAX30102_SPO2_50_SPS | MAX30102_SPO2_LED_PW_411);
     if (esp_ret != ESP_OK) {
         printf("Failed to initialize multi-LED mode: %d\n", esp_ret);
         abort();
     }
+
+    // Initialize MAX30102 in hr mode with balanced LED power
+    // esp_ret = init_hr_mode(device,0x1F, 0x1F, MAX30102_SPO2_RANGE_4096 | MAX30102_SPO2_50_SPS | MAX30102_SPO2_LED_PW_411);
+    // if (esp_ret != ESP_OK) {
+    //     printf("Failed to initialize multi-LED mode: %d\n", esp_ret);
+    //     abort();
+    // }
 
     // set FIFO configuration: sample averaging = 4 (every sample is avg of 4 misurations), rollover enabled, almost full = 10
     esp_ret = max30102_set_register(device, MAX30102_FIFO_CFG_ADDR, MAX30102_SMP_AVE_2 | MAX30102_FIFO_ROLL_OVER | 0x0A);
@@ -98,17 +105,52 @@ void PPG_sensor_task(void* parameters){
         // for(int i=0;i<MAX30102_BPM_SAMPLES_SIZE;i++){
         //     printf("%d - IR_RAW: %lu - IR_AC: %d\n",i,IR_buffer[i],IR_ac_buffer[i]);
         // }
-       
-        if(max30102_i2c_read_hr_data_burst(device)){
+        
+        
+        // if(max30102_i2c_read_hr_data_burst(device)){
+        //     int MAX = -100000;
+        //     int MIN = 100000;
+        //     for(int i=0;i<MAX30102_BPM_SAMPLES_SIZE;i++){
+        //         if(IR_ac_buffer[i]>MAX){
+        //             MAX = IR_ac_buffer[i];
+        //         }   
+        //         if(IR_ac_buffer[i]<MIN){
+        //             MIN = IR_ac_buffer[i];
+        //         }
+        //         printf("%d - IR_RAW: %lu - IR_AC: %d\n",i,IR_buffer[i],IR_ac_buffer[i]);
+        //         // calculateBPM(IR_ac_buffer[i],&BPM,&AVG_BPM);
+        //     }
+        //     // printf("BPM: %f,AVG_BPM: %f\n",BPM,AVG_BPM);
+        //     printf("MAX= %d, MIN= %d\n",MAX,MIN);
+        //     vTaskDelay(100/ portTICK_PERIOD_MS);
+        // }
+
+
+        if(max30102_i2c_read_multiled_data_burst(device)){
+            printf("AOOOOOO");
+            int MAX = -100000;
+            int MIN = 100000;
+            int beat_counter = 0;
             for(int i=0;i<MAX30102_BPM_SAMPLES_SIZE;i++){
+                if(IR_ac_buffer[i]>MAX){
+                    MAX = IR_ac_buffer[i];
+                }   
+                if(IR_ac_buffer[i]<MIN){
+                    MIN = IR_ac_buffer[i];
+                }
                 printf("%d - IR_RAW: %lu - IR_AC: %d\n",i,IR_buffer[i],IR_ac_buffer[i]);
-                calculateBPM(IR_ac_buffer[i],&BPM,&AVG_BPM);
+                // printf("%d - RED_RAW: %lu - RED_AC: %d\n",i,RED_buffer[i],RED_ac_buffer[i]);
+
+               
+
+                // calculateBPM(IR_ac_buffer[i],&BPM,&AVG_BPM);
             }
-            printf("BPM: %f,AVG_BPM: %f\n",BPM,AVG_BPM);
-            vTaskDelay(100/ portTICK_PERIOD_MS);
+            // printf("BPM: %f,AVG_BPM: %f\n",BPM,AVG_BPM);
+            printf("MAX= %d, MIN= %d\n",MAX,MIN);
+            // vTaskDelay(100/ portTICK_PERIOD_MS);
         }
 
-        // vTaskDelay(100/ portTICK_PERIOD_MS);
+        vTaskDelay(300/ portTICK_PERIOD_MS);
     }
 }
 
