@@ -8,6 +8,17 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+/*
+    bit 7 → 0x80   (128)
+    bit 6 → 0x40   (64)
+    bit 5 → 0x20   (32)
+    bit 4 → 0x10   (16)
+    bit 3 → 0x08   (8)
+    bit 2 → 0x04   (4)
+    bit 1 → 0x02   (2)
+    bit 0 → 0x01   (1)
+*/  
+
 //FIFO registers
 #define MPU6050_USER_CTRL 0x6A
 /*
@@ -25,6 +36,9 @@
 #define USER_CTRL_BIT_FIFO_EN  0x40   // bit 6
 #define USER_CTRL_BIT_FIFO_RST 0x04   // bit 2
 #define FIFO_EN_BIT_ACCEL      0x08   // bit 3
+#define FIFO_EN_BIT_XG         0x40   // bit 6
+#define FIFO_EN_BIT_YG         0X20   // bit 5
+#define FIFO_EN_BIT_ZG         0x10   // bit 4 
 /*
     Determines which sensor data are loaded in the FIFO buffer:
     7: TEMP_FIFO_EN
@@ -47,7 +61,23 @@
 #define MPU6050_TEMP_OUT_H 0x41
 #define MPU6050_TEMP_OUT_L 0x42
 
-//gyro registers    
+//gyro registers 
+#define MPU6050_GYRO_CONFIG 0x1B
+/*
+    7:       XG_ST
+    6:       YG_ST
+    5:       ZG_ST
+    4, 3:    FS_SELF
+    2, 1, 0: -
+                (°/s)
+    FS_SELF | full_range |  hex   | sens
+       0         250       0x00     131.0
+       1         500       0x08     65.5
+       2         1000      0x10     32.8
+       3         2000      0x18     16.4
+*/
+#define MPU6050_GYRO_RANGE  0x00
+#define SENS_GYRO_RANGE     131.0
 #define MPU6050_GYRO_XOUT_H 0x43
 #define MPU6050_GYRO_XOUT_L 0x44
 #define MPU6050_GYRO_YOUT_H 0x45
@@ -86,12 +116,30 @@
 #define READING_BYTE 6
 #define WRITING_BYTE 6
 
-//step counter structs/macros
+//step counter/gyro structs&macros
 typedef struct {
-    int16_t a_x; // axis X
-    int16_t a_y; // axis Y
-    int16_t a_z; // axis Z
+    int16_t a_x;
+    int16_t a_y;
+    int16_t a_z;
 } Three_Axis_t;
+
+typedef struct {
+    float a_x; 
+    float a_y; 
+    float a_z; 
+} Three_Axis_final_t;
+
+typedef struct {
+    int16_t g_x;
+    int16_t g_y;
+    int16_t g_z;
+} Gyro_Axis_t;
+
+typedef struct {
+    float g_x;
+    float g_y;
+    float g_z;
+} Gyro_Axis_final_t;
 
 extern int step_cntr;
 #define STEP_COUNTER_INC(x) ((x)++)
@@ -101,8 +149,17 @@ extern int step_cntr;
       high 
       low  
 */
-#define M_REST         16384 //resting acceleration
-#define THRESHOLD_HIGH 4500
-#define THRESHOLD_LOW  4100
+#define M_REST              16384 //resting acceleration
+#define THRESHOLD_HIGH      4500
+#define THRESHOLD_LOW       4100
+#define DEG_TO_RAD          0.01745329252f; // π/180
+#define WRIST_ROT_THRESHOLD 15.0f //min wrist rotation
+#define MIN_ROT_ANGLE       20.0f //min accumulate ang for confirm rotation
+#define DT                  0.01  //time between samples relate to 100Hz
+
+typedef struct {
+    float angle;      // angolo accumulato in gradi
+    bool rotating;    // stato corrente: in rotazione o fermo
+} WristState_t;
 
 #endif
