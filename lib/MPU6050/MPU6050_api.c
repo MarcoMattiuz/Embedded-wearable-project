@@ -67,7 +67,7 @@ esp_err_t mpu6050_read_ACC(struct i2c_device* device, Three_Axis_t* axis) {
     }
 
     uint16_t fifo_size = (fifo_h << 8) | fifo_l;
-    //printf("FIFO size: %d\n", fifo_size);
+    printf("FIFO size: %d\n", fifo_size);
 
     if(fifo_size < 6) {
         return ESP_ERR_INVALID_ARG;

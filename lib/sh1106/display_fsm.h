@@ -11,9 +11,7 @@
 #include <driver/gpio.h>
 #include "esp_timer.h"
 #include "global_param.h"
-#define PUSH_BUTTON_GPIO GPIO_NUM_23
-#define LONG_PRESS_MS 1000 // 1 second
-#define DEBOUNCE_MS 50
+#include "macros.h"
 
 
 typedef enum

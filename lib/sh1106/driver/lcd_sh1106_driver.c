@@ -219,7 +219,7 @@ static esp_err_t panel_sh1106_draw_bitmap(esp_lcd_panel_t *panel, int x_start, i
         ESP_RETURN_ON_ERROR(esp_lcd_panel_io_tx_param(io, SH1106_CMD_SET_PAGE_ADDR | y, NULL, 0), TAG, "io tx param SH1106_CMD_SET_PAGE_ADDR failed");
         ESP_RETURN_ON_ERROR(esp_lcd_panel_io_tx_color(io, -1, color_data + y * SH1106_WIDTH, SH1106_WIDTH), TAG, "io tx color failed");
     }
-    
+
     return ESP_OK;
 }
 

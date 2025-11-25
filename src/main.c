@@ -110,9 +110,13 @@ void PPG_sensor_task(void* parameters){
                 if(IR_ac_buffer[i]<MIN){
                     MIN = IR_ac_buffer[i];
                 }
+                
                 // DBG_PRINTF("%d - IR_RAW: %lu - IR_AC: %d\n",i,IR_buffer[i],IR_ac_buffer[i]);
                 DBG_PRINTF("%d - IR_RAW: %lu - IR_AC: %d\n",i,IR_buffer[i],IR_ac_buffer[i]);
                 calculateBPM(IR_ac_buffer[i],&global_parameters.BPM,&global_parameters.AVG_BPM);
+                if (i % 10 == 0) {  //every 10 iterations
+                    vTaskDelay(1);  // give the cpu, for watchdog timer
+                }
             }
             DBG_PRINTF("BPM: %f,AVG_BPM: %f\n",global_parameters.BPM,global_parameters.AVG_BPM);
             DBG_PRINTF("MAX_AC: %d, MIN_AC: %d\n",MAX,MIN);
@@ -138,7 +142,6 @@ void LCD_task(void *parameters)
         // isr wakes up main on button pressed/released
         if (xQueueReceive(button_queue, &evt, portMAX_DELAY))
         {
-
             if (evt == EVT_BUTTON_EDGE){
                 int level = gpio_get_level(PUSH_BUTTON_GPIO);
 
@@ -184,7 +187,7 @@ void app_main() {
     init_I2C_bus_PORT1 (&i2c_bus_1);
 
     add_device_MAX30102(&max30102_device);
-    //add_device_MPU6050 (&mpu6050_device);
+    add_device_MPU6050 (&mpu6050_device);
     add_device_SH1106 (&panel_handle);
 
     // parameters init
@@ -208,14 +211,14 @@ void app_main() {
         NULL
     );
 
-    // xTaskCreate(
-    //     task_acc,
-    //     "task_acc_debug",
-    //     4096,
-    //     &mpu6050_device, 
-    //     1,
-    //     NULL
-    // );
+    xTaskCreate(
+        task_acc,
+        "task_acc_debug",
+        4096,
+        &mpu6050_device, 
+        1,
+        NULL
+    );
 }
 
 
