@@ -13,7 +13,7 @@
 #include "esp_err.h"
 #include "macros.h"
 #include "display_fsm.h"
-
+#include "global_param.h"
 
 
 struct ppg_task_params {
@@ -21,6 +21,7 @@ struct ppg_task_params {
     i2c_master_bus_handle_t bus;
 };
 
+static struct global_param global_parameters;
 static        i2c_master_bus_handle_t   i2c_bus_0;
 static        i2c_master_bus_handle_t   i2c_bus_1;
 static esp_lcd_panel_handle_t            panel_handle;
@@ -111,9 +112,9 @@ void PPG_sensor_task(void* parameters){
                 }
                 // DBG_PRINTF("%d - IR_RAW: %lu - IR_AC: %d\n",i,IR_buffer[i],IR_ac_buffer[i]);
                 DBG_PRINTF("%d - IR_RAW: %lu - IR_AC: %d\n",i,IR_buffer[i],IR_ac_buffer[i]);
-                calculateBPM(IR_ac_buffer[i],&BPM,&AVG_BPM);
+                calculateBPM(IR_ac_buffer[i],&global_parameters.BPM,&global_parameters.AVG_BPM);
             }
-            DBG_PRINTF("BPM: %f,AVG_BPM: %f\n",BPM,AVG_BPM);
+            DBG_PRINTF("BPM: %f,AVG_BPM: %f\n",global_parameters.BPM,global_parameters.AVG_BPM);
             DBG_PRINTF("MAX_AC: %d, MIN_AC: %d\n",MAX,MIN);
         }
 
@@ -128,7 +129,7 @@ void LCD_task(void *parameters)
     GPIO_init();
 
     memset(buffer_data, 0, sizeof(buffer_data)); // fill with 0 → all pixels off
-    
+
     bool LCD_ON = false;
     EventType evt;
     while (1)
@@ -152,7 +153,7 @@ void LCD_task(void *parameters)
 
                     if (!long_press_triggered && LCD_ON) // short press
                     {
-                        (*fsm[current_state].state_function)(&panel_handle);
+                        (*fsm[current_state].state_function)(&panel_handle,&global_parameters);
                     }
                 }
             }
@@ -165,7 +166,7 @@ void LCD_task(void *parameters)
                 {
                     TurnLcdOn(panel_handle);
                     current_state = STATE_BPM;
-                    (*fsm[current_state].state_function)(&panel_handle);
+                    (*fsm[current_state].state_function)(&panel_handle,&global_parameters);
                 }
                 else
                 {
@@ -182,7 +183,7 @@ void app_main() {
     init_I2C_bus_PORT0 (&i2c_bus_0);
     init_I2C_bus_PORT1 (&i2c_bus_1);
 
-    //add_device_MAX30102(&max30102_device);
+    add_device_MAX30102(&max30102_device);
     //add_device_MPU6050 (&mpu6050_device);
     add_device_SH1106 (&panel_handle);
 
@@ -190,14 +191,14 @@ void app_main() {
     parameters_ppg_max30102.bus = i2c_bus_0;
     parameters_ppg_max30102.device = &max30102_device;
 
-    // xTaskCreate(
-    //     PPG_sensor_task,
-    //     "PPG_sensor_task_debug",
-    //     4096,
-    //     &parameters_ppg_max30102,   
-    //     5,
-    //     NULL
-    // );
+    xTaskCreate(
+        PPG_sensor_task,
+        "PPG_sensor_task_debug",
+        4096,
+        &parameters_ppg_max30102,   
+        5,
+        NULL
+    );
     xTaskCreate(
         LCD_task,
         "LCD_task_debug",

@@ -1,8 +1,8 @@
 #include "display_fsm.h"
+#include "string.h"
 
-
-void fn_BPM(esp_lcd_panel_handle_t *);
-void fn_WEATHER(esp_lcd_panel_handle_t *);
+void fn_BPM(esp_lcd_panel_handle_t *, struct global_param *param);
+void fn_WEATHER(esp_lcd_panel_handle_t *, struct global_param *param);
 static void IRAM_ATTR button_isr(void *);
 void long_press_timer_handler(TimerHandle_t xTimer);
 
@@ -49,17 +49,23 @@ void GPIO_init()
         long_press_timer_handler);
 }
 
-void fn_BPM(esp_lcd_panel_handle_t *panel_handle)
+void fn_BPM(esp_lcd_panel_handle_t *panel_handle, struct global_param *param)
 {
     memset(buffer_data, 0, sizeof(buffer_data));
     drawBitmapToBuffer(heartBitmap, buffer_data, 0, 0, 64, 64);
+
+    char str[3];
+    sprintf(str, "%d", (int)param->AVG_BPM);
+
+    drawStringToBuffer(str,buffer_data,0,0);
+
     drawBufferToLcd(buffer_data, *panel_handle);
 
     vTaskDelay(pdMS_TO_TICKS(200));
     current_state = STATE_WEATHER;
 }
 
-void fn_WEATHER(esp_lcd_panel_handle_t *panel_handle)
+void fn_WEATHER(esp_lcd_panel_handle_t *panel_handle, struct global_param *param)
 {
     memset(buffer_data, 0, sizeof(buffer_data));
 

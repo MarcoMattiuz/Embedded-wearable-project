@@ -9,12 +9,7 @@ void init_I2C_bus_PORT0(i2c_master_bus_handle_t* i2c_bus){
         .scl_io_num = MAX30102_I2C_SCL_PIN,
         .clk_source = I2C_CLK_SRC_DEFAULT,
         .glitch_ignore_cnt = I2C_GLITCH_IGNORE_CNT,
-        .intr_priority = 0,     // interrupt priority, default to 0
-        .trans_queue_depth = 0, // transaction queue depth, default to 0
-        .flags = {
-            .enable_internal_pullup = true, // enable internal pullup resistors (oled screen does not have one)
-            .allow_pd = false,              // just using the default value
-        },
+        .flags.enable_internal_pullup = 1,
     };
 
     // Initialize I2C bus

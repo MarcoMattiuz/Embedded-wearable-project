@@ -10,10 +10,11 @@
 #include "string.h"
 #include <driver/gpio.h>
 #include "esp_timer.h"
-
+#include "global_param.h"
 #define PUSH_BUTTON_GPIO GPIO_NUM_23
 #define LONG_PRESS_MS 1000 // 1 second
 #define DEBOUNCE_MS 50
+
 
 typedef enum
 {
@@ -34,10 +35,12 @@ typedef enum
     EVT_LONG_PRESS
 } EventType;
 
+
+
 typedef struct
 {
     State_t state;
-    void (*state_function)(esp_lcd_panel_handle_t *);
+    void (*state_function)(esp_lcd_panel_handle_t *, struct global_param *);
 } StateMachine_t;
 
 
