@@ -1,9 +1,11 @@
 {
     "files.associations": {
+        "*.sh": "shellscript",
         "max30102.h": "c",
         "algorithm": "cpp",
         "compare": "cpp",
         "cstdint": "cpp",
+<<<<<<< HEAD
         "charconv": "c",
         "optional": "c",
         "format": "c",
@@ -13,6 +15,11 @@
         "tuple": "c",
         "type_traits": "c",
         "utility": "c"
+=======
+        "lcd_sh1106.h": "c",
+        "stdint.h": "c",
+        "queue.h": "c"
+>>>>>>> 96dc577a5cd4103de5a0ea23f1154b02468df0bf
     },
     "idf.pythonInstallPath": "/opt/homebrew/bin/python3"
 }
