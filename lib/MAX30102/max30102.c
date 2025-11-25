@@ -331,11 +331,11 @@ bool max30102_i2c_read_multiled_data_burst(struct i2c_device *device) {
 
     uint8_t num_samples = (wr_ptr - rd_ptr) & 0x1F;  // FIFO è profonda 32 campioni (5 bit)
     
-    // printf("Running... WR_PTR: %d, RD_PTR: %d, Samples: %d\n", wr_ptr, rd_ptr, num_samples);
+    printf("Running... WR_PTR: %d, RD_PTR: %d, Samples: %d\n", wr_ptr, rd_ptr, num_samples);
     
     if (num_samples > 0) {
         
-        printf("Reading %d samples from FIFO...\n", num_samples);
+        // printf("Reading %d samples from FIFO...\n", num_samples);
         for (int i = 0; i < num_samples; i++) {
             // In modalità MULTILED con 2 LED, ogni campione è di 6 bytes (3 per LED)
             uint8_t fifo_data_addr = MAX30102_FIFO_DATA_ADDR;

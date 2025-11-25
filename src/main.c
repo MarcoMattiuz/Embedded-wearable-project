@@ -127,10 +127,8 @@ void PPG_sensor_task(void* parameters){
 
 
         if(max30102_i2c_read_multiled_data_burst(device)){
-            printf("AOOOOOO");
             int MAX = -100000;
             int MIN = 100000;
-            int beat_counter = 0;
             for(int i=0;i<MAX30102_BPM_SAMPLES_SIZE;i++){
                 if(IR_ac_buffer[i]>MAX){
                     MAX = IR_ac_buffer[i];
@@ -143,14 +141,14 @@ void PPG_sensor_task(void* parameters){
 
                
 
-                // calculateBPM(IR_ac_buffer[i],&BPM,&AVG_BPM);
+                calculateBPM(IR_ac_buffer[i],&BPM,&AVG_BPM);
             }
-            // printf("BPM: %f,AVG_BPM: %f\n",BPM,AVG_BPM);
+            printf("BPM: %f,AVG_BPM: %f\n",BPM,AVG_BPM);
             printf("MAX= %d, MIN= %d\n",MAX,MIN);
             // vTaskDelay(100/ portTICK_PERIOD_MS);
         }
 
-        vTaskDelay(300/ portTICK_PERIOD_MS);
+        vTaskDelay(250/ portTICK_PERIOD_MS);
     }
 }
 

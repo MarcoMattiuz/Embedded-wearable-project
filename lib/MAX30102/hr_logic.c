@@ -20,7 +20,7 @@ int32_t ir_avg_reg = 0;
 
 // Beat detection timing
 // static uint32_t last_beat_sample = 0;
-static const uint32_t MIN_BEAT_INTERVAL = 20; // Minimum samples between beats (0.5 seconds at 50 SPS)
+static const uint32_t MIN_BEAT_INTERVAL = 25; // Minimum samples between beats (0.5 seconds at 50 SPS)
 uint32_t sample_counter = 0; // Global sample counter for accurate BPM calculation
 int threshold = 0;
 long lastBeatSample = 0; // Sample number at which the last beat occurred
