@@ -1,6 +1,13 @@
 #ifndef __MACROS_H__
 #define __MACROS_H__
 
+#ifdef DEBUG
+    #define DBG_PRINTF(...) printf(__VA_ARGS__)
+#else
+    #define DBG_PRINTF(...)
+#endif
+
+
 //MAX30102
 #define I2C_PORT_0            I2C_NUM_0   // I2C port number
 #define MAX30102_I2C_SDA_PIN  GPIO_NUM_21 // I2C SDA pin

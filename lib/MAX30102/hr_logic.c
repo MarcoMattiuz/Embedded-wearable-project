@@ -6,8 +6,8 @@ static int32_t IR_dc_estimate = 0;
 int16_t cbuf[32];
 uint8_t offset = 0;
 // Peak detection variables
-int16_t IR_AC_Max = 20;
-int16_t IR_AC_Min = -20;
+int16_t IR_AC_Max = -2000;
+int16_t IR_AC_Min = 2000;
 int16_t IR_AC_Signal_min = 0;
 int16_t IR_AC_Signal_max = 0;
 int16_t IR_Average_Estimated;
@@ -20,18 +20,19 @@ int32_t ir_avg_reg = 0;
 
 // Beat detection timing
 // static uint32_t last_beat_sample = 0;
-static const uint32_t MIN_BEAT_INTERVAL = 20; // Minimum samples between beats (0.5 seconds at 50 SPS)
-uint32_t sample_counter = 0; // Global sample counter for accurate BPM calculation
-int threshold = 0;
-long lastBeatSample = 0; // Sample number at which the last beat occurred
-float oldBPM = 0.0f;
-int countBPMmeasures = 1;
-const float SAMPLE_RATE = 50.0f; // 50 samples per second
-#define RATE_SIZE 4 //Increase this for more averaging. 4 is good.
-float rates[RATE_SIZE]; //Array of heart rates
-int rateSpot = 0;
+static const uint32_t       MIN_BEAT_INTERVAL = 25; // Minimum samples between beats (0.5 seconds at 50 SPS)
+uint32_t                    sample_counter = 0; // Global sample counter for accurate BPM calculation
+int                         threshold = 0;
+long                        lastBeatSample = 0; // Sample number at which the last beat occurred
+float                       oldBPM = 0.0f;
+const float                 SAMPLE_RATE = 50.0f; // 50 samples per second
+#define                     RATE_SIZE 4 //Increase this for more averaging. 4 is good.
+float                       rates[RATE_SIZE]; //Array of heart rates
+int                         rates_index = 0; 
+static                      int32_t dc_w = 0; //dc_value holder for DCestimator fast
+
 //low passing filter
-static const uint16_t FIRCoeffs[12] = {172, 321, 579, 927, 1360, 1858, 2390, 2916, 3391, 3768, 4012, 4096};
+static const uint16_t       FIRCoeffs[12] = {172, 321, 579, 927, 1360, 1858, 2390, 2916, 3391, 3768, 4012, 4096};
 
 
 
@@ -50,7 +51,6 @@ static int16_t averageDCEstimator(int32_t *p, uint16_t x)
     return (*p >> 15);
 }
 
-
 int16_t lowPassFIRFilter(int16_t din)
 {  
   cbuf[offset] = din;
@@ -67,17 +67,18 @@ int16_t lowPassFIRFilter(int16_t din)
 
   return(z >> 15);
 }
+
 // Funzione per ottenere la parte AC del segnale
 int16_t get_RED_AC(uint32_t sample) {
     int16_t dc_estimate = averageDCEstimator(&RED_dc_estimate, sample);
     return lowPassFIRFilter(sample - dc_estimate);
 }
+
 int16_t get_IR_AC(uint32_t sample) {
     // int16_t dc_estimate = DCEstimatorWithMean(sample);
     int16_t dc_estimate = averageDCEstimator(&IR_dc_estimate, sample);
     return lowPassFIRFilter(sample - dc_estimate);
 }
-static int32_t dc_w = 0;
 
 int16_t get_IR_AC2(int32_t x)
 {
@@ -165,8 +166,8 @@ bool beat_detected(int16_t ir_ac) {
         }
 
         // reset min/max
-        IR_AC_Max = 0;
-        IR_AC_Min = 0;
+        IR_AC_Max = -2000;
+        IR_AC_Min = 2000;
     }
 
     // Durante la fase positiva -> trova max
@@ -180,39 +181,11 @@ bool beat_detected(int16_t ir_ac) {
     return beat;
 }
 
-// void calculateBPM(int ir_ac_curr,float *BPM,float *AVG_BPM){
-//     if(beat_detected(ir_ac_curr)) {
-//         printf("!!!!!!!!!!!!!!!!!!!!BEAT!!!!!!!!!!!!!!!!!!!!");
-//         // Calculate BPM based on sample intervals, not time
-//         long sampleDelta = sample_counter - lastBeatSample;
-//         lastBeatSample = sample_counter;
-//         oldBPM = *BPM;
-        
-//         // Convert sample interval to BPM: (samples/beat) * (50 samples/sec) * (60 sec/min)
-//         if(sampleDelta > 0) {
-//             *BPM = (60.0f * SAMPLE_RATE) / sampleDelta;
-//             printf(" ---->BPM: %.1f", *BPM);
-//             if (*BPM < 255 && *BPM > 20)
-//             {
-//                 printf("-----AVG__BPM------");
-//                 rates[rateSpot++] = *BPM; //Store this reading in the array
-//                 rateSpot %= RATE_SIZE; //Wrap variable
-
-//                 //Take average of readings
-//                 *AVG_BPM = 0;
-//                 for (int x = 0 ; x < RATE_SIZE ; x++)
-//                     *AVG_BPM += rates[x];
-//                 *AVG_BPM /= RATE_SIZE;
-//             }
-//         }
-//     }
-// }
-
 void calculateBPM(int16_t ir_ac, float *BPM, float *AVG_BPM) {
 
     // Aumenta il contatore globale dei campioni
     sample_counter++;
-
+    // printf("sample_counter: %ld.    ",sample_counter);
     // Se è stato rilevato un battito
     if (beat_detected(ir_ac)) {
 
@@ -232,11 +205,11 @@ void calculateBPM(int16_t ir_ac, float *BPM, float *AVG_BPM) {
         float currBPM = 60.0f * SAMPLE_RATE / delta;
 
         // Filtri per stabilità
-        if (currBPM > 30 && currBPM < 200) {
+        if (currBPM > 30 && currBPM < 220) {
 
             // Memorizza BPM e crea media scorrevole
-            rates[rateSpot] = currBPM;
-            rateSpot = (rateSpot + 1) % RATE_SIZE;
+            rates[rates_index] = currBPM;
+            rates_index = (rates_index + 1) % RATE_SIZE;
 
             float sum = 0;
             for (int i = 0; i < RATE_SIZE; i++)
@@ -245,7 +218,7 @@ void calculateBPM(int16_t ir_ac, float *BPM, float *AVG_BPM) {
             *BPM = currBPM;
             *AVG_BPM = sum / RATE_SIZE;
 
-            printf("BEAT → BPM: %.1f | AVG: %.1f\n", *BPM, *AVG_BPM);
+            DBG_PRINTF("BEAT → BPM: %.1f | AVG: %.1f\n", *BPM, *AVG_BPM);
         }
     }
 }

@@ -173,7 +173,7 @@
 #define MAX30102_ALL                                UINT8_C(0x07)
 
 // /**\name Settings selection macros */
-#define MAX30102_BPM_SAMPLES_SIZE 128 /*!< The size of the buffer for the samples from sensor */
+#define MAX30102_BPM_SAMPLES_SIZE 200 /*!< The size of the buffer for the samples from sensor */
 #define MAX30102_BPM_PERIOD_SAMPLE_SIZE 4 /*!< The size of the buffer for average period */
 // #define MAX30102_BPM_NO_SAMPLES MAX30102_BPM_SAMPLES_SIZE + 1 /*!< Dummy value for zero-crossing detection indexes */
 
@@ -225,20 +225,6 @@ typedef MAX30102_INTF_RET_TYPE (*max30102_write_fptr_t)(uint8_t reg_addr, const 
  */
 typedef void (*max30102_delay_us_fptr_t)(uint32_t period);
 
-
-
-// /*!
-//  * @brief max30102 device structure
-//  */
-// struct max30102_dev
-// {
-//     /*< Chip Id */
-//     uint8_t chip_id;
-//     void *intf_ptr;
-//     /*< Read function pointer */
-//     i2c_master_dev_handle_t i2c_dev_handle;
-//     i2c_device_config_t i2c_dev_config;
-// };
 
 
 
