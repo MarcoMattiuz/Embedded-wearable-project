@@ -114,7 +114,7 @@ void drawBitmapToBuffer(const uint8_t *bitmap, uint8_t *buffer_data,
     }
 }
 
-esp_lcd_panel_handle_t lcd_init()
+esp_lcd_panel_handle_t lcd_init(i2c_master_bus_handle_t *i2c_bus)
 {
     /* I2C CONFIGURATION */
 
@@ -135,15 +135,11 @@ esp_lcd_panel_handle_t lcd_init()
         },
     };
     */
-
-    // get i2c bus handle
-    i2c_master_bus_handle_t i2c_bus_handle = NULL;
-    init_I2C_bus_PORT0(&i2c_bus_handle);
     
     // Create the i2c io handle
     esp_lcd_panel_io_handle_t io_handle = NULL;
     esp_lcd_panel_io_i2c_config_t io_config = ESP_SH1106_DEFAULT_IO_CONFIG;
-    ESP_ERROR_CHECK(esp_lcd_new_panel_io_i2c(i2c_bus_handle, &io_config, &io_handle));
+    ESP_ERROR_CHECK(esp_lcd_new_panel_io_i2c(*i2c_bus, &io_config, &io_handle));
 
     /* SCREEN CONFIGURATION */
 
