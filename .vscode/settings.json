@@ -6,7 +6,8 @@
         "compare": "cpp",
         "cstdint": "cpp",
         "lcd_sh1106.h": "c",
-        "stdint.h": "c"
+        "stdint.h": "c",
+        "queue.h": "c"
     },
     "idf.pythonInstallPath": "/opt/homebrew/bin/python3"
 }

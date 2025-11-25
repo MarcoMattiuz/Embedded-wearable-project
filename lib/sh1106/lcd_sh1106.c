@@ -167,6 +167,7 @@ esp_lcd_panel_handle_t lcd_init()
     ESP_ERROR_CHECK(esp_lcd_panel_init(panel_handle));
     return panel_handle;
 }
+//send buffer to display
 void drawBufferToLcd(uint8_t *buffer_data, esp_lcd_panel_handle_t panel_handle)
 {
     esp_lcd_panel_draw_bitmap(
