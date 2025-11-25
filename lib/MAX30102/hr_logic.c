@@ -20,18 +20,19 @@ int32_t ir_avg_reg = 0;
 
 // Beat detection timing
 // static uint32_t last_beat_sample = 0;
-static const uint32_t MIN_BEAT_INTERVAL = 25; // Minimum samples between beats (0.5 seconds at 50 SPS)
-uint32_t sample_counter = 0; // Global sample counter for accurate BPM calculation
-int threshold = 0;
-long lastBeatSample = 0; // Sample number at which the last beat occurred
-float oldBPM = 0.0f;
-int countBPMmeasures = 1;
-const float SAMPLE_RATE = 50.0f; // 50 samples per second
-#define RATE_SIZE 4 //Increase this for more averaging. 4 is good.
-float rates[RATE_SIZE]; //Array of heart rates
-int rateSpot = 0;
+static const uint32_t       MIN_BEAT_INTERVAL = 25; // Minimum samples between beats (0.5 seconds at 50 SPS)
+uint32_t                    sample_counter = 0; // Global sample counter for accurate BPM calculation
+int                         threshold = 0;
+long                        lastBeatSample = 0; // Sample number at which the last beat occurred
+float                       oldBPM = 0.0f;
+const float                 SAMPLE_RATE = 50.0f; // 50 samples per second
+#define                     RATE_SIZE 4 //Increase this for more averaging. 4 is good.
+float                       rates[RATE_SIZE]; //Array of heart rates
+int                         rates_index = 0; 
+static                      int32_t dc_w = 0; //dc_value holder for DCestimator fast
+
 //low passing filter
-static const uint16_t FIRCoeffs[12] = {172, 321, 579, 927, 1360, 1858, 2390, 2916, 3391, 3768, 4012, 4096};
+static const uint16_t       FIRCoeffs[12] = {172, 321, 579, 927, 1360, 1858, 2390, 2916, 3391, 3768, 4012, 4096};
 
 
 
@@ -50,7 +51,6 @@ static int16_t averageDCEstimator(int32_t *p, uint16_t x)
     return (*p >> 15);
 }
 
-
 int16_t lowPassFIRFilter(int16_t din)
 {  
   cbuf[offset] = din;
@@ -67,17 +67,18 @@ int16_t lowPassFIRFilter(int16_t din)
 
   return(z >> 15);
 }
+
 // Funzione per ottenere la parte AC del segnale
 int16_t get_RED_AC(uint32_t sample) {
     int16_t dc_estimate = averageDCEstimator(&RED_dc_estimate, sample);
     return lowPassFIRFilter(sample - dc_estimate);
 }
+
 int16_t get_IR_AC(uint32_t sample) {
     // int16_t dc_estimate = DCEstimatorWithMean(sample);
     int16_t dc_estimate = averageDCEstimator(&IR_dc_estimate, sample);
     return lowPassFIRFilter(sample - dc_estimate);
 }
-static int32_t dc_w = 0;
 
 int16_t get_IR_AC2(int32_t x)
 {
@@ -180,8 +181,6 @@ bool beat_detected(int16_t ir_ac) {
     return beat;
 }
 
-
-
 void calculateBPM(int16_t ir_ac, float *BPM, float *AVG_BPM) {
 
     // Aumenta il contatore globale dei campioni
@@ -209,8 +208,8 @@ void calculateBPM(int16_t ir_ac, float *BPM, float *AVG_BPM) {
         if (currBPM > 30 && currBPM < 220) {
 
             // Memorizza BPM e crea media scorrevole
-            rates[rateSpot] = currBPM;
-            rateSpot = (rateSpot + 1) % RATE_SIZE;
+            rates[rates_index] = currBPM;
+            rates_index = (rates_index + 1) % RATE_SIZE;
 
             float sum = 0;
             for (int i = 0; i < RATE_SIZE; i++)
@@ -219,7 +218,7 @@ void calculateBPM(int16_t ir_ac, float *BPM, float *AVG_BPM) {
             *BPM = currBPM;
             *AVG_BPM = sum / RATE_SIZE;
 
-            printf("BEAT → BPM: %.1f | AVG: %.1f\n", *BPM, *AVG_BPM);
+            DBG_PRINTF("BEAT → BPM: %.1f | AVG: %.1f\n", *BPM, *AVG_BPM);
         }
     }
 }
