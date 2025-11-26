@@ -49,16 +49,72 @@ void read_sample(Three_Axis_t* ax, const uint8_t* r_buff) {
     ax->a_z = (r_buff[4] << 8) | r_buff[5];
 }
 
+// esp_err_t mpu6050_read_ACC(struct i2c_device* device, Three_Axis_t* axis) {
+
+//     if(device == NULL || axis == NULL) {
+//         return ESP_ERR_INVALID_ARG;
+//     }
+   
+//     //read MPU6050_FIFO_COUNT_H and MPU6050_FIFO_COUNT_L for FIFO dim
+//     uint8_t fifo_h;
+//     uint8_t fifo_l;
+    
+//     if(mpu6050_read_reg(device, MPU6050_FIFO_COUNT_H, &fifo_h, sizeof(fifo_h)) != ESP_OK) {
+//         return ESP_ERR_INVALID_ARG;
+//     }
+//     if(mpu6050_read_reg(device, MPU6050_FIFO_COUNT_L, &fifo_l, sizeof(fifo_l)) != ESP_OK) {
+//         return ESP_ERR_INVALID_ARG;
+//     }
+
+//     uint16_t fifo_size = (fifo_h << 8) | fifo_l;
+
+//     if(fifo_size < 6) {
+//         return ESP_ERR_INVALID_ARG;
+//     }
+
+//     if (fifo_size > 1024) {
+//         fifo_size = 1024;
+//     }
+    
+//     //read FIFO
+//     // uint8_t reading_buffer[6]; // DIO BOIAAAAAAAAAAAAAAAAAAAAAAA
+//     uint8_t reading_buffer[fifo_size];
+//     /*
+//         6 Byte
+//         0 | 1 : X
+//         2 | 3 : Y
+//         4 | 5 : Z
+//     */
+//     for(int i = 0; i < fifo_size; i++) {
+//         /* 
+//             I have to read 1byte * 6 due to the FIFO_DATA_R_W
+//         */
+
+//         uint8_t buf;
+//         if(mpu6050_read_reg(device, MPU6050_FIFO_DATA_R_W, &buf, 1) != ESP_OK) {
+//             return ESP_ERR_INVALID_ARG;
+//         }
+//         reading_buffer[i] = buf;
+        
+//         read_sample(axis, reading_buffer);
+
+//     }
+
+//     //reset FIFO
+//     mpu6050_write_reg(device, 
+//                       MPU6050_USER_CTRL, 
+//                       USER_CTRL_BIT_FIFO_RST | USER_CTRL_BIT_FIFO_EN);
+    
+//     return ESP_OK;
+// }
+
 esp_err_t mpu6050_read_ACC(struct i2c_device* device, Three_Axis_t* axis) {
 
     if(device == NULL || axis == NULL) {
         return ESP_ERR_INVALID_ARG;
     }
    
-    //read MPU6050_FIFO_COUNT_H and MPU6050_FIFO_COUNT_L for FIFO dim
-    uint8_t fifo_h;
-    uint8_t fifo_l;
-    
+    uint8_t fifo_h, fifo_l;
     if(mpu6050_read_reg(device, MPU6050_FIFO_COUNT_H, &fifo_h, sizeof(fifo_h)) != ESP_OK) {
         return ESP_ERR_INVALID_ARG;
     }
@@ -67,33 +123,45 @@ esp_err_t mpu6050_read_ACC(struct i2c_device* device, Three_Axis_t* axis) {
     }
 
     uint16_t fifo_size = (fifo_h << 8) | fifo_l;
-    printf("FIFO size: %d\n", fifo_size);
 
-    if(fifo_size < 6) {
+    if (fifo_size < 6) {
         return ESP_ERR_INVALID_ARG;
     }
-    
-    //read FIFO
-    uint8_t reading_buffer[6];
-    /*
-        6 Byte
-        0 | 1 : X
-        2 | 3 : Y
-        4 | 5 : Z
-    */
-    for(int i = 0; i < fifo_size; i++) {
-        /* 
-            I have to read 1byte * 6 due to the FIFO_DATA_R_W
-        */
-        uint8_t buf;
-        if(mpu6050_read_reg(device, MPU6050_FIFO_DATA_R_W, &buf, 1) != ESP_OK) {
-            return ESP_ERR_INVALID_ARG;
-        }
-        reading_buffer[i] = buf;
-        
-        read_sample(axis, reading_buffer);
+
+    if (fifo_size > 1024) {
+        fifo_size = 1024;
     }
-    
+
+    static uint8_t reading_buffer[1024];
+
+    uint8_t reg = MPU6050_FIFO_DATA_R_W;
+    // 2) Burst read da FIFO_DATA_R_W
+    if (i2c_master_transmit_receive(device->i2c_dev_handle,
+                                    &reg, 
+                                    1,
+                                    reading_buffer, 
+                                    fifo_size,
+                                    1000) != ESP_OK) {
+        return ESP_ERR_INVALID_ARG;
+    }
+
+    //reading burst
+    for (int i = 0; i + 5 < fifo_size; i += 6) {
+
+        Three_Axis_t local_ax;
+        local_ax.a_x = (reading_buffer[i + 0] << 8) | reading_buffer[i + 1];
+        local_ax.a_y = (reading_buffer[i + 2] << 8) | reading_buffer[i + 3];
+        local_ax.a_z = (reading_buffer[i + 4] << 8) | reading_buffer[i + 5];
+
+        step_counter(&local_ax);
+
+        *axis = local_ax;
+    }
+
+    // mpu6050_write_reg(device, 
+    //                   MPU6050_USER_CTRL,
+    //                   USER_CTRL_BIT_FIFO_RST | USER_CTRL_BIT_FIFO_EN);
+
     return ESP_OK;
 }
 
@@ -236,7 +304,7 @@ void task_acc(void* pvParameters) {
         abort();
     }
 
-    printf("Task ACCELEROMETER is RUNNING!\n");
+    // printf("Task ACCELEROMETER is RUNNING!\n");
 
     Three_Axis_t axis;
 
@@ -245,8 +313,8 @@ void task_acc(void* pvParameters) {
             printf("Error reading!\n");
         } else {
             step_counter(&axis);
-            
-            vTaskDelay(pdMS_TO_TICKS(10));
+
+            vTaskDelay(pdMS_TO_TICKS(20));
         }   
     }
 }

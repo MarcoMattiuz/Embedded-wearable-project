@@ -75,6 +75,9 @@ void PPG_sensor_task(void* parameters){
     struct i2c_device *device = params->device;
     esp_err_t esp_ret;  
     
+    if (device == NULL) {
+        DBG_PRINTF("DEVICE NULL\n");
+    }
     
     esp_ret = init_multiled_mode(device,0x1F, 0x1F, MAX30102_SPO2_RANGE_4096 | MAX30102_SPO2_50_SPS | MAX30102_SPO2_LED_PW_411);
     if (esp_ret != ESP_OK) {
@@ -114,12 +117,12 @@ void PPG_sensor_task(void* parameters){
                 // DBG_PRINTF("%d - IR_RAW: %lu - IR_AC: %d\n",i,IR_buffer[i],IR_ac_buffer[i]);
                 DBG_PRINTF("%d - IR_RAW: %lu - IR_AC: %d\n",i,IR_buffer[i],IR_ac_buffer[i]);
                 calculateBPM(IR_ac_buffer[i],&global_parameters.BPM,&global_parameters.AVG_BPM);
-                if (i % 10 == 0) {  //every 10 iterations
+                // if (i % 10 == 0) {  //every 10 iterations
                     vTaskDelay(1);  // give the cpu, for watchdog timer
-                }
+                // }
             }
             DBG_PRINTF("BPM: %f,AVG_BPM: %f\n",global_parameters.BPM,global_parameters.AVG_BPM);
-            DBG_PRINTF("MAX_AC: %d, MIN_AC: %d\n",MAX,MIN);
+            // DBG_PRINTF("MAX_AC: %d, MIN_AC: %d\n",MAX,MIN);
         }
 
         vTaskDelay(250/ portTICK_PERIOD_MS); //keep it 250ms/300ms, it needs to wait for the fifo to be popolated with samples
@@ -188,7 +191,7 @@ void app_main() {
 
     add_device_MAX30102(&max30102_device);
     add_device_MPU6050 (&mpu6050_device);
-    add_device_SH1106 (&panel_handle);
+    // add_device_SH1106 (&panel_handle);
 
     // parameters init
     parameters_ppg_max30102.bus = i2c_bus_0;
@@ -199,17 +202,17 @@ void app_main() {
         "PPG_sensor_task_debug",
         4096,
         &parameters_ppg_max30102,   
-        5,
+        1,
         NULL
     );
-    xTaskCreate(
-        LCD_task,
-        "LCD_task_debug",
-        4096,
-        &panel_handle,   
-        5,
-        NULL
-    );
+    // xTaskCreate(
+    //     LCD_task,
+    //     "LCD_task_debug",
+    //     4096,
+    //     &panel_handle,   
+    //     5,
+    //     NULL
+    // );
 
     xTaskCreate(
         task_acc,
