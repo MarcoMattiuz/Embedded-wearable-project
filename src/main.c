@@ -78,7 +78,7 @@ void PPG_sensor_task(void* parameters){
     if (device == NULL) {
         DBG_PRINTF("DEVICE NULL\n");
     }
-    
+
     esp_ret = init_multiled_mode(device,0x1F, 0x1F, MAX30102_SPO2_RANGE_4096 | MAX30102_SPO2_50_SPS | MAX30102_SPO2_LED_PW_411);
     if (esp_ret != ESP_OK) {
         DBG_PRINTF("Failed to initialize multi-LED mode: %d\n", esp_ret);
@@ -190,7 +190,7 @@ void app_main() {
     init_I2C_bus_PORT1 (&i2c_bus_1);
 
     add_device_MAX30102(&max30102_device);
-    add_device_MPU6050 (&mpu6050_device);
+    // add_device_MPU6050 (&mpu6050_device);
     // add_device_SH1106 (&panel_handle);
 
     // parameters init
@@ -214,14 +214,14 @@ void app_main() {
     //     NULL
     // );
 
-    xTaskCreate(
-        task_acc,
-        "task_acc_debug",
-        4096,
-        &mpu6050_device, 
-        1,
-        NULL
-    );
+    // xTaskCreate(
+    //     task_acc,
+    //     "task_acc_debug",
+    //     4096,
+    //     &mpu6050_device, 
+    //     1,
+    //     NULL
+    // );
 }
 
 
