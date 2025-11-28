@@ -12,6 +12,7 @@
 #include "reg.h"
 #include "esp_err.h"
 #include "macros.h"
+#include "esp_task_wdt.h"
 
 struct ppg_task_params {
     struct i2c_device *device;
@@ -21,7 +22,7 @@ struct ppg_task_params {
 static        i2c_master_bus_handle_t i2c_bus_0;
 static        i2c_master_bus_handle_t i2c_bus_1;
 static struct ppg_task_params         parameters_ppg_max30102;
-static struct i2c_device              max30102_device;
+// static struct i2c_device              max30102_device;
 static struct i2c_device              mpu6050_device;
 
 void add_device_MAX30102(struct i2c_device* device){
@@ -114,32 +115,34 @@ void PPG_sensor_task(void* parameters){
 
 void app_main() {
 
+    esp_task_wdt_deinit();
+
     // Inizializza I2C prima di usarlo
-    init_I2C_bus_PORT0 (&i2c_bus_0);
+    //init_I2C_bus_PORT0 (&i2c_bus_0);
     init_I2C_bus_PORT1 (&i2c_bus_1);
 
-    add_device_MAX30102(&max30102_device);
+    //add_device_MAX30102(&max30102_device);
     add_device_MPU6050 (&mpu6050_device);
 
     // Inizializza i parametri per il task
     parameters_ppg_max30102.bus = i2c_bus_0;
-    parameters_ppg_max30102.device = &max30102_device;
+    //parameters_ppg_max30102.device = &max30102_device;
 
-    xTaskCreate(
-        PPG_sensor_task,
-        "PPG_sensor_task_debug",
-        4096,
-        &parameters_ppg_max30102,   
-        5,
-        NULL
-    );
+    // xTaskCreate(
+    //     PPG_sensor_task,
+    //     "PPG_sensor_task_debug",
+    //     4096,
+    //     &parameters_ppg_max30102,   
+    //     1,
+    //     NULL
+    // );
 
     xTaskCreate(
         task_acc,
         "task_acc_debug",
         4096,
         &mpu6050_device, 
-        1,
+        2,
         NULL
     );
 }

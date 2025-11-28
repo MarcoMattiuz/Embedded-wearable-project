@@ -1,7 +1,6 @@
 /*
     ! REGISTERS and STRUCTS and MACROS used by MPU6050
 */
-
 #ifndef __REG_H__
 #define __REG_H__
 
@@ -19,6 +18,17 @@
     bit 0 → 0x01   (1)
 */  
 
+#define DELAY_10 pdMS_TO_TICKS(10)
+#define DELAY_20 pdMS_TO_TICKS(20)
+#define DELAY_30 pdMS_TO_TICKS(30)
+#define DELAY_40 pdMS_TO_TICKS(40)
+#define DELAY_50 pdMS_TO_TICKS(50)
+
+#define ERR ESP_ERR_INVALID_ARG
+
+//used for debug
+#define MPU6050_WHO_AM_I 0x75
+
 //FIFO registers
 #define MPU6050_USER_CTRL 0x6A
 /*
@@ -33,12 +43,15 @@
 */
 #define MPU6050_FIFO_EN 0x23
 //configuration values  
-#define USER_CTRL_BIT_FIFO_EN  0x40   // bit 6
-#define USER_CTRL_BIT_FIFO_RST 0x04   // bit 2
-#define FIFO_EN_BIT_ACCEL      0x08   // bit 3
-#define FIFO_EN_BIT_XG         0x40   // bit 6
-#define FIFO_EN_BIT_YG         0X20   // bit 5
-#define FIFO_EN_BIT_ZG         0x10   // bit 4 
+#define USER_CTRL_BIT_FIFO_EN  0x40   // ! bit 6:   01000000
+#define USER_CTRL_BIT_FIFO_RST 0x04   // ! bit 2:   00000100
+#define FIFO_EN_BIT_ACCEL      0x08   // ! bit 3:   00001000
+#define FIFO_EN_BIT_XG         0x40   // ! bit 6:   01000000
+#define FIFO_EN_BIT_YG         0X20   // ! bit 5:   00100000
+#define FIFO_EN_BIT_ZG         0x10   // ! bit 4:   00010000
+#define FIFO_DISABLE           0x00   // ! reg set: 00000000
+#define FIFO_EMPTY             ESP_ERR_NOT_FOUND
+#define RESET_FIFO             ESP_ERR_INVALID_SIZE
 /*
     Determines which sensor data are loaded in the FIFO buffer:
     7: TEMP_FIFO_EN
@@ -56,6 +69,13 @@
 #define MPU6050_FIFO_COUNT_H  0x72 
 #define MPU6050_FIFO_COUNT_L  0x73 // 0x72 U 0x73 -> dim FIFO
 #define MPU6050_FIFO_DATA_R_W 0x74 // where wr/rd data 
+
+//INTERRUPT
+#define MPU6050_INT_STATUS                    0x3A
+#define MPU6050_INT_STATUS_BIT_FIFO_OFLOW_INT 0x10 // bit 4
+#define MPU6050_INT_ENABLE                    0x38
+#define MPU6050_INT_ENABLE_BIT_FIFO_OFLOW_INT 0x10 // bit 4
+#define FIFO_OVERFLOW(x) (x & MPU6050_INT_STATUS_BIT_FIFO_OFLOW_INT)
 
 //sensor internal temperature registers
 #define MPU6050_TEMP_OUT_H 0x41
@@ -141,6 +161,11 @@ typedef struct {
     float g_z;
 } Gyro_Axis_final_t;
 
+typedef struct {
+    float angle;    // angle of accumulation (°)
+    bool  rotating; // current state: rotating or stand
+} WristState_t;
+
 extern int step_cntr;
 #define STEP_COUNTER_INC(x) ((x)++)
 #define SMOOTHING_FACTOR 4
@@ -149,17 +174,12 @@ extern int step_cntr;
       high 
       low  
 */
-#define M_REST              16384 //resting acceleration
-#define THRESHOLD_HIGH      4500
-#define THRESHOLD_LOW       4100
+#define M_REST              16384.0 //resting acceleration
+#define THRESHOLD_H         4500
+#define THRESHOLD_L         4100
 #define DEG_TO_RAD          0.01745329252f; // π/180
 #define WRIST_ROT_THRESHOLD 15.0f //min wrist rotation
 #define MIN_ROT_ANGLE       20.0f //min accumulate ang for confirm rotation
 #define DT                  0.01  //time between samples relate to 100Hz
-
-typedef struct {
-    float angle;      // angolo accumulato in gradi
-    bool rotating;    // stato corrente: in rotazione o fermo
-} WristState_t;
 
 #endif

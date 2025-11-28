@@ -1,4 +1,4 @@
-#include "MAX30102.h"
+#include "max30102.h"
 
 uint32_t RED_buffer[MAX30102_BPM_SAMPLES_SIZE] = {0};
 int RED_buffer_index = 0;
@@ -200,7 +200,7 @@ bool max30102_i2c_read_hr_data_burst(struct i2c_device *device) {
                     return true; //buffer pieno
                     }
                 }else{
-                    printf("--not reading properly--\n");
+                    //printf("--not reading properly--\n");
                 }
                 
                 
@@ -209,7 +209,6 @@ bool max30102_i2c_read_hr_data_burst(struct i2c_device *device) {
                 break;
             }
         }
-    
     }
 
     return false;
