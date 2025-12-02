@@ -272,7 +272,7 @@ bool max30102_i2c_read_multiled_data_burst(struct i2c_device *device) {
 
     uint8_t num_samples = (wr_ptr - rd_ptr) & 0x1F;  // FIFO è profonda 32 campioni (5 bit)
     
-    DBG_PRINTF("Running... WR_PTR: %d, RD_PTR: %d, Samples: %d\n", wr_ptr, rd_ptr, num_samples);
+    // DBG_PRINTF("Running... WR_PTR: %d, RD_PTR: %d, Samples: %d\n", wr_ptr, rd_ptr, num_samples);
     
     if (num_samples > 0) {
         
