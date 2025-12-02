@@ -132,7 +132,7 @@ esp_err_t mpu6050_read_ACC(struct i2c_device* device, Three_Axis_t* axis) {
         fifo_size = 1024;
     }
 
-    static uint8_t reading_buffer[1024];
+    uint8_t reading_buffer[fifo_size];
 
     uint8_t reg = MPU6050_FIFO_DATA_R_W;
     // 2) Burst read da FIFO_DATA_R_W
@@ -158,9 +158,9 @@ esp_err_t mpu6050_read_ACC(struct i2c_device* device, Three_Axis_t* axis) {
         *axis = local_ax;
     }
 
-    // mpu6050_write_reg(device, 
-    //                   MPU6050_USER_CTRL,
-    //                   USER_CTRL_BIT_FIFO_RST | USER_CTRL_BIT_FIFO_EN);
+    mpu6050_write_reg(device, 
+                      MPU6050_USER_CTRL,
+                      USER_CTRL_BIT_FIFO_RST | USER_CTRL_BIT_FIFO_EN);
 
     return ESP_OK;
 }
@@ -290,6 +290,8 @@ bool wrist_detection(const Three_Axis_t* ax) {
 }
 
 void task_acc(void* pvParameters) {
+
+    vTaskDelay(pdMS_TO_TICKS(50));
 
     struct i2c_device* device = (struct i2c_device *) pvParameters;
 

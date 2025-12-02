@@ -1,4 +1,4 @@
-#include "MAX30102.h"
+#include "max30102.h"
 
 uint32_t RED_buffer[MAX30102_BPM_SAMPLES_SIZE] = {0};
 int RED_buffer_index = 0;
