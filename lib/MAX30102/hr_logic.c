@@ -95,7 +95,6 @@ int16_t get_IR_AC2(int32_t x)
 //     //  Process next data sample
 //     IR_AC_Signal_Current = ir_ac;
 
-//     // printf("IR_AC_prev: %d - IR_AC_curr: %d\n",IR_AC_Signal_Previous,IR_AC_Signal_Current);
 //     //  Detect positive zero crossing (rising edge)
 //     if ((IR_AC_Signal_Previous + threshold < 0) && (IR_AC_Signal_Current - threshold >= 0))
 //     {
@@ -108,13 +107,13 @@ int16_t get_IR_AC2(int32_t x)
 
 //         // Check for valid beat amplitude and minimum time interval
 //         int16_t amplitude = IR_AC_Max - IR_AC_Min;
-//         uint32_t samples_since_last_beat = sample_counter - last_beat_sample;
+//         uint32_t samples_since_last_beat = sample_counter - lastBeatSample;
         
 //         if ((amplitude > 50) && (amplitude < 2000) && (samples_since_last_beat > MIN_BEAT_INTERVAL))
 //         {
 //             //Heart beat detected!
 //             beatDetected = true;
-//             last_beat_sample = sample_counter;
+//             lastBeatSample = sample_counter;
 //         }
 //     }
 
@@ -152,6 +151,7 @@ bool beat_detected(int16_t ir_ac) {
         
         // Ampiezza del ciclo misurata in modo semplice
         int amplitude = IR_AC_Max - IR_AC_Min;
+        // DBG_PRINTF("AMPLITUDE: %d\n",amplitude);
 
 
         // Refractory period: distanza minima tra due beat
@@ -161,7 +161,7 @@ bool beat_detected(int16_t ir_ac) {
         }
 
         // Deve superare una soglia minima
-        if (amplitude > 80 && amplitude < 2000) {
+        if (amplitude > 150 && amplitude < 2000) {
             beat = true;
         }
 
@@ -218,7 +218,7 @@ void calculateBPM(int16_t ir_ac, float *BPM, float *AVG_BPM) {
             *BPM = currBPM;
             *AVG_BPM = sum / RATE_SIZE;
 
-            // DBG2_PRINTF("BEAT → BPM: %.1f | AVG: %.1f\n", *BPM, *AVG_BPM);
+            DBG_PRINTF("---> BEAT → BPM: %.1f | AVG: %.1f\n", *BPM, *AVG_BPM);
         }
     }
 }

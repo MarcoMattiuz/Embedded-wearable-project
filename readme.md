@@ -41,5 +41,12 @@ To ensure maintainability and accessibility for anyone interested in experimenti
 build_flags =
     -DDEBUG
 ```
-- To check if the data of the MAX30102 sensor was good we wanted so save the logs and check them later. To do so you just have to use this command: `pio device monitor -b 115200 | tee log.txt`.
-- in the tools folder there is a python script that generates a graph of a sample taken by the sensor, to use it you just have to paste the sample data as it is in the samples.txt file.
+- To check if the data of the MAX30102 sensor was good we wanted so save the logs and check them later. To do so you just have to use this command: `pio device monitor -b 115200 | tee serialmonitor.log`.
+- in the tools folder there is a python script that generates a graph of a sample taken by the sensor. The script already reads the serialmonitor.log file, to use it do this (for macOs and linux):
+```bash
+cd tools/pyHrGraphs
+python3 -m venv venv
+source venv/bin/activate
+python3 graph.py
+```
+⚠️ the python script has **sps** hard coded in, so if you change it in the MAX30102 configuration keep in mind that you will have to change it also there.

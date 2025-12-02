@@ -85,8 +85,8 @@ void PPG_sensor_task(void* parameters){
         abort();
     }
 
-    // set FIFO configuration: sample averaging = 4 (every sample is avg of 4 misurations), rollover enabled, almost full = 10
-    esp_ret = max30102_set_register(device, MAX30102_FIFO_CFG_ADDR, MAX30102_SMP_AVE_2 | MAX30102_FIFO_ROLL_OVER | 0x0A);
+    // set FIFO configuration: sample averaging = 4 (every sample is avg of 4 misurations), rollover enabled, almost full = 2
+    esp_ret = max30102_set_register(device, MAX30102_FIFO_CFG_ADDR, MAX30102_SMP_AVE_4 | MAX30102_FIFO_ROLL_OVER | 0x02);
     if (esp_ret != ESP_OK) {
         DBG_PRINTF("Failed to configure FIFO: %d\n", esp_ret);
         abort();
