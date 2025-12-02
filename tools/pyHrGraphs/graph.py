@@ -2,7 +2,7 @@ import re
 import matplotlib.pyplot as plt
 
 # ---- CONFIG ----
-FILEPATH = "samples.txt"   # metti il nome del file qui
+FILEPATH = "../../serialmonitor.log"   # metti il nome del file qui
 SAMPLE_RATE = 50           # Hz (50 samples per second)
 # ----------------
 
