@@ -63,7 +63,7 @@ void PPG_sensor_task(void* parameters){
     //get parameters
     struct ppg_task_params *params = (struct ppg_task_params *) parameters;
     struct i2c_device *device = params->device;
-    //i2c_master_bus_handle_t i2c_bus = params->bus;
+    i2c_master_bus_handle_t i2c_bus = params->bus;
     esp_err_t esp_ret;  
     
     // Initialize MAX30102 in hr mode with balanced LED power
@@ -118,10 +118,10 @@ void app_main() {
     esp_task_wdt_deinit();
 
     // Inizializza I2C prima di usarlo
-    init_I2C_bus_PORT0 (&i2c_bus_0);
-    init_I2C_bus_PORT1 (&i2c_bus_1);
+    init_I2C_bus_PORT0(&i2c_bus_0);
+    init_I2C_bus_PORT1(&i2c_bus_1);
 
-    //add_device_MAX30102(&max30102_device);
+    add_device_MAX30102(&max30102_device);
     add_device_MPU6050 (&mpu6050_device);
 
     // Inizializza i parametri per il task

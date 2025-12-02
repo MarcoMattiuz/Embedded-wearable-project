@@ -341,8 +341,6 @@ void motion_analysis(const Three_Axis_t* ax, const Gyro_Axis_final_t* gyro) {
 
 void task_acc(void* pvParameters) {
 
-    vTaskDelay(DELAY_20);
-
     struct i2c_device* device = (struct i2c_device *) pvParameters;
 
     if(device == NULL) {
@@ -366,9 +364,9 @@ void task_acc(void* pvParameters) {
         if(err == ERR) {
             printf("Error reading!\n");
         } else if (err == FIFO_EMPTY) {
-            printf("FIFO empty!!\n");
+            printf("FIFO empty!\n");
         } else if(err == RESET_FIFO) {
-            printf("TOO MUCH data!!\n");
+            printf("TOO MUCH data!\n");
         }
 
         vTaskDelay(DELAY_10);
