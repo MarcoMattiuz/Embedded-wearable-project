@@ -218,7 +218,7 @@ void calculateBPM(int16_t ir_ac, float *BPM, float *AVG_BPM) {
             *BPM = currBPM;
             *AVG_BPM = sum / RATE_SIZE;
 
-            // DBG_PRINTF("BEAT → BPM: %.1f | AVG: %.1f\n", *BPM, *AVG_BPM);
+            // DBG2_PRINTF("BEAT → BPM: %.1f | AVG: %.1f\n", *BPM, *AVG_BPM);
         }
     }
 }
