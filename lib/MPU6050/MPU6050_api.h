@@ -32,10 +32,10 @@ esp_err_t set_FIFO_EN  (struct i2c_device* device);
 esp_err_t set_FIFO_INT (struct i2c_device* device);
 esp_err_t acc_config   (struct i2c_device* device);
 
-float  low_pass_filter_M   (const float M);
-bool verify_step           (const Three_Axis_t* ax);
-bool verify_wrist_rotation (const Gyro_Axis_final_t* gyro);
-void motion_analysis       (const Three_Axis_t* ax, const Gyro_Axis_final_t* gyro);
+float low_pass_filter_M     (const float M);
+bool  verify_step           (const Three_Axis_t* ax);
+bool  verify_wrist_rotation (const Gyro_Axis_final_t* g);
+void  motion_analysis       (const Three_Axis_t* ax, const Gyro_Axis_final_t* gyro);
 
 void task_acc (void* pvParameters);
 

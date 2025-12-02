@@ -26,6 +26,24 @@
 
 #define ERR ESP_ERR_INVALID_ARG
 
+#define PWR_MGMT_1        0x6B
+/*
+
+    7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 
+    -----------------------------
+    0   0   0   0   1   0   0   0
+    ^   ^   ^       ^   ^   ^   ^
+    |   |   |       |   |---|---| CLKSEL = 
+    |   |   |       | TEMP_DIS
+    |   |   | CYCLE
+    |   | SLEEP
+    | DEVICE_RESET
+*/
+#define PWR_MGMT_1_CONFIG 0x08
+#define SMPLRT_DIV        0x19
+#define CONFIG            0x1A
+#define GYRO_CONFIG       0x1B
+
 //used for debug
 #define MPU6050_WHO_AM_I 0x75
 
@@ -128,11 +146,6 @@
 #define MPU6050_ACCEL_ZOUT_H 0x3F
 #define MPU6050_ACCEL_ZOUT_L 0x40
 
-#define PWR_MGMT_1  0x6B
-#define SMPLRT_DIV  0x19
-#define CONFIG      0x1A
-#define GYRO_CONFIG 0x1B
-
 #define READING_BYTE 6
 #define WRITING_BYTE 6
 
@@ -166,6 +179,11 @@ typedef struct {
     bool  rotating; // current state: rotating or stand
 } WristState_t;
 
+typedef struct {
+    float integrated_angle;
+    uint32_t last_trigger;
+} Rotation_t;
+
 extern int step_cntr;
 #define STEP_COUNTER_INC(x) ((x)++)
 #define SMOOTHING_FACTOR 4
@@ -177,9 +195,10 @@ extern int step_cntr;
 #define M_REST              16384.0 //resting acceleration
 #define THRESHOLD_H         4500
 #define THRESHOLD_L         4100
-#define DEG_TO_RAD          0.01745329252f; // π/180
-#define WRIST_ROT_THRESHOLD 15.0f //min wrist rotation
+#define DEG_TO_RAD          0.01745329252f  // π/180
+#define WRIST_ROT_THRESHOLD 60.0f //min wrist rotation
 #define MIN_ROT_ANGLE       20.0f //min accumulate ang for confirm rotation
-#define DT                  0.01  //time between samples relate to 100Hz
+#define DT                  0.01f //time between samples relate to 100Hz
+#define REFRACT_MS          500   //ro avoid double triggers
 
 #endif

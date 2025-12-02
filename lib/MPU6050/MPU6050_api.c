@@ -1,7 +1,7 @@
 #include "MPU6050_api.h"
 
-int          step_cntr   = 0;
-WristState_t wrist_state = { 0.0f, false };
+int        step_cntr = 0;
+Rotation_t rotation  = { 0.0f, 0 };
 
 esp_err_t mpu6050_write_reg(struct i2c_device* device, uint8_t reg_to_write, uint8_t val_to_write) { 
 
@@ -89,9 +89,9 @@ esp_err_t empty_FIFO(struct i2c_device* device, Three_Axis_t *axis, Three_Axis_f
     for(uint16_t i = 0; i + 11 < fs; i += 12) {
         read_sample_ACC (axis, f_ax, reading_buffer, i);
         read_sample_GYRO(gyro, f_gyro, reading_buffer, i + 6);
+
+        motion_analysis(axis, f_gyro);
     }
-    
-    // motion_analysis(axis, f_gyro);
 
     return ESP_OK;
 }
@@ -107,13 +107,13 @@ esp_err_t mpu6050_read_FIFO(struct i2c_device* device, Three_Axis_t* axis, Gyro_
     uint16_t fifo_size;
     uint8_t  reg_int_status;
 
-    // time to fiil the FIFO up
-    vTaskDelay(DELAY_20);
-
     //before read or write on FIFO reset it to clear it up from old data
     if(set_USR_CTRL(device) != ESP_OK) {
         return ERR;
     }
+
+    // time to fiil the FIFO up
+    vTaskDelay(DELAY_20);
 
     // read fifo size obtained by a logic OR of: MPU6050_FIFO_COUNT_H 00000000 | 00000000 MPU6050_FIFO_COUNT_L
     if(mpu6050_read_reg(device, MPU6050_FIFO_COUNT_H, &fifo_h, 1) != ESP_OK) {
@@ -211,7 +211,7 @@ esp_err_t acc_config(struct i2c_device* device) {
         return ESP_ERR_INVALID_ARG;
     }
     //sensor wake up
-    if(mpu6050_write_reg(device, PWR_MGMT_1, 0x00) != ESP_OK) {
+    if(mpu6050_write_reg(device, PWR_MGMT_1, PWR_MGMT_1_CONFIG) != ESP_OK) {
         return ESP_ERR_INVALID_ARG;
     }
 
@@ -244,11 +244,13 @@ esp_err_t acc_config(struct i2c_device* device) {
         return ESP_ERR_INVALID_ARG;
     }
 
-    if(set_FIFO_EN(device) != ESP_OK) {
+    vTaskDelay(DELAY_10);
+
+    if(set_FIFO_INT(device) != ESP_OK) {
         return ESP_ERR_INVALID_ARG;
     }
-    
-    if(set_FIFO_INT(device) != ESP_OK) {
+
+    if(set_FIFO_EN(device) != ESP_OK) {
         return ESP_ERR_INVALID_ARG;
     }
 
@@ -289,29 +291,35 @@ bool verify_step(const Three_Axis_t* ax) {
     return false;
 }
 
-bool verify_wrist_rotation(const Gyro_Axis_final_t* gyro) {
-
-    if (gyro == NULL) {
+bool verify_wrist_rotation(const Gyro_Axis_final_t* g) {
+    
+    // this logic avoid triggers when the arm/wrist continues the rotation
+    uint32_t now = xTaskGetTickCount() * portTICK_PERIOD_MS;
+    if(now - rotation.last_trigger < REFRACT_MS) {
         return false;
     }
 
-    // smooth factor
-    static float wx_f = 0.0f;
-    wx_f =  gyro->g_x * 0.15f;
+    //omega 
+    float w = sqrtf((g->g_x * g->g_x) + 
+                    (g->g_y * g->g_y) + 
+                    (g->g_z * g->g_z));
 
-    // angle integration
-    wrist_state.angle += wx_f * DT;
-    
-    // check rotation -> active?
-    if(fabs(wx_f) > WRIST_ROT_THRESHOLD) {
-        wrist_state.rotating = true;
-    } else {
-        wrist_state.rotating = false;
+    // this is about sensor sensibility 
+    // ignore basso rumors to avoiding false rotations
+    if(w < MIN_ROT_ANGLE) {
+        rotation.integrated_angle *= 0.95f;
+        return false;
     }
 
-    if(wrist_state.rotating && fabs(wrist_state.angle) >= MIN_ROT_ANGLE) {
-        wrist_state.angle = 0; // reset
-        return true;           // rotation detected
+    // integration
+    rotation.integrated_angle += w * DT;
+
+    // when the angle surpass the threshhold min to consider
+    // the movement a wrist rotation return true
+    if(rotation.integrated_angle >= WRIST_ROT_THRESHOLD) {
+        rotation.integrated_angle = 0.0f;
+        rotation.last_trigger = now;
+        return true;
     }
 
     return false;
@@ -361,8 +369,6 @@ void task_acc(void* pvParameters) {
             printf("FIFO empty!!\n");
         } else if(err == RESET_FIFO) {
             printf("TOO MUCH data!!\n");
-        } else {
-            motion_analysis(&axis, &f_gyro);
         }
 
         vTaskDelay(DELAY_10);
