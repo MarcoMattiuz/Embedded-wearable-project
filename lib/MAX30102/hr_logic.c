@@ -36,13 +36,11 @@ static const uint16_t       FIRCoeffs[12] = {172, 321, 579, 927, 1360, 1858, 239
 
 
 
-
-
 int32_t mul16(int16_t x, int16_t y)
 {
   return((long)x * (long)y);
 }
-//IIR filter "exponential moving average"
+//IIR filter "exponential moving average", used to calculate the DC (continuous) part of the signal
 static int16_t averageDCEstimator(int32_t *p, uint16_t x)
 {
     *p += ((((long) x << 15) - *p) >> 4); //x * 2^15 (to work in fixed point, for higher precision)
@@ -71,20 +69,21 @@ int16_t lowPassFIRFilter(int16_t din)
 // Funzione per ottenere la parte AC del segnale
 int16_t get_RED_AC(uint32_t sample) {
     int16_t dc_estimate = averageDCEstimator(&RED_dc_estimate, sample);
-    return lowPassFIRFilter(sample - dc_estimate);
+    return sample - dc_estimate; //! FIR fileter uses the same array for both
 }
 
 int16_t get_IR_AC(uint32_t sample) {
     // int16_t dc_estimate = DCEstimatorWithMean(sample);
     int16_t dc_estimate = averageDCEstimator(&IR_dc_estimate, sample);
     return lowPassFIRFilter(sample - dc_estimate);
+    // return sample - dc_estimate;
 }
 
-int16_t get_IR_AC2(int32_t x)
-{
-    dc_w = dc_w + ((x - dc_w) >> 3);   // coeff più veloce: >>3 invece di >>4
-    return lowPassFIRFilter((int16_t)(x - dc_w));
-}
+// int16_t get_IR_AC2(int32_t x)
+// {
+//     dc_w = dc_w + ((x - dc_w) >> 3);   // coeff più veloce: >>3 invece di >>4
+//     return lowPassFIRFilter((int16_t)(x - dc_w));
+// }
 
 // bool beat_detected(int16_t ir_ac) {
 //     bool beatDetected = false;

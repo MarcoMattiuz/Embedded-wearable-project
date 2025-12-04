@@ -79,14 +79,20 @@ void PPG_sensor_task(void* parameters){
         DBG_PRINTF("DEVICE NULL\n");
     }
 
-    esp_ret = init_multiled_mode(device,0x1F, 0x1F, MAX30102_SPO2_RANGE_4096 | MAX30102_SPO2_50_SPS | MAX30102_SPO2_LED_PW_411);
+    // esp_ret = init_hr_mode(device,0x1F, 0x1F, MAX30102_SPO2_RANGE_16384 | MAX30102_SPO2_50_SPS | MAX30102_SPO2_LED_PW_411);
+    // if (esp_ret != ESP_OK) {
+    //     DBG_PRINTF("Failed to initialize multi-LED mode: %d\n", esp_ret);
+    //     abort();
+    // }
+
+    esp_ret = init_multiled_mode(device,0x0A, 0x1F, MAX30102_SPO2_RANGE_4096 | MAX30102_SPO2_50_SPS | MAX30102_SPO2_LED_PW_411);
     if (esp_ret != ESP_OK) {
         DBG_PRINTF("Failed to initialize multi-LED mode: %d\n", esp_ret);
         abort();
     }
 
-    // set FIFO configuration: sample averaging = 4 (every sample is avg of 4 misurations), rollover enabled, almost full = 2
-    esp_ret = max30102_set_register(device, MAX30102_FIFO_CFG_ADDR, MAX30102_SMP_AVE_4 | MAX30102_FIFO_ROLL_OVER | 0x02);
+    // set FIFO configuration: sample averaging = 4 (every sample is avg of 4 misurations), rollover enabled, almost full = 0
+    esp_ret = max30102_set_register(device, MAX30102_FIFO_CFG_ADDR, MAX30102_SMP_AVE_NO | MAX30102_FIFO_ROLL_OVER | 0x0A);
     if (esp_ret != ESP_OK) {
         DBG_PRINTF("Failed to configure FIFO: %d\n", esp_ret);
         abort();
@@ -99,33 +105,35 @@ void PPG_sensor_task(void* parameters){
         abort();
     }
 
-    
+    uint8_t ovf_cntr = MAX30102_FIFO_OVF_CTR_ADDR;
+    uint8_t wr_ptr;
     while (1)
     {   
+       
 
+        // max30102_i2c_read_multiled_data_burst(device);
+        // max30102_i2c_read_hr_data_burst(device);
+        // DBG_PRINTF("overflow: %d - IR_RAW: %lu - IR_AC: %d\n",wr_ptr, IR_buffer[i%MAX30102_BPM_SAMPLES_SIZE],IR_ac_buffer[i%MAX30102_BPM_SAMPLES_SIZE]);
+        // if(max30102_i2c_read_hr_data_burst(device)){
         if(max30102_i2c_read_multiled_data_burst(device)){
-            int MAX = -100000;
-            int MIN = 100000;
             for(int i=0;i<MAX30102_BPM_SAMPLES_SIZE;i++){
-                if(IR_ac_buffer[i]>MAX){
-                    MAX = IR_ac_buffer[i];
-                }   
-                if(IR_ac_buffer[i]<MIN){
-                    MIN = IR_ac_buffer[i];
-                }
                 
                 // DBG_PRINTF("%d - IR_RAW: %lu - IR_AC: %d\n",i,IR_buffer[i],IR_ac_buffer[i]);
                 DBG_PRINTF("%d - IR_RAW: %lu - IR_AC: %d\n",i,IR_buffer[i],IR_ac_buffer[i]);
-                calculateBPM(IR_ac_buffer[i],&global_parameters.BPM,&global_parameters.AVG_BPM);
+                // calculateBPM(IR_ac_buffer[i],&global_parameters.BPM,&global_parameters.AVG_BPM);
                 // if (i % 10 == 0) {  //every 10 iterations
-                    vTaskDelay(1);  // give the cpu, for watchdog timer
+                //     vTaskDelay(1);  // give the cpu, for watchdog timer
                 // }
             }
-            DBG_PRINTF("BPM: %f,AVG_BPM: %f\n",global_parameters.BPM,global_parameters.AVG_BPM);
+            // DBG_PRINTF("BPM: %f,AVG_BPM: %f\n",global_parameters.BPM,global_parameters.AVG_BPM);
             // DBG_PRINTF("MAX_AC: %d, MIN_AC: %d\n",MAX,MIN);
         }
-
-        vTaskDelay(250/ portTICK_PERIOD_MS); //keep it 250ms/300ms, it needs to wait for the fifo to be popolated with samples
+        // i2c_master_transmit_receive(device->i2c_dev_handle, &ovf_cntr, 1, &wr_ptr, 1, 1000);
+        // // DBG_PRINTF("overflow: %d\n",wr_ptr);
+        // if(wr_ptr>=1){
+        //     DBG_PRINTF("OVERFLOW!\n");
+        // }
+        vTaskDelay(100/ portTICK_PERIOD_MS);
     }
 }
 
