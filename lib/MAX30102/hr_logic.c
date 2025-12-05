@@ -20,7 +20,7 @@ int32_t ir_avg_reg = 0;
 
 // Beat detection timing
 // static uint32_t last_beat_sample = 0;
-static const uint32_t       MIN_BEAT_INTERVAL = 25; // Minimum samples between beats (0.5 seconds at 50 SPS)
+static const uint32_t       MIN_BEAT_INTERVAL = 15; // Minimum samples between beats 
 uint32_t                    sample_counter = 0; // Global sample counter for accurate BPM calculation
 int                         threshold = 40;
 long                        lastBeatSample = 0; // Sample number at which the last beat occurred
@@ -146,7 +146,7 @@ bool beat_detected(int16_t ir_ac) {
     IR_AC_Signal_Current = ir_ac;
 
     // Zero crossing positivo → potenziale beat
-    if (IR_AC_Signal_Previous < 0 && IR_AC_Signal_Current - threshold >= 0) {
+    if (IR_AC_Signal_Previous < 0 && IR_AC_Signal_Current >= 0) {
         
         // Ampiezza del ciclo misurata in modo semplice
         int amplitude = IR_AC_Max - IR_AC_Min;
@@ -160,7 +160,7 @@ bool beat_detected(int16_t ir_ac) {
         }
 
         // Deve superare una soglia minima
-        if (amplitude > 150 && amplitude < 2000) {
+        if (amplitude > 80 && amplitude < 2000) {
             beat = true;
         }
 

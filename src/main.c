@@ -120,12 +120,12 @@ void PPG_sensor_task(void* parameters){
                 
                 // DBG_PRINTF("%d - IR_RAW: %lu - IR_AC: %d\n",i,IR_buffer[i],IR_ac_buffer[i]);
                 DBG_PRINTF("%d - IR_RAW: %lu - IR_AC: %d\n",i,IR_buffer[i],IR_ac_buffer[i]);
-                // calculateBPM(IR_ac_buffer[i],&global_parameters.BPM,&global_parameters.AVG_BPM);
+                calculateBPM(IR_ac_buffer[i],&global_parameters.BPM,&global_parameters.AVG_BPM);
                 // if (i % 10 == 0) {  //every 10 iterations
                 //     vTaskDelay(1);  // give the cpu, for watchdog timer
                 // }
             }
-            // DBG_PRINTF("BPM: %f,AVG_BPM: %f\n",global_parameters.BPM,global_parameters.AVG_BPM);
+            DBG_PRINTF("BPM: %f,AVG_BPM: %f\n",global_parameters.BPM,global_parameters.AVG_BPM);
             // DBG_PRINTF("MAX_AC: %d, MIN_AC: %d\n",MAX,MIN);
         }
         // i2c_master_transmit_receive(device->i2c_dev_handle, &ovf_cntr, 1, &wr_ptr, 1, 1000);
