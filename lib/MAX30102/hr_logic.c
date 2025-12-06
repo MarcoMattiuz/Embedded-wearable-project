@@ -26,7 +26,7 @@ int                         threshold = 40;
 long                        lastBeatSample = 0; // Sample number at which the last beat occurred
 float                       oldBPM = 0.0f;
 const float                 SAMPLE_RATE = 50.0f; // 50 samples per second
-#define                     RATE_SIZE 4 //Increase this for more averaging. 4 is good.
+#define                     RATE_SIZE 8 //Increase this for more averaging. 4 is good.
 float                       rates[RATE_SIZE]; //Array of heart rates
 int                         rates_index = 0; 
 static                      int32_t dc_w = 0; //dc_value holder for DCestimator fast
@@ -79,65 +79,7 @@ int16_t get_IR_AC(uint32_t sample) {
     // return sample - dc_estimate;
 }
 
-// int16_t get_IR_AC2(int32_t x)
-// {
-//     dc_w = dc_w + ((x - dc_w) >> 3);   // coeff più veloce: >>3 invece di >>4
-//     return lowPassFIRFilter((int16_t)(x - dc_w));
-// }
 
-// bool beat_detected(int16_t ir_ac) {
-//     bool beatDetected = false;
-
-//     //  Save current state
-//     IR_AC_Signal_Previous = IR_AC_Signal_Current;
-    
-//     //  Process next data sample
-//     IR_AC_Signal_Current = ir_ac;
-
-//     //  Detect positive zero crossing (rising edge)
-//     if ((IR_AC_Signal_Previous + threshold < 0) && (IR_AC_Signal_Current - threshold >= 0))
-//     {
-//         IR_AC_Max = IR_AC_Signal_max; //Adjust our AC max and min
-//         IR_AC_Min = IR_AC_Signal_min;
-
-//         positiveEdge = 1;
-//         negativeEdge = 0;
-//         IR_AC_Signal_max = 0;
-
-//         // Check for valid beat amplitude and minimum time interval
-//         int16_t amplitude = IR_AC_Max - IR_AC_Min;
-//         uint32_t samples_since_last_beat = sample_counter - lastBeatSample;
-        
-//         if ((amplitude > 50) && (amplitude < 2000) && (samples_since_last_beat > MIN_BEAT_INTERVAL))
-//         {
-//             //Heart beat detected!
-//             beatDetected = true;
-//             lastBeatSample = sample_counter;
-//         }
-//     }
-
-//     //  Detect negative zero crossing (falling edge)
-//     if ((IR_AC_Signal_Previous - threshold > 0) && (IR_AC_Signal_Current + threshold <= 0))
-//     {
-//         positiveEdge = 0;
-//         negativeEdge = 1;
-//         IR_AC_Signal_min = 0;
-//     }
-
-//     //  Find Maximum value in positive cycle
-//     if (positiveEdge && (IR_AC_Signal_Current > IR_AC_Signal_Previous))
-//     {
-//         IR_AC_Signal_max = IR_AC_Signal_Current;
-//     }
-
-//     //  Find Minimum value in negative cycle
-//     if (negativeEdge && (IR_AC_Signal_Current < IR_AC_Signal_Previous))
-//     {
-//         IR_AC_Signal_min = IR_AC_Signal_Current;
-//     }
-    
-//     return(beatDetected);
-// }    
 
 bool beat_detected(int16_t ir_ac) {
     bool beat = false;
@@ -160,7 +102,7 @@ bool beat_detected(int16_t ir_ac) {
         }
 
         // Deve superare una soglia minima
-        if (amplitude > 80 && amplitude < 2000) {
+        if (amplitude > 100 && amplitude < 2000) {
             beat = true;
         }
 
@@ -199,12 +141,12 @@ void calculateBPM(int16_t ir_ac, float *BPM, float *AVG_BPM) {
         // Samples trascorsi dall'ultimo beat
         long delta = now - lastBeatSample;
         lastBeatSample = now;
-
+      
         // Converti in BPM
         float currBPM = 60.0f * SAMPLE_RATE / delta;
 
         // Filtri per stabilità
-        if (currBPM > 30 && currBPM < 220) {
+        if (currBPM > 40 && currBPM < 210) {
 
             // Memorizza BPM e crea media scorrevole
             rates[rates_index] = currBPM;
@@ -217,7 +159,8 @@ void calculateBPM(int16_t ir_ac, float *BPM, float *AVG_BPM) {
             *BPM = currBPM;
             *AVG_BPM = sum / RATE_SIZE;
 
-            DBG_PRINTF("---> BEAT → BPM: %.1f | AVG: %.1f\n", *BPM, *AVG_BPM);
+            // DBG_PRINTF(">--BEAT--< BPM: %.1f | AVG: %.1f\n - delta: %ld\n", *BPM, *AVG_BPM, delta);
+            DBG_PRINTF(">-----BEAT-----<\n");
         }
     }
 }
