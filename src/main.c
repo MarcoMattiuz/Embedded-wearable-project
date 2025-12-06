@@ -316,10 +316,10 @@ void app_main() {
     // );
     
     /* Start touch sensor task */
-    xTaskCreate(touch_sensor_task, "touch_sensor", 2048, NULL, 10, NULL);
+    xTaskCreate(touch_sensor_task, "touch_sensor", 4096, NULL, 10, NULL);
     
     /* Start RTC clock display task */
-    xTaskCreate(rtc_clock_task, "rtc_clock", 2048, NULL, 5, NULL);
+    xTaskCreate(rtc_clock_task, "rtc_clock", 4096, NULL, 5, NULL);
 
     ESP_LOGI(TAG, "Service initialized successfully");
 }
