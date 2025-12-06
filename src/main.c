@@ -189,6 +189,7 @@ void PPG_sensor_task(void* parameters){
     uint8_t wr_ptr;
     while (1)
     {   
+        // ESP_LOGI("PPG", "Remaining stack: %u bytes", uxTaskGetStackHighWaterMark(NULL));
         if(max30102_i2c_read_multiled_data_burst(device)){
             for(int i=0;i<MAX30102_BPM_SAMPLES_SIZE;i++){
                 DBG_PRINTF("%d - IR_RAW: %lu - IR_AC: %d\n",i,IR_buffer[i],IR_ac_buffer[i]);
@@ -288,6 +289,7 @@ void app_main() {
     ble_manager_register_notify_state_cb(on_notify_state_changed);
     ble_manager_register_time_write_cb(on_time_write);
 
+    TaskHandle_t ppg_task_handle = NULL;
     //tasks
     xTaskCreate(
         PPG_sensor_task,
@@ -295,7 +297,7 @@ void app_main() {
         4096,
         &parameters_ppg_max30102,   
         1,
-        NULL
+        &ppg_task_handle
     );
     // xTaskCreate(
     //     LCD_task,
