@@ -119,8 +119,6 @@ static bool update_ir_buffers(uint32_t value) {
     
 }
 
-
-
 bool max30102_i2c_read_hr_data_burst(struct i2c_device *device) {
     
     uint8_t wr_ptr_addr = MAX30102_FIFO_WR_PTR_ADDR;
