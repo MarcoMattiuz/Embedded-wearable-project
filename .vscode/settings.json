@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
     "files.associations": {
         "*.sh": "shellscript",
         "max30102.h": "c",
@@ -21,5 +22,7 @@
         "queue.h": "c"
 >>>>>>> 96dc577a5cd4103de5a0ea23f1154b02468df0bf
     },
+=======
+>>>>>>> ble-web
     "idf.pythonInstallPath": "/opt/homebrew/bin/python3"
 }
