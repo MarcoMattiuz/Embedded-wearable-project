@@ -5,16 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ESP32 BLE</title>
     <link rel="stylesheet" href="style.css">
+    <!-- <script src="https://cdn.plot.ly/plotly-3.3.0.min.js" charset="utf-8"></script> -->
+     <script src="libs/plotly.js"></script>
 </head>
 <body>
-    <div class="container">
-        <h1>ESP32 BLE</h1>
-
+    <div class="top-bar">
         <div id="status" class="status disconnected">
             Disconnected
         </div>
 
-        <button id="connectBtn" class="btn-connect">Connect to ESP32</button>
+        <button id="connectBtn" class="btn btn-connect">
+            Connect
+</button>
+    </div>
+    <div class="container">
+        <h1>ESP32 BLE</h1>
+
+        <!-- <div id="status" class="status disconnected">
+            Disconnected
+        </div>
+
+        <button id="connectBtn" class="btn-connect">Connect to ESP32</button> -->
 
         <div class="data-display">
             <div class="data-label">Float32 Value:</div>
@@ -24,10 +35,11 @@
         <div class="log" id="log">
             <div class="log-entry info">System ready. Click Connect to start.</div>
         </div>
+        
     </div>
-
+    <div id="graph" style="width:600px;height:250px;"></div>
     
-
+    <script src="graphs.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

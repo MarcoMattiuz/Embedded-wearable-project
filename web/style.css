@@ -9,6 +9,7 @@ body {
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
     min-height: 100vh;
     display: flex;
+    flex-flow: row;
     justify-content: center;
     align-items: center;
     padding: 20px;
@@ -21,6 +22,7 @@ body {
     padding: 40px;
     max-width: 600px;
     width: 100%;
+    margin-top: 80px;
 }
 
 h1 {
@@ -29,73 +31,7 @@ h1 {
     text-align: center;
 }
 
-.status {
-    text-align: center;
-    padding: 15px;
-    border-radius: 10px;
-    margin-bottom: 25px;
-    font-weight: bold;
-    transition: all 0.3s ease;
-}
 
-.status.disconnected {
-    background: #3d1f1f;
-    color: #ff6b6b;
-    border: 1px solid #ff6b6b;
-}
-
-.status.connected {
-    background: #1f3d2f;
-    color: #51cf66;
-    border: 1px solid #51cf66;
-}
-
-button {
-    width: 100%;
-    padding: 15px;
-    margin: 10px 0;
-    border: none;
-    border-radius: 10px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-transform: uppercase;
-}
-
-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-}
-
-button:active {
-    transform: translateY(0);
-}
-
-button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.btn-connect {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-}
-
-.btn-disconnect {
-    background: #e74c3c;
-    color: white;
-}
-
-.btn-read {
-    background: #3498db;
-    color: white;
-}
-
-.btn-imu {
-    background: #9b59b6;
-    color: white;
-}
 
 .control-group {
     margin: 20px 0;
@@ -195,4 +131,114 @@ input[type="text"]:focus {
     margin-bottom: 20px;
     font-size: 13px;
     color: #ffd43b;
+}
+
+#graph {
+    width: 100%;
+    overflow: visible !important;
+}
+
+
+.top-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+
+    display: flex;
+    justify-content: flex-end;  /* elementi allineati verso destra */
+    align-items: center;
+    gap: 20px;
+
+    background: #16213e;
+    padding: 12px 20px;
+    border-bottom: 2px solid #1a1a2e;
+
+    z-index: 9999;
+}
+
+/* Stato */
+.top-bar .status {
+    margin: 0;                     /* ELIMINA IL MARGIN-BOTTOM */
+    padding: 6px 14px !important;  /* FORZA IL PADDING CORRETTO */
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1;                /* ALLINEA PERFETTAMENTE IN VERTICALE */
+    display: flex;                 /* Permette l'allineamento verticale */
+    align-items: center;           /* CENTRA IL TESTO VERTICALMENTE */
+}
+
+/* Colori dinamici */
+.status.disconnected {
+    background: #3d1f1f;
+    color: #ff6b6b;
+    border: 1px solid #ff6b6b;
+}
+
+.status.connected {
+    background: #1f3d2f;
+    color: #51cf66;
+    border: 1px solid #51cf66;
+}
+
+.btn-connect, .btn-disconnect{
+    width: 140px;
+    padding: 10px 0;
+    text-align: center;
+
+    background: #0f3460;
+    color: #fff;
+    border: none;
+    font-size: 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.2s ease-in-out;
+
+}
+
+.btn {
+    padding: 10px 0;
+    width: 140px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    text-align: center;
+    transition: 0.2s ease-in-out;
+    color: white;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-connect {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-disconnect {
+    background: #e74c3c;
+    color: white;
+}
+
+.btn-read {
+    background: #3498db;
+    color: white;
+}
+
+.btn-imu {
+    background: #9b59b6;
+    color: white;
 }
