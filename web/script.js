@@ -12,6 +12,10 @@ const connectBtn = document.getElementById('connectBtn');
 const logDiv = document.getElementById('log');
 const DataDiv = document.getElementById('data');
 
+/* data */
+window.IRACsampleArr = [];
+let MAX_SIZE_IRAC_BUFFER = 960;
+
 function log(message, type = 'info') {
     const entry = document.createElement('div');
     entry.className = `log-entry ${type}`;
@@ -99,16 +103,33 @@ async function sendTimeValue(timestamp) {
     }
 }
 
+// function handleNotification(event) {
+//     const value = event.target.value;
+//     const float32Value = value.getFloat32(0, true);
+    
+//     DataDiv.innerHTML = `
+//         <strong>Float32:</strong> ${float32Value.toFixed(2)}<br>
+//         <strong>Timestamp:</strong> ${new Date().toLocaleTimeString()}
+//     `;
+    
+//     log(`Float32: ${float32Value.toFixed(2)}`, 'success');
+// }
 function handleNotification(event) {
     const value = event.target.value;
-    const float32Value = value.getFloat32(0, true);
-    
-    DataDiv.innerHTML = `
-        <strong>Float32:</strong> ${float32Value.toFixed(2)}<br>
-        <strong>Timestamp:</strong> ${new Date().toLocaleTimeString()}
-    `;
-    
-    log(`Float32: ${float32Value.toFixed(2)}`, 'success');
+    // 16bit = 2 byte
+    for (let i = 0; i < value.byteLength; i += 2) {
+        window.IRACsampleArr.push(value.getInt16(i, true)); 
+    }
+    if(window.IRACsampleArr.length >= MAX_SIZE_IRAC_BUFFER){
+        window.IRACsampleArr =[]; 
+    }
+    // DataDiv.innerHTML = `
+    //     <strong>Array int16 ricevuto:</strong><br>
+    //     [${window.IRACsampleArr.join(', ')}]<br>
+    //     <strong>Timestamp:</strong> ${new Date().toLocaleTimeString()}
+    // `;
+    updateGraph(); 
+    // console.log(`Array int16: [${window.IRACsampleArr.join(', ')}]`, 'success');
 }
 
 connectBtn.addEventListener('click', toggleConnection);

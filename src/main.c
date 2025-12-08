@@ -196,12 +196,24 @@ void PPG_sensor_task(void* parameters){
                 calculateBPM(IR_ac_buffer[i],&global_parameters.BPM,&global_parameters.AVG_BPM);
             }
             DBG_PRINTF("BPM: %f,AVG_BPM: %f\n",global_parameters.BPM,global_parameters.AVG_BPM);
+            if (notify_enabled && ble_manager_is_connected()) {
+                ESP_LOGI(TAG, "Sending IR_AC buffer");
+                
+                ble_manager_notify_IR_AC_buffer(
+                    ble_manager_get_conn_handle(),
+                    ble_manager_get_float32_char_handle(),
+                    &IR_ac_buffer,
+                    sizeof(int16_t)*MAX30102_BPM_SAMPLES_SIZE
+                );
+            }
         }
         // i2c_master_transmit_receive(device->i2c_dev_handle, &ovf_cntr, 1, &wr_ptr, 1, 1000);
         // DBG_PRINTF("overflow: %d\n",wr_ptr);
         // if(wr_ptr>=1){
         //     DBG_PRINTF("OVERFLOW!\n");
         // }
+
+        
         vTaskDelay(100/ portTICK_PERIOD_MS);
     }
 }
@@ -318,7 +330,7 @@ void app_main() {
     // );
     
     /* Start touch sensor task */
-    xTaskCreate(touch_sensor_task, "touch_sensor", 4096, NULL, 10, NULL);
+    // xTaskCreate(touch_sensor_task, "touch_sensor", 4096, NULL, 10, NULL);
     
     /* Start RTC clock display task */
     xTaskCreate(rtc_clock_task, "rtc_clock", 4096, NULL, 5, NULL);

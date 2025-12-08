@@ -340,6 +340,32 @@ int ble_manager_notify_time(uint16_t conn_handle, uint16_t char_handle, const vo
     return 0;
 }
 
+int ble_manager_notify_IR_AC_buffer(uint16_t conn_handle, uint16_t char_handle, const void *data, uint16_t len)
+{
+    struct os_mbuf *om;
+    int rc;
+
+    /* Update current value for read operations */
+    if (len == sizeof(float) && char_handle == float32_char_handle) {
+        memcpy(&current_float32_value, data, sizeof(float));
+    }
+
+    /* Create mbuf and send notification */
+    om = ble_hs_mbuf_from_flat(data, len);
+    if (om == NULL) {
+        ESP_LOGE(TAG, "Error allocating mbuf");
+        return -1;
+    }
+
+    rc = ble_gatts_notify_custom(conn_handle, char_handle, om);
+    if (rc != 0) {
+        ESP_LOGE(TAG, "Error sending notification; rc=%d", rc);
+        return rc;
+    }
+
+    return 0;
+}
+
 /* Get connection status */
 bool ble_manager_is_connected(void)
 {
