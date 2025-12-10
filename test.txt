@@ -1,0 +1,279 @@
+--- Terminal on /dev/ttyUSB0 | 115200 8-N-1
+--- Available filters and text transformations: colorize, debug, default, direct, esp32_exception_decoder, hexlify, log2file, nocontrol, printable, send_on_enter, time
+--- More details at https://bit.ly/pio-monitor-filters
+--- Quit: Ctrl+C | Menu: Ctrl+T | Help: Ctrl+T followed by Ctrl+H
+: 6
+96 - IR_RAW: 15938 - IR_AC: 6
+97 - IR_RAW: 15945 - IR_AC: 6
+98 - IR_RAW: 15944 - IR_AC: 5
+99 - IR_RAW: 15939 - IR_AC: 5
+100 - IR_RAW: 15942 - IR_AC: 5
+101 - IR_RAW: 15941 - IR_AC: 5
+102 - IR_RAW: 15937 - IR_AC: 4
+103 - IR_RAW: 15939 - IR_AC: 4
+104 - IR_RAW: 15944 - IR_AC: 4
+105 - IR_RAW: 15938 - IR_AC: 4
+106 - IR_RAW: 15931 - IR_AC: 4
+107 - IR_RAW: 15945 - IR_AC: 4
+108 - IR_RAW: 15946 - IR_AC: 4
+109 - IR_RAW: 15942 - IR_AC: 4
+110 - IR_RAW: 15941 - IR_AC: 4
+111 - IR_RAW: 15951 - IR_AC: 4
+112 - IR_RAW: 15945 - IR_AC: 4
+113 - IR_RAW: 15955 - IR_AC: 4
+114 - IR_RAW: 15937 - IR_AC: 4
+115 - IR_RAW: 15945 - IR_AC: 5
+116 - IR_RAW: 15944 - IR_AC: 5
+117 - IR_RAW: 15935 - IR_AC: 5
+118 - IR_RAW: 15962 - IR_AC: 6
+119 - IR_RAW: 15945 - IR_AC: 6
+120 - IR_RAW: 15948 - IR_AC: 6
+121 - IR_RAW: 15939 - IR_AC: 7
+122 - IR_RAW: 15950 - IR_AC: 7
+123 - IR_RAW: 15943 - IR_AC: 7
+124 - IR_RAW: 15946 - IR_AC: 8
+125 - IR_RAW: 15947 - IR_AC: 8
+126 - IR_RAW: 15945 - IR_AC: 8
+127 - IR_RAW: 0 - IR_AC: 0
+BPM: 0.000000,AVG_BPM: 0.000000
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+STEPS: 1
+-
+-
+E (10113) i2c.master: I2C hardware NACK detected
+E (10113) i2c.master: I2C transaction unexpected nack detected
+E (10113) i2c.master: s_i2c_synchronous_transaction(945): I2C transaction failed
+E (10113) i2c.master: i2c_master_transmit_receive(1248): I2C transaction failed
+Error reading!
+-
+E (10363) i2c.master: I2C hardware NACK detected
+E (10363) i2c.master: I2C transaction unexpected nack detected
+E (10363) i2c.master: s_i2c_synchronous_transaction(945): I2C transaction failed
+E (10363) i2c.master: i2c_master_transmit_receive(1248): I2C transaction failed
+Error reading!
+-
+E (10613) i2c.master: I2C hardware NACK detected
+E (10613) i2c.master: I2C transaction unexpected nack detected
+E (10613) i2c.master: s_i2c_synchronous_transaction(945): I2C transaction failed
+E (10613) i2c.master: i2c_master_transmit_receive(1248): I2C transaction failed
+Error reading!
+-
+E (10863) i2c.master: I2C hardware NACK detected
+E (10863) i2c.master: I2C transaction unexpected nack detected
+E (10863) i2c.master: s_i2c_synchronous_transaction(945): I2C transaction failed
+E (10863) i2c.master: i2c_master_transmit_receive(1248): I2C transaction failed
+Error reading!
+-
+E (11113) i2c.master: I2C hardware NACK detected
+E (11113) i2c.master: I2C transaction unexpected nack detected
+E (11113) i2c.master: s_i2c_synchronous_transaction(945): I2C transaction failed
+E (11113) i2c.master: i2c_master_transmit_receive(1248): I2C transaction failed
+Error reading!
+-
+E (11363) i2c.master: I2C hardware NACK detected
+E (11363) i2c.master: I2C transaction unexpected nack detected
+E (11363) i2c.master: s_i2c_synchronous_transaction(945): I2C transaction failed
+E (11363) i2c.master: i2c_master_transmit_receive(1248): I2C transaction failed
+Error reading!
+-
+-
+-
+-
+0 - IR_RAW: 15953 - IR_AC: 8
+1 - IR_RAW: 15941 - IR_AC: 7
+2 - IR_RAW: 15943 - IR_AC: 7
+3 - IR_RAW: 15940 - IR_AC: 7
+4 - IR_RAW: 15951 - IR_AC: 7
+5 - IR_RAW: 15944 - IR_AC: 7
+6 - IR_RAW: 15945 - IR_AC: 7
+7 - IR_RAW: 15947 - IR_AC: 7
+8 - IR_RAW: 15937 - IR_AC: 6
+9 - IR_RAW: 15938 - IR_AC: 6
+10 - IR_RAW: 15950 - IR_AC: 6
+11 - IR_RAW: 15943 - IR_AC: 6
+12 - IR_RAW: 15934 - IR_AC: 6
+13 - IR_RAW: 15946 - IR_AC: 5
+14 - IR_RAW: 15947 - IR_AC: 5
+15 - IR_RAW: 15942 - IR_AC: 5
+16 - IR_RAW: 15936 - IR_AC: 5
+17 - IR_RAW: 15950 - IR_AC: 4
+18 - IR_RAW: 15948 - IR_AC: 4
+19 - IR_RAW: 15950 - IR_AC: 4
+20 - IR_RAW: 15950 - IR_AC: 4
+21 - IR_RAW: 15947 - IR_AC: 4
+22 - IR_RAW: 15941 - IR_AC: 4
+23 - IR_RAW: 15942 - IR_AC: 4
+24 - IR_RAW: 15946 - IR_AC: 5
+25 - IR_RAW: 15936 - IR_AC: 5
+26 - IR_RAW: 15941 - IR_AC: 5
+27 - IR_RAW: 15959 - IR_AC: 5
+28 - IR_RAW: 15946 - IR_AC: 5
+29 - IR_RAW: 15941 - IR_AC: 5
+30 - IR_RAW: 15947 - IR_AC: 5
+31 - IR_RAW: 15949 - IR_AC: 5
+32 - IR_RAW: 15939 - IR_AC: 5
+33 - IR_RAW: 15947 - IR_AC: 5
+34 - IR_RAW: 15950 - IR_AC: 4
+35 - IR_RAW: 15937 - IR_AC: 4
+36 - IR_RAW: 15938 - IR_AC: 4
+37 - IR_RAW: 15953 - IR_AC: 4
+38 - IR_RAW: 15946 - IR_AC: 4
+39 - IR_RAW: 15950 - IR_AC: 4
+40 - IR_RAW: 15946 - IR_AC: 4
+41 - IR_RAW: 15945 - IR_AC: 4
+42 - IR_RAW: 15943 - IR_AC: 5
+43 - IR_RAW: 15949 - IR_AC: 5
+44 - IR_RAW: 15945 - IR_AC: 5
+45 - IR_RAW: 15949 - IR_AC: 5
+46 - IR_RAW: 15945 - IR_AC: 5
+47 - IR_RAW: 15947 - IR_AC: 5
+48 - IR_RAW: 15947 - IR_AC: 5
+49 - IR_RAW: 15948 - IR_AC: 6
+50 - IR_RAW: 15941 - IR_AC: 6
+51 - IR_RAW: 15940 - IR_AC: 6
+52 - IR_RAW: 15941 - IR_AC: 6
+53 - IR_RAW: 15942 - IR_AC: 6
+54 - IR_RAW: 15943 - IR_AC: 6
+55 - IR_RAW: 15937 - IR_AC: 6
+56 - IR_RAW: 15951 - IR_AC: 5
+57 - IR_RAW: 15944 - IR_AC: 5
+58 - IR_RAW: 15954 - IR_AC: 5
+59 - IR_RAW: 15939 - IR_AC: 5
+60 - IR_RAW: 15947 - IR_AC: 5
+61 - IR_RAW: 15945 - IR_AC: 4
+62 - IR_RAW: 15951 - IR_AC: 4
+63 - IR_RAW: 15944 - IR_AC: 4
+64 - IR_RAW: 15941 - IR_AC: 5
+65 - IR_RAW: 15934 - IR_AC: 5
+66 - IR_RAW: 15950 - IR_AC: 5
+67 - IR_RAW: 15945 - IR_AC: 5
+68 - IR_RAW: 15946 - IR_AC: 6
+69 - IR_RAW: 15949 - IR_AC: 6
+70 - IR_RAW: 15941 - IR_AC: 6
+71 - IR_RAW: 15943 - IR_AC: 6
+72 - IR_RAW: 15944 - IR_AC: 6
+73 - IR_RAW: 15944 - IR_AC: 6
+74 - IR_RAW: 15942 - IR_AC: 5
+75 - IR_RAW: 15945 - IR_AC: 5
+76 - IR_RAW: 15947 - IR_AC: 5
+77 - IR_RAW: 15944 - IR_AC: 5
+78 - IR_RAW: 15946 - IR_AC: 5
+79 - IR_RAW: 15941 - IR_AC: 4
+80 - IR_RAW: 15958 - IR_AC: 4
+81 - IR_RAW: 15942 - IR_AC: 4
+82 - IR_RAW: 15931 - IR_AC: 4
+83 - IR_RAW: 15908 - IR_AC: 4
+84 - IR_RAW: 15923 - IR_AC: 4
+85 - IR_RAW: 15939 - IR_AC: 4
+86 - IR_RAW: 15997 - IR_AC: 3
+87 - IR_RAW: 16132 - IR_AC: 4
+88 - IR_RAW: 16088 - IR_AC: 5
+89 - IR_RAW: 16100 - IR_AC: 7
+90 - IR_RAW: 16098 - IR_AC: 10
+91 - IR_RAW: 16109 - IR_AC: 15
+92 - IR_RAW: 16203 - IR_AC: 22
+93 - IR_RAW: 16188 - IR_AC: 31
+94 - IR_RAW: 16246 - IR_AC: 43
+95 - IR_RAW: 16234 - IR_AC: 56
+96 - IR_RAW: 16227 - IR_AC: 70
+97 - IR_RAW: 16077 - IR_AC: 84
+98 - IR_RAW: 15904 - IR_AC: 98
+99 - IR_RAW: 15777 - IR_AC: 108
+100 - IR_RAW: 15698 - IR_AC: 114
+101 - IR_RAW: 15665 - IR_AC: 115
+102 - IR_RAW: 15418 - IR_AC: 107
+103 - IR_RAW: 14060 - IR_AC: 84
+104 - IR_RAW: 13469 - IR_AC: 44
+105 - IR_RAW: 20916 - IR_AC: 19
+106 - IR_RAW: 12079 - IR_AC: -43
+107 - IR_RAW: 15769 - IR_AC: -98
+108 - IR_RAW: 17453 - IR_AC: -151
+109 - IR_RAW: 14622 - IR_AC: -209
+110 - IR_RAW: 15132 - IR_AC: -258
+111 - IR_RAW: 15030 - IR_AC: -300
+112 - IR_RAW: 15100 - IR_AC: -331
+113 - IR_RAW: 15080 - IR_AC: -352
+114 - IR_RAW: 14972 - IR_AC: -364
+115 - IR_RAW: 13904 - IR_AC: -373
+116 - IR_RAW: 12420 - IR_AC: -389
+117 - IR_RAW: 12089 - IR_AC: -417
+118 - IR_RAW: 11909 - IR_AC: -464
+119 - IR_RAW: 11887 - IR_AC: -538
+120 - IR_RAW: 11857 - IR_AC: -642
+121 - IR_RAW: 11822 - IR_AC: -778
+122 - IR_RAW: 11888 - IR_AC: -941
+123 - IR_RAW: 11960 - IR_AC: -1127
+124 - IR_RAW: 11983 - IR_AC: -1325
+STEPS: 2
+125 - IR_RAW: 11980 - IR_AC: -1522
+126 - IR_RAW: 12180 - IR_AC: -1703
+127 - IR_RAW: 15946 - IR_AC: 8
+BPM: 0.000000,AVG_BPM: 0.000000
+STEPS: 3
+-
+E (13053) i2c.master: I2C hardware NACK detected
+E (13053) i2c.master: I2C transaction unexpected nack detected
+E (13053) i2c.master: s_i2c_synchronous_transaction(945): I2C transaction failed
+E (13053) i2c.master: i2c_master_transmit_receive(1248): I2C transaction failed
+Error reading!
+-
+-
+-
+E (13813) i2c.master: I2C hardware NACK detected
+E (13813) i2c.master: I2C transaction unexpected nack detected
+E (13813) i2c.master: s_i2c_synchronous_transaction(945): I2C transaction failed
+E (13813) i2c.master: i2c_master_transmit_receive(1248): I2C transaction failed
+Error reading!
+-
+E (14063) i2c.master: I2C hardware NACK detected
+E (14063) i2c.master: I2C transaction unexpected nack detected
+E (14063) i2c.master: s_i2c_synchronous_transaction(945): I2C transaction failed
+E (14063) i2c.master: i2c_master_transmit_receive(1248): I2C transaction failed
+Error reading!
+-
+-
+-
+STEPS: 4
+STEPS: 5
+-
+-
+-
+-
+E (16063) i2c.master: I2C software timeout
+E (16063) i2c.master: s_i2c_synchronous_transaction(945): I2C transaction failed
+E (16063) i2c.master: i2c_master_transmit_receive(1248): I2C transaction failed
+-
+Error reading!
+WRIST ROTATION DETECT
+-
+-
+-
+-
+WRIST ROTATION DETECT
+-
+-
+-
+-
+E (18323) i2c.master: I2C software timeout
+E (18323) i2c.master: s_i2c_synchronous_transaction(945): I2C transaction failed
+E (18323) i2c.master: i2c_master_transmit_receive(1248): I2C transaction failed
+-
+Error reading!
+-
+-
+-
+-
+-

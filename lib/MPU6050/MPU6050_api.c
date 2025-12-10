@@ -107,12 +107,12 @@ esp_err_t mpu6050_read_FIFO(struct i2c_device* device, Three_Axis_t* axis, Gyro_
     uint16_t fifo_size;
     uint8_t  reg_int_status;
 
-    //before read or write on FIFO reset it to clear it up from old data
+    // before read or write on FIFO reset it to clear it up from old data
     if(set_USR_CTRL(device) != ESP_OK) {
         return ERR;
     }
 
-    // time to fiil the FIFO up
+    // time to fill the FIFO up
     vTaskDelay(DELAY_20);
 
     // read fifo size obtained by a logic OR of: MPU6050_FIFO_COUNT_H 00000000 | 00000000 MPU6050_FIFO_COUNT_L
@@ -122,14 +122,15 @@ esp_err_t mpu6050_read_FIFO(struct i2c_device* device, Three_Axis_t* axis, Gyro_
     if(mpu6050_read_reg(device, MPU6050_FIFO_COUNT_L, &fifo_l, 1) != ESP_OK) {
         return ERR; 
     }
+    
     fifo_size = ((uint16_t)fifo_h << 8) | fifo_l;
     // if not enough OR nothing to read I consider the FIFO as EMPTY
     if(fifo_size < 12 || fifo_size == 0) {
         return FIFO_EMPTY;
     }
 
-    // FIRST ALTERNATIVE: Clamping
-    // 1024 is the FIFO MAX_SIZE so if greater then set it to MAX_SIZE
+    // FIRST ALTERNATIVE
+    // 1024 is the FIFO MAX_SIZE so if greater than 1024 set it to MAX_SIZE
     // BUT in this way i can lost some data or having incomplete data  
     // if(fifo_size > 1024) {
     //     fifo_size = 1024;
@@ -145,6 +146,7 @@ esp_err_t mpu6050_read_FIFO(struct i2c_device* device, Three_Axis_t* axis, Gyro_
     if(mpu6050_read_reg(device, MPU6050_INT_STATUS, &reg_int_status, 1) != ESP_OK) {
         return ERR;
     }
+    
     if(FIFO_OVERFLOW(reg_int_status)) {
         // ! if OVERFLOW read all data in FIFO and analyze them 
         if(empty_FIFO(device, axis, f_ax, gyro, f_gyro, reading_buffer, fifo_size) != ESP_OK) {
@@ -367,7 +369,7 @@ void task_acc(void* pvParameters) {
             printf("FIFO empty!\n");
         } else if(err == RESET_FIFO) {
             printf("TOO MUCH data!\n");
-        }
+        } 
 
         vTaskDelay(DELAY_10);
     }

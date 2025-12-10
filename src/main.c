@@ -89,17 +89,7 @@ void PPG_sensor_task(void* parameters){
 
     float BPM=0.0f;
     float AVG_BPM=0.0f;
-    while (1)
-    {   
-        // max30102_i2c_read_multiled_data_one(device);
-        // for(int i=0;i<MAX30102_BPM_SAMPLES_SIZE;i++){
-        //     max30102_i2c_read_multiled_data_one_buffer(device);
-        // }
-        // vTaskDelay(100 / portTICK_PERIOD_MS); 
-        // for(int i=0;i<MAX30102_BPM_SAMPLES_SIZE;i++){
-        //     printf("%d - IR_RAW: %lu - IR_AC: %d\n",i,IR_buffer[i],IR_ac_buffer[i]);
-        // }
-       
+    while(1) {   
         if(max30102_i2c_read_hr_data_burst(device)){
             for(int i=0;i<MAX30102_BPM_SAMPLES_SIZE;i++){
                 printf("%d - IR_RAW: %lu - IR_AC: %d\n",i,IR_buffer[i],IR_ac_buffer[i]);
@@ -109,7 +99,7 @@ void PPG_sensor_task(void* parameters){
             vTaskDelay(100/ portTICK_PERIOD_MS);
         }
 
-        // vTaskDelay(100/ portTICK_PERIOD_MS);
+        vTaskDelay(250/ portTICK_PERIOD_MS);
     }
 }
 
