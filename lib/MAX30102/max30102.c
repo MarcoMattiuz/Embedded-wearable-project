@@ -213,7 +213,11 @@ bool max30102_i2c_read_multiled_data_burst_test(struct i2c_device *device) {
                                         sample_data[5];
                 led2_value &= 0x3FFFF; // Maschera per 18 bit
                 
-                DBG_PRINTF("IR_RAW: %lu\n",led2_value);
+
+                // if(update_ir_buffers(led2_value)){
+                //     return true;
+                // }
+                // DBG_PRINTF("IR_RAW: %lu\n",led2_value);
             
             } else {
                 DBG_PRINTF("Failed to read FIFO data: %d\n", read_result);

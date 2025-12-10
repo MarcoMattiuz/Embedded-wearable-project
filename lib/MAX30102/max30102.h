@@ -18,6 +18,7 @@ esp_err_t   init_multiled_mode(struct i2c_device *device, uint8_t led_red_power,
 esp_err_t   init_hr_mode(struct i2c_device *device, uint8_t led_red_power, uint8_t led_ir_power, uint8_t SPO2_config);
 esp_err_t   reset_fifo_registers(struct i2c_device *device);
 bool        max30102_i2c_read_multiled_data_burst(struct i2c_device *device);
+bool        max30102_i2c_read_multiled_data_burst_test(struct i2c_device *device);
 bool        max30102_i2c_read_hr_data_burst(struct i2c_device *device);
 
 

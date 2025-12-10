@@ -343,15 +343,15 @@ void app_main()
     //     NULL
     // );
 
-    retF = xTaskCreatePinnedToCore(
-                        task_acc,
-                        "task_acc_debug",
-                        4096,
-                        &mpu6050_device,
-                        2,
-                        NULL,
-                        1
-                    );
+    // retF = xTaskCreatePinnedToCore(
+    //                     task_acc,
+    //                     "task_acc_debug",
+    //                     4096,
+    //                     &mpu6050_device,
+    //                     2,
+    //                     NULL,
+    //                     1
+    //                 );
 
     /* Start touch sensor task */
     // xTaskCreate(touch_sensor_task, "touch_sensor", 4096, NULL, 10, NULL);
