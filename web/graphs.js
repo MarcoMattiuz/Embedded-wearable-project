@@ -38,7 +38,8 @@ Plotly.newPlot('graph',
     layout, 
     config);
 
-function updateGraph() {
+//TODO: add button to stop the update of a graph
+function updateGraphs() {
     if (!window.IRACsampleArr || window.IRACsampleArr.length === 0) return;
 
     const arr = window.IRACsampleArr;

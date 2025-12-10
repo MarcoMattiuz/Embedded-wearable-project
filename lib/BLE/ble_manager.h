@@ -41,8 +41,7 @@ typedef void (*ble_time_write_cb_t)(current_time_t *time_data);
 int ble_manager_init(const char *device_name);
 
 /* Send notification with float32 data */
-int ble_manager_notify_time(uint16_t conn_handle, uint16_t char_handle, const void *data, uint16_t len);
-int ble_manager_notify_IR_AC_buffer(uint16_t conn_handle, uint16_t char_handle, const void *data, uint16_t len);
+int ble_manager_notify_message(uint16_t conn_handle, uint16_t char_handle, const void *data, uint16_t len);
 
 /* Get connection status */
 bool ble_manager_is_connected(void);
