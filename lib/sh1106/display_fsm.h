@@ -30,10 +30,10 @@ typedef enum
 typedef enum
 {
     EVT_BUTTON_EDGE,
-    EVT_LONG_PRESS
+    EVT_LONG_PRESS,
+    EVT_REFRESH,
+    EVT_FRAME
 } EventType;
-
-
 
 typedef struct
 {
@@ -45,8 +45,11 @@ typedef struct
 extern WeatherType weather;
 extern uint8_t buffer_data[SH1106_BUFFER_SIZE];
 extern State_t current_state;
-extern QueueHandle_t button_queue;
-extern TimerHandle_t long_press_timer;
+extern State_t next_state;
+extern QueueHandle_t event_queue;
+extern TimerHandle_t long_press_timer_handle;
+extern TimerHandle_t refresh_timer_handle;
+extern TimerHandle_t frame_timer_handle;
 extern bool long_press_triggered;
 extern uint32_t last_button_isr_time;
 extern StateMachine_t fsm[];

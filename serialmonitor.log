@@ -12,33 +12,559 @@ If you like PlatformIO, please:
 --- Available filters and text transformations: colorize, debug, default, direct, esp32_exception_decoder, hexlify, log2file, nocontrol, printable, send_on_enter, time
 --- More details at https://bit.ly/pio-monitor-filters
 --- Quit: Ctrl+C | Menu: Ctrl+T | Help: Ctrl+T followed by Ctrl+H
-��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�x��␀x�xxx␀x�xxx�x��␀��␀x␀x��x�x�␀�xBPM: 0.000000,AVG_BPM: 0.000000,BPM: 0.000000,AVG_BPM: 0.000000,BPM: 0.000000,AVG_BPM: 0.000000,BPM: 0.000000,AVG_BPM: 0.000000,BPM: 0.000000,AVG_BPM: 0.000000,BPM: 0.000000,AVG_BPM: 0.000000,BPM: 0.000000,AVG_BPM: 0.000000,BPM: 0.000000,AVG_BPM: 0.000000,BPM: 0.000000,AVG_BPM: 0.000000,BPM: 0.000000,AVG_BPM: 0.000000,BPM: 0.000000,AVG_BPM: 0.000000,BPM: 0.000000,AVG_BPM: 0.000000,BPM: 0.000000,AVG_BPM: 0.000000,BPM: 0.000000,AVG_BPM: 0.000000,BPM: 0.000000,AVG_BPM: 0.000000,BPM: 0.000000,AVG_BPM: 0.000000,BPM: 0.000000,AVG_BPM: 0.000000,BPM: 0.000000,AVG_BPM: 0.000000,BPM: 0.000000,AVG_BPM: 0.000000,BPM: 0.000000,AVG_BPM: 0.000000,BPM: 0.000000,AVG_BPM: 0.000000,BPM: 0.000000,AVG_BPM: 0.000000,BPM: 0.000000,AVG_BPM: 0.000000,BPM: 0.000000,AVG_BPM: 0.000000,BPM: 0.000000,AVG_BPM: 0.000000,BPM: 0.000000,AVG_BPM: 0.000000,BPM: 0.000000,AVG_BPM: 0.000000,BPM: 0.000000,AVG_BPM: 0.000000,BPM: 0.000000,AVG_BPM: 0.000000,BPM: 0.000000,AVG_BPM: 0.000000,BPM: 0.000000,AVG_BPM: 0.000000,BPM: 0.000000,AVG_BPM: 0.000000,BPM: 0.000000,AVG_BPM: 0.000000,BPM: 0.000000,AVG_BPM: 0.000000,BPM: 0.000000,AVG_BPM: 0.000000, STEP: 0
-I (5665) MAIN: task_ac STEP: 0
-I (5665) MAIN: task_ac STEP: 0
-I (5665) MAIN: task_ac STEP: 0
-I (5665) MAIN: task_ac STEP: 0
-I (5665) MAIN: task_ac STEP: 0
-I (5665) MAIN: task_ac STEP: 0
-I (5665) MAIN: task_ac STEP: 0
-I (5665) MAIN: task_ac STEP: 0
-I (5665) MAIN: task_ac STEP: 0
-I (5665) MAIN: task_ac STEP: 0
-I (5665) MAIN: task_ac STEP: 0
-I (5665) MAIN: task_ac STEP: 0
-I (5665) MAIN: task_ac STEP: 0
-I (5665) MAIN: task_ac STEP: 0
-I (5665) MAIN: task_ac STEP: 0
-I (5665) MAIN: task_ac STEP: 0
-I (5665) MAIN: task_ac STEP: 0
-I (5665) MAIN: task_ac STEP: 0
-I (5665) MAIN: task_ac STEP: 0
-I (5665) MAIN: task_ac STEP: 0
-I (5665) MAIN: task_ac STEP: 0
-I (5665) MAIN: task_ac STEP: 0
-I (5665) MAIN: task_ac STEP: 0
-I (5665) MAIN: task_ac STEP: 0
-IFAIL
 BPM: 0.000000,AVG_BPM: 0.000000, STEP: 0
-I (8065) MAIN: task_acc created: FAIL
+I (2809) MAIN: task_acc created: FAIL
 BPM: 0.000000,AVG_BPM: 0.000000, STEP: 0
-I (10465) MAIN: task_acc created: FAIL
+I (5209) MAIN: task_acc created: FAIL
+BPM: 0.000000,AVG_BPM: 0.000000, STEP: 0
+I (7609) MAIN: task_acc created: FAIL
+BPM: 0.000000,AVG_BPM: 0.000000, STEP: 0
+I (10009) MAIN: task_acc created: FAIL
+BPM: 0.000000,AVG_BPM: 0.000000, STEP: 0
+I (12409) MAIN: task_acc created: FAIL
+BPM: 0.000000,AVG_BPM: 0.000000, STEP: 0
+I (14809) MAIN: task_acc created: FAIL
+BPM: 0.000000,AVG_BPM: 0.000000, STEP: 0
+I (17209) MAIN: task_acc created: FAIL
+BPM: 0.000000,AVG_BPM: 0.000000, STEP: 0
+I (19609) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 65.2 | AVG: 6.5
+ - deltaBPM: 61 - rate_size: 10
+BPM: 65.217392,AVG_BPM: 6.521739, STEP: 0
+I (22009) MAIN: task_acc created: FAIL
+BPM: 65.217392,AVG_BPM: 6.521739, STEP: 0
+I (24409) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 49.2 | AVG: 11.4
+ - deltaBPM: 34 - rate_size: 10
+BPM: 49.180328,AVG_BPM: 11.439772, STEP: 0
+I (26809) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 57.7 | AVG: 43.0
+ - deltaBPM: 8 - rate_size: 4
+>--BEAT--< BPM: 40.5 | AVG: 30.4
+ - deltaBPM: 17 - rate_size: 7
+BPM: 40.540539,AVG_BPM: 30.375795, STEP: 0
+I (29209) MAIN: task_acc created: FAIL
+BPM: 40.540539,AVG_BPM: 30.375795, STEP: 0
+I (31609) MAIN: task_acc created: FAIL
+BPM: 40.540539,AVG_BPM: 30.375795, STEP: 0
+I (34009) MAIN: task_acc created: FAIL
+BPM: 40.540539,AVG_BPM: 30.375795, STEP: 0
+I (36409) MAIN: task_acc created: FAIL
+BPM: 40.540539,AVG_BPM: 30.375795, STEP: 0
+I (38809) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 43.5 | AVG: 25.6
+ - deltaBPM: 36 - rate_size: 10
+BPM: 43.478260,AVG_BPM: 25.610882, STEP: 0
+I (41209) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 93.8 | AVG: 35.0
+ - deltaBPM: 67 - rate_size: 10
+>--BEAT--< BPM: 96.8 | AVG: 57.4
+ - deltaBPM: 3 - rate_size: 3
+>--BEAT--< BPM: 88.2 | AVG: 62.9
+ - deltaBPM: 8 - rate_size: 4
+>--BEAT--< BPM: 107.1 | AVG: 66.9
+ - deltaBPM: 18 - rate_size: 8
+BPM: 107.142860,AVG_BPM: 66.892319, STEP: 0
+I (43619) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 96.8 | AVG: 80.2
+ - deltaBPM: 10 - rate_size: 5
+>--BEAT--< BPM: 81.1 | AVG: 89.9
+ - deltaBPM: 15 - rate_size: 7
+>--BEAT--< BPM: 93.8 | AVG: 88.7
+ - deltaBPM: 12 - rate_size: 6
+BPM: 93.750000,AVG_BPM: 88.700134, STEP: 0
+I (46039) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 88.2 | AVG: 94.5
+ - deltaBPM: 5 - rate_size: 3
+>--BEAT--< BPM: 100.0 | AVG: 94.6
+ - deltaBPM: 11 - rate_size: 5
+>--BEAT--< BPM: 107.1 | AVG: 98.0
+ - deltaBPM: 7 - rate_size: 4
+>--BEAT--< BPM: 83.3 | AVG: 72.3
+ - deltaBPM: 23 - rate_size: 9
+BPM: 83.333336,AVG_BPM: 72.257416, STEP: 0
+I (48469) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 103.4 | AVG: 84.1
+ - deltaBPM: 20 - rate_size: 8
+>--BEAT--< BPM: 93.8 | AVG: 96.4
+ - deltaBPM: 9 - rate_size: 5
+>--BEAT--< BPM: 96.8 | AVG: 97.4
+ - deltaBPM: 3 - rate_size: 3
+>--BEAT--< BPM: 93.8 | AVG: 92.9
+ - deltaBPM: 3 - rate_size: 3
+BPM: 93.750000,AVG_BPM: 92.919830, STEP: 0
+I (50899) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 96.8 | AVG: 95.8
+ - deltaBPM: 3 - rate_size: 3
+>--BEAT--< BPM: 90.9 | AVG: 93.8
+ - deltaBPM: 5 - rate_size: 3
+>--BEAT--< BPM: 100.0 | AVG: 94.9
+ - deltaBPM: 9 - rate_size: 5
+>--BEAT--< BPM: 90.9 | AVG: 96.4
+ - deltaBPM: 9 - rate_size: 5
+BPM: 90.909088,AVG_BPM: 96.408127, STEP: 0
+I (53319) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 93.8 | AVG: 93.8
+ - deltaBPM: 2 - rate_size: 2
+>--BEAT--< BPM: 96.8 | AVG: 97.8
+ - deltaBPM: 3 - rate_size: 3
+>--BEAT--< BPM: 90.9 | AVG: 94.8
+ - deltaBPM: 5 - rate_size: 3
+>--BEAT--< BPM: 120.0 | AVG: 68.3
+ - deltaBPM: 29 - rate_size: 10
+BPM: 120.000000,AVG_BPM: 68.286659, STEP: 0
+I (55739) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 78.9 | AVG: 66.5
+ - deltaBPM: 41 - rate_size: 10
+>--BEAT--< BPM: 100.0 | AVG: 74.9
+ - deltaBPM: 21 - rate_size: 9
+>--BEAT--< BPM: 93.8 | AVG: 98.2
+ - deltaBPM: 6 - rate_size: 4
+BPM: 93.750000,AVG_BPM: 98.174339, STEP: 0
+I (58169) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 142.9 | AVG: 70.0
+ - deltaBPM: 49 - rate_size: 10
+>--BEAT--< BPM: 76.9 | AVG: 69.8
+ - deltaBPM: 65 - rate_size: 10
+>--BEAT--< BPM: 107.1 | AVG: 70.5
+ - deltaBPM: 30 - rate_size: 10
+>--BEAT--< BPM: 100.0 | AVG: 106.7
+ - deltaBPM: 7 - rate_size: 4
+>--BEAT--< BPM: 136.4 | AVG: 70.5
+ - deltaBPM: 36 - rate_size: 10
+BPM: 136.363632,AVG_BPM: 70.470375, STEP: 0
+I (60609) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 83.3 | AVG: 71.1
+ - deltaBPM: 53 - rate_size: 10
+>--BEAT--< BPM: 100.0 | AVG: 100.6
+ - deltaBPM: 16 - rate_size: 7
+>--BEAT--< BPM: 96.8 | AVG: 106.6
+ - deltaBPM: 3 - rate_size: 3
+BPM: 96.774193,AVG_BPM: 106.565651, STEP: 0
+I (63019) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 96.8 | AVG: 116.6
+ - deltaBPM: 0 - rate_size: 2
+>--BEAT--< BPM: 100.0 | AVG: 98.9
+ - deltaBPM: 3 - rate_size: 3
+>--BEAT--< BPM: 96.8 | AVG: 98.9
+ - deltaBPM: 3 - rate_size: 3
+>--BEAT--< BPM: 88.2 | AVG: 95.4
+ - deltaBPM: 8 - rate_size: 4
+BPM: 88.235291,AVG_BPM: 95.445923, STEP: 0
+I (65429) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 166.7 | AVG: 73.6
+ - deltaBPM: 78 - rate_size: 10
+>--BEAT--< BPM: 66.7 | AVG: 70.9
+ - deltaBPM: 100 - rate_size: 10
+>--BEAT--< BPM: 96.8 | AVG: 71.2
+ - deltaBPM: 30 - rate_size: 10
+>--BEAT--< BPM: 90.9 | AVG: 95.0
+ - deltaBPM: 5 - rate_size: 3
+BPM: 90.909088,AVG_BPM: 95.003166, STEP: 0
+I (67869) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 103.4 | AVG: 103.6
+ - deltaBPM: 12 - rate_size: 6
+>--BEAT--< BPM: 93.8 | AVG: 106.1
+ - deltaBPM: 9 - rate_size: 5
+>--BEAT--< BPM: 96.8 | AVG: 99.1
+ - deltaBPM: 3 - rate_size: 3
+>--BEAT--< BPM: 96.8 | AVG: 98.4
+ - deltaBPM: 0 - rate_size: 2
+BPM: 96.774193,AVG_BPM: 98.387100, STEP: 0
+I (70299) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 96.8 | AVG: 96.8
+ - deltaBPM: 0 - rate_size: 2
+>--BEAT--< BPM: 103.4 | AVG: 97.7
+ - deltaBPM: 6 - rate_size: 4
+>--BEAT--< BPM: 90.9 | AVG: 91.9
+ - deltaBPM: 12 - rate_size: 6
+>--BEAT--< BPM: 96.8 | AVG: 97.0
+ - deltaBPM: 5 - rate_size: 3
+BPM: 96.774193,AVG_BPM: 97.043854, STEP: 0
+I (72719) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 100.0 | AVG: 95.9
+ - deltaBPM: 3 - rate_size: 3
+>--BEAT--< BPM: 93.8 | AVG: 96.8
+ - deltaBPM: 6 - rate_size: 4
+>--BEAT--< BPM: 93.8 | AVG: 98.4
+ - deltaBPM: 0 - rate_size: 2
+>--BEAT--< BPM: 103.4 | AVG: 91.5
+ - deltaBPM: 9 - rate_size: 5
+BPM: 103.448273,AVG_BPM: 91.522987, STEP: 0
+I (75139) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 90.9 | AVG: 90.9
+ - deltaBPM: 12 - rate_size: 6
+>--BEAT--< BPM: 100.0 | AVG: 91.0
+ - deltaBPM: 9 - rate_size: 5
+>--BEAT--< BPM: 93.8 | AVG: 97.0
+ - deltaBPM: 6 - rate_size: 4
+BPM: 93.750000,AVG_BPM: 97.026840, STEP: 0
+I (77559) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 93.8 | AVG: 92.3
+ - deltaBPM: 0 - rate_size: 2
+>--BEAT--< BPM: 100.0 | AVG: 96.9
+ - deltaBPM: 6 - rate_size: 4
+>--BEAT--< BPM: 93.8 | AVG: 95.3
+ - deltaBPM: 6 - rate_size: 4
+>--BEAT--< BPM: 96.8 | AVG: 95.8
+ - deltaBPM: 3 - rate_size: 3
+BPM: 96.774193,AVG_BPM: 95.833336, STEP: 0
+I (79969) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 100.0 | AVG: 95.8
+ - deltaBPM: 3 - rate_size: 3
+>--BEAT--< BPM: 93.8 | AVG: 96.1
+ - deltaBPM: 6 - rate_size: 4
+>--BEAT--< BPM: 93.8 | AVG: 96.9
+ - deltaBPM: 0 - rate_size: 2
+>--BEAT--< BPM: 103.4 | AVG: 91.5
+ - deltaBPM: 9 - rate_size: 5
+BPM: 103.448273,AVG_BPM: 91.522987, STEP: 0
+I (82399) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 96.8 | AVG: 96.9
+ - deltaBPM: 6 - rate_size: 4
+>--BEAT--< BPM: 103.4 | AVG: 99.4
+ - deltaBPM: 6 - rate_size: 4
+>--BEAT--< BPM: 100.0 | AVG: 101.2
+ - deltaBPM: 3 - rate_size: 3
+>--BEAT--< BPM: 103.4 | AVG: 103.4
+ - deltaBPM: 3 - rate_size: 3
+BPM: 103.448273,AVG_BPM: 103.448273, STEP: 0
+I (84819) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 157.9 | AVG: 71.9
+ - deltaBPM: 54 - rate_size: 10
+>--BEAT--< BPM: 68.2 | AVG: 68.7
+ - deltaBPM: 89 - rate_size: 10
+>--BEAT--< BPM: 100.0 | AVG: 72.1
+ - deltaBPM: 31 - rate_size: 10
+>--BEAT--< BPM: 100.0 | AVG: 103.4
+ - deltaBPM: 0 - rate_size: 2
+BPM: 100.000000,AVG_BPM: 103.448273, STEP: 0
+I (87239) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 100.0 | AVG: 101.7
+ - deltaBPM: 0 - rate_size: 2
+>--BEAT--< BPM: 96.8 | AVG: 118.2
+ - deltaBPM: 3 - rate_size: 3
+>--BEAT--< BPM: 93.8 | AVG: 96.8
+ - deltaBPM: 3 - rate_size: 3
+>--BEAT--< BPM: 96.8 | AVG: 95.8
+ - deltaBPM: 3 - rate_size: 3
+BPM: 96.774193,AVG_BPM: 95.766136, STEP: 0
+I (89659) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 93.8 | AVG: 94.8
+ - deltaBPM: 3 - rate_size: 3
+>--BEAT--< BPM: 96.8 | AVG: 95.8
+ - deltaBPM: 3 - rate_size: 3
+BPM: 96.774193,AVG_BPM: 95.766136, STEP: 0
+I (92089) MAIN: task_acc created: FAIL
+BPM: 96.774193,AVG_BPM: 95.766136, STEP: 0
+I (94489) MAIN: task_acc created: FAIL
+BPM: 96.774193,AVG_BPM: 95.766136, STEP: 0
+I (96889) MAIN: task_acc created: FAIL
+BPM: 96.774193,AVG_BPM: 95.766136, STEP: 0
+I (99289) MAIN: task_acc created: FAIL
+BPM: 96.774193,AVG_BPM: 95.766136, STEP: 0
+I (101689) MAIN: task_acc created: FAIL
+E (101959) i2c.master: I2C hardware NACK detected
+E (101959) i2c.master: I2C transaction unexpected nack detected
+E (101959) i2c.master: s_i2c_synchronous_transaction(945): I2C transaction failed
+E (101959) i2c.master: i2c_master_multi_buffer_transmit(1214): I2C transaction failed
+E (101969) lcd_panel.io.i2c: panel_io_i2c_tx_buffer(193): i2c transaction failed
+E (101979) lcd_panel.sh1106: panel_sh1106_draw_bitmap(220): io tx color failed
+E (102959) i2c.master: I2C transaction unexpected nack detected
+E (102959) i2c.master: s_i2c_synchronous_transaction(945): I2C transaction failed
+E (102959) i2c.master: i2c_master_multi_buffer_transmit(1214): I2C transaction failed
+E (102969) lcd_panel.io.i2c: panel_io_i2c_tx_buffer(193): i2c transaction failed
+E (102979) lcd_panel.sh1106: panel_sh1106_draw_bitmap(217): io tx param SH1106_CMD_SET_COLUMN_ADDR_LOW failed
+E (103959) i2c.master: I2C transaction unexpected nack detected
+E (103959) i2c.master: s_i2c_synchronous_transaction(945): I2C transaction failed
+E (103959) i2c.master: i2c_master_multi_buffer_transmit(1214): I2C transaction failed
+E (103969) lcd_panel.io.i2c: panel_io_i2c_tx_buffer(193): i2c transaction failed
+E (103979) lcd_panel.sh1106: panel_sh1106_draw_bitmap(217): io tx param SH1106_CMD_SET_COLUMN_ADDR_LOW failed
+>--BEAT--< BPM: 93.8 | AVG: 64.3
+ - deltaBPM: 88 - rate_size: 10
+BPM: 93.750000,AVG_BPM: 64.336510, STEP: 0
+I (104089) MAIN: task_acc created: FAIL
+E (104829) i2c.master: I2C transaction unexpected nack detected
+E (104829) i2c.master: s_i2c_synchronous_transaction(945): I2C transaction failed
+E (104829) i2c.master: i2c_master_multi_buffer_transmit(1214): I2C transaction failed
+E (104829) lcd_panel.io.i2c: panel_io_i2c_tx_buffer(193): i2c transaction failed
+E (104839) lcd_panel.sh1106: panel_sh1106_draw_bitmap(217): io tx param SH1106_CMD_SET_COLUMN_ADDR_LOW failed
+E (104959) i2c.master: I2C transaction unexpected nack detected
+E (104959) i2c.master: s_i2c_synchronous_transaction(945): I2C transaction failed
+E (104959) i2c.master: i2c_master_multi_buffer_transmit(1214): I2C transaction failed
+E (104969) lcd_panel.io.i2c: panel_io_i2c_tx_buffer(193): i2c transaction failed
+E (104969) lcd_panel.sh1106: panel_sh1106_draw_bitmap(217): io tx param SH1106_CMD_SET_COLUMN_ADDR_LOW failed
+E (105959) i2c.master: I2C hardware NACK detected
+E (105959) i2c.master: I2C transaction unexpected nack detected
+E (105959) i2c.master: s_i2c_synchronous_transaction(945): I2C transaction failed
+E (105959) i2c.master: i2c_master_multi_buffer_transmit(1214): I2C transaction failed
+E (105969) lcd_panel.io.i2c: panel_io_i2c_tx_buffer(193): i2c transaction failed
+E (105979) lcd_panel.sh1106: panel_sh1106_draw_bitmap(217): io tx param SH1106_CMD_SET_COLUMN_ADDR_LOW failed
+BPM: 93.750000,AVG_BPM: 64.336510, STEP: 0
+I (106489) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 65.2 | AVG: 61.5
+ - deltaBPM: 39 - rate_size: 10
+>--BEAT--< BPM: 63.8 | AVG: 79.5
+ - deltaBPM: 1 - rate_size: 2
+BPM: 63.829788,AVG_BPM: 79.483696, STEP: 0
+I (108889) MAIN: task_acc created: FAIL
+BPM: 63.829788,AVG_BPM: 79.483696, STEP: 0
+I (111289) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 45.5 | AVG: 78.5
+ - deltaBPM: 14 - rate_size: 6
+>--BEAT--< BPM: 69.8 | AVG: 56.8
+ - deltaBPM: 24 - rate_size: 10
+>--BEAT--< BPM: 78.9 | AVG: 77.6
+ - deltaBPM: 9 - rate_size: 5
+BPM: 78.947365,AVG_BPM: 77.583870, STEP: 0
+I (113699) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 75.0 | AVG: 55.4
+ - deltaBPM: 42 - rate_size: 10
+BPM: 75.000000,AVG_BPM: 55.382843, STEP: 0
+I (116099) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 69.8 | AVG: 69.7
+ - deltaBPM: 5 - rate_size: 3
+BPM: 69.767441,AVG_BPM: 69.657326, STEP: 0
+I (118499) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 136.4 | AVG: 56.6
+ - deltaBPM: 101 - rate_size: 10
+>--BEAT--< BPM: 78.9 | AVG: 60.0
+ - deltaBPM: 57 - rate_size: 10
+>--BEAT--< BPM: 71.4 | AVG: 91.4
+ - deltaBPM: 7 - rate_size: 4
+BPM: 71.428574,AVG_BPM: 91.421730, STEP: 0
+I (120909) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 88.2 | AVG: 87.2
+ - deltaBPM: 16 - rate_size: 7
+>--BEAT--< BPM: 93.8 | AVG: 95.6
+ - deltaBPM: 5 - rate_size: 3
+>--BEAT--< BPM: 76.9 | AVG: 90.7
+ - deltaBPM: 16 - rate_size: 7
+BPM: 76.923080,AVG_BPM: 90.699409, STEP: 0
+I (123319) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 76.9 | AVG: 107.7
+ - deltaBPM: 0 - rate_size: 2
+>--BEAT--< BPM: 93.8 | AVG: 83.0
+ - deltaBPM: 16 - rate_size: 7
+>--BEAT--< BPM: 83.3 | AVG: 84.9
+ - deltaBPM: 10 - rate_size: 5
+>--BEAT--< BPM: 93.8 | AVG: 88.3
+ - deltaBPM: 10 - rate_size: 5
+BPM: 93.750000,AVG_BPM: 88.301285, STEP: 0
+I (125729) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 200.0 | AVG: 72.5
+ - deltaBPM: 106 - rate_size: 10
+>--BEAT--< BPM: 103.4 | AVG: 73.5
+ - deltaBPM: 96 - rate_size: 10
+>--BEAT--< BPM: 76.9 | AVG: 74.2
+ - deltaBPM: 26 - rate_size: 10
+>--BEAT--< BPM: 73.2 | AVG: 90.3
+ - deltaBPM: 3 - rate_size: 3
+BPM: 73.170731,AVG_BPM: 90.277779, STEP: 0
+I (128169) MAIN: task_acc created: FAIL
+BPM: 73.170731,AVG_BPM: 90.277779, STEP: 0
+I (130589) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 90.9 | AVG: 73.2
+ - deltaBPM: 64 - rate_size: 10
+BPM: 90.909088,AVG_BPM: 73.195114, STEP: 0
+I (132989) MAIN: task_acc created: FAIL
+BPM: 90.909088,AVG_BPM: 73.195114, STEP: 0
+I (135389) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 90.9 | AVG: 72.9
+ - deltaBPM: 56 - rate_size: 10
+>--BEAT--< BPM: 88.2 | AVG: 92.3
+ - deltaBPM: 2 - rate_size: 2
+>--BEAT--< BPM: 85.7 | AVG: 88.3
+ - deltaBPM: 2 - rate_size: 2
+>--BEAT--< BPM: 65.2 | AVG: 73.0
+ - deltaBPM: 20 - rate_size: 8
+BPM: 65.217392,AVG_BPM: 72.952263, STEP: 0
+I (137799) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 88.2 | AVG: 64.5
+ - deltaBPM: 23 - rate_size: 9
+>--BEAT--< BPM: 73.2 | AVG: 80.8
+ - deltaBPM: 15 - rate_size: 7
+>--BEAT--< BPM: 100.0 | AVG: 56.2
+ - deltaBPM: 26 - rate_size: 10
+BPM: 100.000000,AVG_BPM: 56.243153, STEP: 0
+I (140219) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 76.9 | AVG: 62.5
+ - deltaBPM: 23 - rate_size: 9
+>--BEAT--< BPM: 93.8 | AVG: 83.3
+ - deltaBPM: 16 - rate_size: 7
+>--BEAT--< BPM: 83.3 | AVG: 82.0
+ - deltaBPM: 10 - rate_size: 5
+>--BEAT--< BPM: 93.8 | AVG: 87.7
+ - deltaBPM: 10 - rate_size: 5
+BPM: 93.750000,AVG_BPM: 87.697876, STEP: 0
+I (142629) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 69.8 | AVG: 65.6
+ - deltaBPM: 23 - rate_size: 9
+BPM: 69.767441,AVG_BPM: 65.632729, STEP: 0
+I (145059) MAIN: task_acc created: FAIL
+BPM: 69.767441,AVG_BPM: 65.632729, STEP: 0
+I (147459) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 96.8 | AVG: 61.4
+ - deltaBPM: 75 - rate_size: 10
+BPM: 96.774193,AVG_BPM: 61.429802, STEP: 0
+I (149859) MAIN: task_acc created: FAIL
+BPM: 96.774193,AVG_BPM: 61.429802, STEP: 0
+I (152259) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 62.5 | AVG: 57.7
+ - deltaBPM: 36 - rate_size: 10
+BPM: 62.500000,AVG_BPM: 57.679802, STEP: 0
+I (154659) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 96.8 | AVG: 59.7
+ - deltaBPM: 34 - rate_size: 10
+>--BEAT--< BPM: 93.8 | AVG: 82.3
+ - deltaBPM: 3 - rate_size: 3
+>--BEAT--< BPM: 75.0 | AVG: 72.2
+ - deltaBPM: 18 - rate_size: 8
+BPM: 75.000000,AVG_BPM: 72.237396, STEP: 0
+I (157069) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 65.2 | AVG: 76.6
+ - deltaBPM: 9 - rate_size: 5
+BPM: 65.217392,AVG_BPM: 76.564987, STEP: 0
+I (159489) MAIN: task_acc created: FAIL
+BPM: 65.217392,AVG_BPM: 76.564987, STEP: 0
+I (161889) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 76.9 | AVG: 55.3
+ - deltaBPM: 64 - rate_size: 10
+>--BEAT--< BPM: 42.9 | AVG: 53.4
+ - deltaBPM: 34 - rate_size: 10
+BPM: 42.857143,AVG_BPM: 53.385517, STEP: 0
+I (164289) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 85.7 | AVG: 52.3
+ - deltaBPM: 42 - rate_size: 10
+>--BEAT--< BPM: 93.8 | AVG: 75.1
+ - deltaBPM: 8 - rate_size: 4
+>--BEAT--< BPM: 83.3 | AVG: 69.9
+ - deltaBPM: 10 - rate_size: 5
+BPM: 83.333336,AVG_BPM: 69.948242, STEP: 0
+I (166699) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 75.0 | AVG: 56.1
+ - deltaBPM: 36 - rate_size: 10
+BPM: 75.000000,AVG_BPM: 56.134838, STEP: 0
+I (169099) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 83.3 | AVG: 76.7
+ - deltaBPM: 8 - rate_size: 4
+>--BEAT--< BPM: 83.3 | AVG: 79.2
+ - deltaBPM: 0 - rate_size: 2
+>--BEAT--< BPM: 78.9 | AVG: 81.9
+ - deltaBPM: 4 - rate_size: 3
+BPM: 78.947365,AVG_BPM: 81.871346, STEP: 0
+I (171509) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 71.4 | AVG: 79.3
+ - deltaBPM: 7 - rate_size: 4
+>--BEAT--< BPM: 43.5 | AVG: 52.9
+ - deltaBPM: 27 - rate_size: 10
+BPM: 43.478260,AVG_BPM: 52.927086, STEP: 0
+I (173909) MAIN: task_acc created: FAIL
+BPM: 43.478260,AVG_BPM: 52.927086, STEP: 0
+I (176309) MAIN: task_acc created: FAIL
+BPM: 43.478260,AVG_BPM: 52.927086, STEP: 0
+I (178709) MAIN: task_acc created: FAIL
+BPM: 43.478260,AVG_BPM: 52.927086, STEP: 0
+I (181109) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 61.2 | AVG: 51.5
+ - deltaBPM: 33 - rate_size: 10
+BPM: 61.224491,AVG_BPM: 51.549538, STEP: 0
+I (183509) MAIN: task_acc created: FAIL
+BPM: 61.224491,AVG_BPM: 51.549538, STEP: 0
+I (185909) MAIN: task_acc created: FAIL
+BPM: 61.224491,AVG_BPM: 51.549538, STEP: 0
+I (188309) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 45.5 | AVG: 47.8
+ - deltaBPM: 34 - rate_size: 10
+>--BEAT--< BPM: 76.9 | AVG: 46.1
+ - deltaBPM: 31 - rate_size: 10
+BPM: 76.923080,AVG_BPM: 46.078968, STEP: 0
+I (190709) MAIN: task_acc created: FAIL
+BPM: 76.923080,AVG_BPM: 46.078968, STEP: 0
+I (193109) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 53.6 | AVG: 51.4
+ - deltaBPM: 26 - rate_size: 10
+BPM: 53.571430,AVG_BPM: 51.436108, STEP: 0
+I (195509) MAIN: task_acc created: FAIL
+BPM: 53.571430,AVG_BPM: 51.436108, STEP: 0
+I (197909) MAIN: task_acc created: FAIL
+BPM: 53.571430,AVG_BPM: 51.436108, STEP: 0
+I (200309) MAIN: task_acc created: FAIL
+BPM: 53.571430,AVG_BPM: 51.436108, STEP: 0
+I (202709) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 65.2 | AVG: 58.0
+ - deltaBPM: 58 - rate_size: 10
+>--BEAT--< BPM: 42.3 | AVG: 64.4
+ - deltaBPM: 22 - rate_size: 9
+BPM: 42.253521,AVG_BPM: 64.397614, STEP: 0
+I (205109) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 62.5 | AVG: 62.2
+ - deltaBPM: 20 - rate_size: 8
+>--BEAT--< BPM: 51.7 | AVG: 60.5
+ - deltaBPM: 10 - rate_size: 5
+BPM: 51.724136,AVG_BPM: 60.452045, STEP: 0
+I (207509) MAIN: task_acc created: FAIL
+BPM: 51.724136,AVG_BPM: 60.452045, STEP: 0
+I (209909) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 43.5 | AVG: 60.4
+ - deltaBPM: 21 - rate_size: 9
+>--BEAT--< BPM: 88.2 | AVG: 61.3
+ - deltaBPM: 44 - rate_size: 10
+BPM: 88.235291,AVG_BPM: 61.269104, STEP: 0
+I (212309) MAIN: task_acc created: FAIL
+BPM: 88.235291,AVG_BPM: 61.269104, STEP: 0
+I (214709) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 88.2 | AVG: 65.5
+ - deltaBPM: 69 - rate_size: 10
+BPM: 88.235291,AVG_BPM: 65.547173, STEP: 0
+I (217109) MAIN: task_acc created: FAIL
+BPM: 88.235291,AVG_BPM: 65.547173, STEP: 0
+I (219509) MAIN: task_acc created: FAIL
+BPM: 88.235291,AVG_BPM: 65.547173, STEP: 0
+I (221909) MAIN: task_acc created: FAIL
+BPM: 88.235291,AVG_BPM: 65.547173, STEP: 0
+I (224309) MAIN: task_acc created: FAIL
+BPM: 88.235291,AVG_BPM: 65.547173, STEP: 0
+I (226709) MAIN: task_acc created: FAIL
+BPM: 88.235291,AVG_BPM: 65.547173, STEP: 0
+I (229109) MAIN: task_acc created: FAIL
+BPM: 88.235291,AVG_BPM: 65.547173, STEP: 0
+I (231509) MAIN: task_acc created: FAIL
+BPM: 88.235291,AVG_BPM: 65.547173, STEP: 0
+I (233909) MAIN: task_acc created: FAIL
+BPM: 88.235291,AVG_BPM: 65.547173, STEP: 0
+I (236309) MAIN: task_acc created: FAIL
+BPM: 88.235291,AVG_BPM: 65.547173, STEP: 0
+I (238709) MAIN: task_acc created: FAIL
+BPM: 88.235291,AVG_BPM: 65.547173, STEP: 0
+I (241109) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 66.7 | AVG: 64.5
+ - deltaBPM: 41 - rate_size: 10
+>--BEAT--< BPM: 88.2 | AVG: 70.8
+ - deltaBPM: 21 - rate_size: 9
+>--BEAT--< BPM: 103.4 | AVG: 69.2
+ - deltaBPM: 15 - rate_size: 7
+BPM: 103.448273,AVG_BPM: 69.167564, STEP: 0
+I (243519) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 78.9 | AVG: 74.5
+ - deltaBPM: 24 - rate_size: 10
+>--BEAT--< BPM: 85.7 | AVG: 77.6
+ - deltaBPM: 6 - rate_size: 4
+>--BEAT--< BPM: 76.9 | AVG: 76.0
+ - deltaBPM: 8 - rate_size: 4
+BPM: 76.923080,AVG_BPM: 76.021187, STEP: 0
+I (245929) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 83.3 | AVG: 81.2
+ - deltaBPM: 6 - rate_size: 4
+>--BEAT--< BPM: 81.1 | AVG: 80.1
+ - deltaBPM: 2 - rate_size: 2
+>--BEAT--< BPM: 65.2 | AVG: 78.9
+ - deltaBPM: 15 - rate_size: 7
+>--BEAT--< BPM: 142.9 | AVG: 84.8
+ - deltaBPM: 77 - rate_size: 10
+BPM: 142.857147,AVG_BPM: 84.778625, STEP: 0
+I (248339) MAIN: task_acc created: FAIL
+>--BEAT--< BPM: 71.4 | AVG: 83.4
+ - deltaBPM: 71 - rate_size: 10
+BPM: 71.428574,AVG_BPM: 83.350060, STEP: 0
+I (250759) MAIN: task_acc created: FAIL

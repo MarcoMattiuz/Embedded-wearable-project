@@ -5,6 +5,7 @@ struct global_param
 {
     float BPM;
     float AVG_BPM;
+    bool show_heart;
 };
 
 #endif

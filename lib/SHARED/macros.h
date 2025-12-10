@@ -28,9 +28,14 @@
 #define I2C_GLITCH_IGNORE_CNT 7           // Glitch filter
 #define I2C_FREQ_HZ           400000      // I2C master frequency
 //BUTTON
-#define PUSH_BUTTON_GPIO GPIO_NUM_27
+//#define PUSH_BUTTON_GPIO GPIO_NUM_27
+#define PUSH_BUTTON_GPIO GPIO_NUM_23
 #define LONG_PRESS_MS 1000 // 1 second
 #define DEBOUNCE_MS 50
 
+//REFERSH TIMER
+#define REFRESH_TIME_MS 3000
+// FRAME TIMER
+#define FRAME_TIME_MS 1000
 
 #endif

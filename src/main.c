@@ -240,54 +240,81 @@ void PPG_sensor_task(void *parameters)
 
 void LCD_task(void *parameters)
 {
+    global_parameters.show_heart = true;
     esp_lcd_panel_handle_t panel_handle = *(esp_lcd_panel_handle_t *)parameters;
 
     GPIO_init();
-
-    memset(buffer_data, 0, sizeof(buffer_data)); // fill with 0 → all pixels off
+    memset(buffer_data, 0, sizeof(buffer_data));
 
     bool LCD_ON = false;
     EventType evt;
+
     while (1)
     {
-        DBG_PRINTF("ciao\n");
-        // isr wakes up main on button pressed/released
-        if (xQueueReceive(button_queue, &evt, portMAX_DELAY))
+        if (xQueueReceive(event_queue, &evt, portMAX_DELAY))
         {
-            if (evt == EVT_BUTTON_EDGE)
+            switch (evt)
+            {
+            case EVT_BUTTON_EDGE:
             {
                 int level = gpio_get_level(PUSH_BUTTON_GPIO);
-
-                if (level == 0) // button pressed -> start long press detection timer
+                if (level == 0) // pressed
                 {
                     long_press_triggered = false;
-                    xTimerStart(long_press_timer, 0);
+                    xTimerStart(long_press_timer_handle, 0);
                 }
                 else // released
                 {
-                    xTimerStop(long_press_timer, 0);
-
+                    xTimerStop(long_press_timer_handle, 0);
                     if (!long_press_triggered && LCD_ON) // short press
                     {
-                        (*fsm[current_state].state_function)(&panel_handle, &global_parameters);
+                        (*fsm[next_state].state_function)(&panel_handle, &global_parameters);
+
+                        // Start/stop BPM animation if needed
+                        if (current_state == STATE_BPM)
+                            xTimerStart(frame_timer_handle, 0);
+                        else
+                            xTimerStop(frame_timer_handle, 0);
                     }
                 }
+                break;
             }
-            else if (evt == EVT_LONG_PRESS)
+
+            case EVT_LONG_PRESS:
             {
                 long_press_triggered = true;
-
                 LCD_ON = !LCD_ON;
+
                 if (LCD_ON)
                 {
+                    xTimerStart(refresh_timer_handle, 0);
                     TurnLcdOn(panel_handle);
                     current_state = STATE_BPM;
                     (*fsm[current_state].state_function)(&panel_handle, &global_parameters);
+                    xTimerStart(frame_timer_handle, 0); // start animation
                 }
                 else
                 {
                     TurnLcdOff(panel_handle);
+                    xTimerStop(refresh_timer_handle, 0);
+                    xTimerStop(frame_timer_handle, 0); // stop animation
                 }
+                break;
+            }
+
+            case EVT_REFRESH:
+                (*fsm[current_state].state_function)(&panel_handle, &global_parameters);
+                break;
+
+            case EVT_FRAME:
+                if (current_state == STATE_BPM){
+                    global_parameters.show_heart = !global_parameters.show_heart;
+                    (*fsm[current_state].state_function)(&panel_handle, &global_parameters);
+                break;
+                }
+
+            default:
+                break;
             }
         }
     }
@@ -302,26 +329,26 @@ void app_main()
     init_I2C_bus_PORT1(&i2c_bus_1);
 
     add_device_MAX30102(&max30102_device);
-    add_device_MPU6050 (&mpu6050_device);
-    // add_device_SH1106 (&panel_handle);
+    //add_device_MPU6050 (&mpu6050_device);
+    add_device_SH1106 (&panel_handle);
 
     // parameters init
     parameters_ppg_max30102.bus = i2c_bus_0;
-    parameters_ppg_max30102.device = &max30102_device;
+    parameters_ppg_max30102.device = &max30102_device; 
 
     // BLE setup
-    struct timeval tv = {.tv_sec = 0, .tv_usec = 0};
-    settimeofday(&tv, NULL);
+    // struct timeval tv = {.tv_sec = 0, .tv_usec = 0};
+    // settimeofday(&tv, NULL);
 
-    if (ble_manager_init(device_name) != 0)
-    {
-        ESP_LOGE(TAG, "Failed to initialize BLE manager");
-        return;
-    }
+    // if (ble_manager_init(device_name) != 0)
+    // {
+    //     ESP_LOGE(TAG, "Failed to initialize BLE manager");
+    //     return;
+    // }
 
-    /* Register callbacks for BLE events */
-    ble_manager_register_notify_state_cb(on_notify_state_changed);
-    ble_manager_register_time_write_cb(on_time_write);
+    // /* Register callbacks for BLE events */
+    // ble_manager_register_notify_state_cb(on_notify_state_changed);
+    // ble_manager_register_time_write_cb(on_time_write);
 
     TaskHandle_t ppg_task_handle = NULL;
     // tasks
@@ -334,14 +361,14 @@ void app_main()
         &ppg_task_handle,
         0
     );
-    // xTaskCreate(
-    //     LCD_task,
-    //     "LCD_task_debug",
-    //     4096,
-    //     &panel_handle,
-    //     5,
-    //     NULL
-    // );
+    xTaskCreate(
+        LCD_task,
+        "LCD_task_debug",
+        4096,
+        &panel_handle,
+        1,
+        NULL
+    );
 
     // retF = xTaskCreatePinnedToCore(
     //                     task_acc,
