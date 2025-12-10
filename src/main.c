@@ -19,6 +19,7 @@
 #include "driver/touch_pad.h"
 #include <sys/time.h>
 #include <time.h>
+#include "esp_task_wdt.h"
 
 struct ppg_task_params
 {

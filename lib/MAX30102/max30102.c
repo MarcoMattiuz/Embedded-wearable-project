@@ -168,7 +168,6 @@ bool max30102_i2c_read_hr_data_burst(struct i2c_device *device) {
                 break;
             }
         }
-    
     }
 
     return false;
