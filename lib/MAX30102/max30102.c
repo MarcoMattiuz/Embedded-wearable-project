@@ -298,6 +298,8 @@ bool max30102_i2c_read_multiled_data_burst(struct i2c_device *device)
         if (update_ir_buffers(ir)) {
             return true; 
         }
+
+        taskYIELD();
     }
 
     return false;

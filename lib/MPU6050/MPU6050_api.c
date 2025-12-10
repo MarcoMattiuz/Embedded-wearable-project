@@ -335,15 +335,17 @@ void motion_analysis(const Three_Axis_t* ax, const Gyro_Axis_final_t* gyro) {
     if(step && !wrist) {
         STEP_COUNTER_INC(step_cntr);
         printf("STEPS: %d\n", step_cntr);
+        fflush(stdout);
     } else if(wrist) {
         printf("WRIST ROTATION DETECT\n");
+        fflush(stdout);
         // xTaskNotify(task_turn_on_display, 1, eSetBits);
     }
 }
 
 void task_acc(void* pvParameters) {
 
-    vTaskDelay(DELAY_20);
+    // vTaskDelay(DELAY_20);
 
     struct i2c_device* device = (struct i2c_device *) pvParameters;
 
@@ -364,6 +366,7 @@ void task_acc(void* pvParameters) {
     Gyro_Axis_final_t  f_gyro;
 
     for(;;) {
+        DBG_PRINTF("CIAO");
         esp_err_t err = mpu6050_read_FIFO(device, &axis, &gyro, &f_axis, &f_gyro);
         if(err == ERR) {
             printf("Error reading!\n");

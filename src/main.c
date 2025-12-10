@@ -27,6 +27,8 @@ struct ppg_task_params
     i2c_master_bus_handle_t bus;
 };
 
+BaseType_t retF;
+
 static struct global_param global_parameters;
 static i2c_master_bus_handle_t i2c_bus_0;
 static i2c_master_bus_handle_t i2c_bus_1;
@@ -208,21 +210,23 @@ void PPG_sensor_task(void *parameters)
         {
             for (int i = 0; i < MAX30102_BPM_SAMPLES_SIZE; i++)
             {
-                DBG_PRINTF("%d - IR_RAW: %lu - IR_AC: %d\n", i, IR_buffer[i], IR_ac_buffer[i]);
+                // DBG_PRINTF("%d - IR_RAW: %lu - IR_AC: %d\n", i, IR_buffer[i], IR_ac_buffer[i]);
                 calculateBPM(IR_ac_buffer[i], &global_parameters.BPM, &global_parameters.AVG_BPM);
             }
-            DBG_PRINTF("BPM: %f,AVG_BPM: %f\n", global_parameters.BPM, global_parameters.AVG_BPM);
-            //TODO: create a task that handles sending the messages, so that the ppg_task does not get blocked
-            if (notify_enabled && ble_manager_is_connected())
-            {
-                ESP_LOGI(TAG, "Sending IR_AC buffer");
+            DBG_PRINTF("BPM: %f,AVG_BPM: %f, STEP: %d\n", global_parameters.BPM, global_parameters.AVG_BPM, step_cntr);
+            ESP_LOGI("MAIN", "task_acc created: %s", retF == pdPASS ? "OK" : "FAIL");
 
-                ble_manager_notify_message(
-                    ble_manager_get_conn_handle(),
-                    ble_manager_get_float32_char_handle(),
-                    &IR_ac_buffer,
-                    sizeof(int16_t) * MAX30102_BPM_SAMPLES_SIZE);
-            }
+            //TODO: create a task that handles sending the messages, so that the ppg_task does not get blocked
+            // if (notify_enabled && ble_manager_is_connected())
+            // {
+            //     ESP_LOGI(TAG, "Sending IR_AC buffer");
+
+            //     ble_manager_notify_message(
+            //         ble_manager_get_conn_handle(),
+            //         ble_manager_get_float32_char_handle(),
+            //         &IR_ac_buffer,
+            //         sizeof(int16_t) * MAX30102_BPM_SAMPLES_SIZE);
+            // }
         }
         // i2c_master_transmit_receive(device->i2c_dev_handle, &ovf_cntr, 1, &wr_ptr, 1, 1000);
         // DBG_PRINTF("overflow: %d\n",wr_ptr);
@@ -291,13 +295,14 @@ void LCD_task(void *parameters)
 
 void app_main()
 {
+    esp_task_wdt_deinit();
 
     // I2C busses init
     init_I2C_bus_PORT0(&i2c_bus_0);
     init_I2C_bus_PORT1(&i2c_bus_1);
 
     add_device_MAX30102(&max30102_device);
-    // add_device_MPU6050 (&mpu6050_device);
+    add_device_MPU6050 (&mpu6050_device);
     // add_device_SH1106 (&panel_handle);
 
     // parameters init
@@ -320,13 +325,15 @@ void app_main()
 
     TaskHandle_t ppg_task_handle = NULL;
     // tasks
-    xTaskCreate(
+    xTaskCreatePinnedToCore(
         PPG_sensor_task,
         "PPG_sensor_task_debug",
         4096,
         &parameters_ppg_max30102,
         1,
-        &ppg_task_handle);
+        &ppg_task_handle,
+        0
+    );
     // xTaskCreate(
     //     LCD_task,
     //     "LCD_task_debug",
@@ -336,20 +343,21 @@ void app_main()
     //     NULL
     // );
 
-    // xTaskCreate(
-    //     task_acc,
-    //     "task_acc_debug",
-    //     4096,
-    //     &mpu6050_device,
-    //     1,
-    //     NULL
-    // );
+    retF = xTaskCreatePinnedToCore(
+                        task_acc,
+                        "task_acc_debug",
+                        4096,
+                        &mpu6050_device,
+                        2,
+                        NULL,
+                        1
+                    );
 
     /* Start touch sensor task */
     // xTaskCreate(touch_sensor_task, "touch_sensor", 4096, NULL, 10, NULL);
 
     /* Start RTC clock display task */
-    xTaskCreate(rtc_clock_task, "rtc_clock", 4096, NULL, 5, NULL);
+    // xTaskCreate(rtc_clock_task, "rtc_clock", 4096, NULL, 5, NULL);
 
     ESP_LOGI(TAG, "Service initialized successfully");
 }
