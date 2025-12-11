@@ -165,7 +165,4 @@ if (!navigator.bluetooth) {
   statusDiv.className = "status disconnected";
 }
 
-fetch("https://jsonplaceholder.typicode.com/posts/1")
-  .then((r) => r.json())
-  .then((data) => console.log(data))
-  .catch((e) => console.error(e));
+

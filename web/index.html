@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ESP32 BLE</title>
     <link rel="stylesheet" href="style.css">
-    <!-- <script src="https://cdn.plot.ly/plotly-3.3.0.min.js" charset="utf-8"></script> -->
      <script src="libs/plotly.js"></script>
+    <script src="https://unpkg.com/three@0.152.2/build/three.min.js"></script>
 </head>
 <body>
     <div class="top-bar">
@@ -16,29 +16,25 @@
 
         <button id="connectBtn" class="btn btn-connect">
             Connect
-</button>
+        </button>
     </div>
-    <div class="container">
-        <h1>ESP32 BLE</h1>
 
-        <!-- <div id="status" class="status disconnected">
-            Disconnected
-        </div>
 
-        <button id="connectBtn" class="btn-connect">Connect to ESP32</button> -->
-
-        <div class="data-display">
-            <div class="data-label">Float32 Value:</div>
-            <div id="data" class="data-value">No data received yet</div>
-        </div>
-
-        <div class="log" id="log">
-            <div class="log-entry info">System ready. Click Connect to start.</div>
-        </div>
-        
+    <div class="graphsContainer">
+        <div id="graphBPM"></div>
+        <div id="graphFILTERED" ></div>
+        <div id="graphRAW" ></div>
+        <div id="object"></div>
     </div>
-    <div id="graph" style="width:600px;height:250px;"></div>
-    
+
+
+    <div class="log" id="log">
+        <div id="log-resize-handle"></div>
+        <div class="log-entry info">System ready. Click Connect to start.</div>
+    </div>
+
+    <script src="drag.js"></script>
+    <script src="script3D.js"></script>
     <script src="script.js"></script>
     <script src="graphs.js"></script>
 </body>

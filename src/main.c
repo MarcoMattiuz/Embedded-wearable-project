@@ -217,16 +217,16 @@ void PPG_sensor_task(void *parameters)
             ESP_LOGI("MAIN", "task_acc created: %s", retF == pdPASS ? "OK" : "FAIL");
 
             //TODO: create a task that handles sending the messages, so that the ppg_task does not get blocked
-            // if (notify_enabled && ble_manager_is_connected())
-            // {
-            //     ESP_LOGI(TAG, "Sending IR_AC buffer");
+            if (notify_enabled && ble_manager_is_connected())
+            {
+                ESP_LOGI(TAG, "Sending IR_AC buffer");
 
-            //     ble_manager_notify_message(
-            //         ble_manager_get_conn_handle(),
-            //         ble_manager_get_float32_char_handle(),
-            //         &IR_ac_buffer,
-            //         sizeof(int16_t) * MAX30102_BPM_SAMPLES_SIZE);
-            // }
+                ble_manager_notify_message(
+                    ble_manager_get_conn_handle(),
+                    ble_manager_get_float32_char_handle(),
+                    &IR_ac_buffer,
+                    sizeof(int16_t) * MAX30102_BPM_SAMPLES_SIZE);
+            }
         }
         // i2c_master_transmit_receive(device->i2c_dev_handle, &ovf_cntr, 1, &wr_ptr, 1, 1000);
         // DBG_PRINTF("overflow: %d\n",wr_ptr);
@@ -330,25 +330,25 @@ void app_main()
 
     add_device_MAX30102(&max30102_device);
     //add_device_MPU6050 (&mpu6050_device);
-    add_device_SH1106 (&panel_handle);
+    // add_device_SH1106 (&panel_handle);
 
     // parameters init
     parameters_ppg_max30102.bus = i2c_bus_0;
     parameters_ppg_max30102.device = &max30102_device; 
 
     // BLE setup
-    // struct timeval tv = {.tv_sec = 0, .tv_usec = 0};
-    // settimeofday(&tv, NULL);
+    struct timeval tv = {.tv_sec = 0, .tv_usec = 0};
+    settimeofday(&tv, NULL);
 
-    // if (ble_manager_init(device_name) != 0)
-    // {
-    //     ESP_LOGE(TAG, "Failed to initialize BLE manager");
-    //     return;
-    // }
+    if (ble_manager_init(device_name) != 0)
+    {
+        ESP_LOGE(TAG, "Failed to initialize BLE manager");
+        return;
+    }
 
-    // /* Register callbacks for BLE events */
-    // ble_manager_register_notify_state_cb(on_notify_state_changed);
-    // ble_manager_register_time_write_cb(on_time_write);
+    /* Register callbacks for BLE events */
+    ble_manager_register_notify_state_cb(on_notify_state_changed);
+    ble_manager_register_time_write_cb(on_time_write);
 
     TaskHandle_t ppg_task_handle = NULL;
     // tasks
@@ -361,14 +361,14 @@ void app_main()
         &ppg_task_handle,
         0
     );
-    xTaskCreate(
-        LCD_task,
-        "LCD_task_debug",
-        4096,
-        &panel_handle,
-        1,
-        NULL
-    );
+    // xTaskCreate(
+    //     LCD_task,
+    //     "LCD_task_debug",
+    //     4096,
+    //     &panel_handle,
+    //     1,
+    //     NULL
+    // );
 
     // retF = xTaskCreatePinnedToCore(
     //                     task_acc,
@@ -384,7 +384,7 @@ void app_main()
     // xTaskCreate(touch_sensor_task, "touch_sensor", 4096, NULL, 10, NULL);
 
     /* Start RTC clock display task */
-    // xTaskCreate(rtc_clock_task, "rtc_clock", 4096, NULL, 5, NULL);
+    xTaskCreate(rtc_clock_task, "rtc_clock", 4096, NULL, 5, NULL);
 
     ESP_LOGI(TAG, "Service initialized successfully");
 }
