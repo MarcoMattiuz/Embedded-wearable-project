@@ -46,7 +46,7 @@ static void on_notify_state_changed(bool enabled);
 static void on_time_write(current_time_t *time_data);
 
 /* Send data to the website */
-static void     touch_sensor_task(void *pvParameter)
+static void touch_sensor_task(void *pvParameter)
 {
     uint16_t touch_value;
     touch_pad_init();
@@ -178,7 +178,7 @@ void PPG_sensor_task(void *parameters)
         DBG_PRINTF("DEVICE NULL\n");
     }
 
-    esp_ret = init_multiled_mode(device, 0x05, 0x1F, MAX30102_SPO2_RANGE_4096 | MAX30102_SPO2_50_SPS | MAX30102_SPO2_LED_PW_411);
+    esp_ret = init_multiled_mode(device, 0x0A, 0x1F, MAX30102_SPO2_RANGE_4096 | MAX30102_SPO2_50_SPS | MAX30102_SPO2_LED_PW_411);
     if (esp_ret != ESP_OK)
     {
         DBG_PRINTF("Failed to initialize multi-LED mode: %d\n", esp_ret);
@@ -213,10 +213,9 @@ void PPG_sensor_task(void *parameters)
                 // DBG_PRINTF("%d - IR_RAW: %lu - IR_AC: %d\n", i, IR_buffer[i], IR_ac_buffer[i]);
                 calculateBPM(IR_ac_buffer[i], &global_parameters.BPM, &global_parameters.AVG_BPM);
             }
-            DBG_PRINTF("BPM: %f,AVG_BPM: %f, STEP: %d\n", global_parameters.BPM, global_parameters.AVG_BPM, step_cntr);
-            ESP_LOGI("MAIN", "task_acc created: %s", retF == pdPASS ? "OK" : "FAIL");
+            // ESP_LOGI("MAIN", "task_acc created: %s", retF == pdPASS ? "OK" : "FAIL");
 
-            //TODO: create a task that handles sending the messages, so that the ppg_task does not get blocked
+            // TODO: create a task that handles sending the messages, so that the ppg_task does not get blocked
             if (notify_enabled && ble_manager_is_connected())
             {
                 ESP_LOGI(TAG, "Sending IR_AC buffer");
@@ -234,7 +233,7 @@ void PPG_sensor_task(void *parameters)
         //     DBG_PRINTF("OVERFLOW!\n");
         // }
 
-        vTaskDelay(100 / portTICK_PERIOD_MS);
+        vTaskDelay(300 / portTICK_PERIOD_MS);
     }
 }
 
@@ -307,10 +306,11 @@ void LCD_task(void *parameters)
                 break;
 
             case EVT_FRAME:
-                if (current_state == STATE_BPM){
+                if (current_state == STATE_BPM)
+                {
                     global_parameters.show_heart = !global_parameters.show_heart;
                     (*fsm[current_state].state_function)(&panel_handle, &global_parameters);
-                break;
+                    break;
                 }
 
             default:
@@ -329,12 +329,12 @@ void app_main()
     init_I2C_bus_PORT1(&i2c_bus_1);
 
     add_device_MAX30102(&max30102_device);
-    //add_device_MPU6050 (&mpu6050_device);
+    add_device_MPU6050(&mpu6050_device);
     // add_device_SH1106 (&panel_handle);
 
     // parameters init
     parameters_ppg_max30102.bus = i2c_bus_0;
-    parameters_ppg_max30102.device = &max30102_device; 
+    parameters_ppg_max30102.device = &max30102_device;
 
     // BLE setup
     struct timeval tv = {.tv_sec = 0, .tv_usec = 0};
@@ -352,15 +352,6 @@ void app_main()
 
     TaskHandle_t ppg_task_handle = NULL;
     // tasks
-    xTaskCreatePinnedToCore(
-        PPG_sensor_task,
-        "PPG_sensor_task_debug",
-        4096,
-        &parameters_ppg_max30102,
-        1,
-        &ppg_task_handle,
-        0
-    );
     // xTaskCreate(
     //     LCD_task,
     //     "LCD_task_debug",
@@ -370,21 +361,28 @@ void app_main()
     //     NULL
     // );
 
-    // retF = xTaskCreatePinnedToCore(
-    //                     task_acc,
-    //                     "task_acc_debug",
-    //                     4096,
-    //                     &mpu6050_device,
-    //                     2,
-    //                     NULL,
-    //                     1
-    //                 );
+    retF = xTaskCreatePinnedToCore(
+        task_acc,
+        "task_acc_debug",
+        4096,
+        &mpu6050_device,
+        2,
+        NULL,
+        1);
 
+    xTaskCreatePinnedToCore(
+        PPG_sensor_task,
+        "PPG_sensor_task_debug",
+        4096,
+        &parameters_ppg_max30102,
+        1,
+        &ppg_task_handle,
+        0);
     /* Start touch sensor task */
     // xTaskCreate(touch_sensor_task, "touch_sensor", 4096, NULL, 10, NULL);
 
     /* Start RTC clock display task */
-    xTaskCreate(rtc_clock_task, "rtc_clock", 4096, NULL, 5, NULL);
+    // xTaskCreate(rtc_clock_task, "rtc_clock", 4096, NULL, 5, NULL);
 
     ESP_LOGI(TAG, "Service initialized successfully");
 }

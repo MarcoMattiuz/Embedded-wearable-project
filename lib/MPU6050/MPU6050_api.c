@@ -212,6 +212,8 @@ esp_err_t acc_config(struct i2c_device* device) {
     if(device == NULL) {
         return ESP_ERR_INVALID_ARG;
     }
+
+    //TODO: set regulare VVOLTAGE
     //sensor wake up
     if(mpu6050_write_reg(device, PWR_MGMT_1, PWR_MGMT_1_CONFIG) != ESP_OK) {
         return ESP_ERR_INVALID_ARG;
@@ -246,7 +248,7 @@ esp_err_t acc_config(struct i2c_device* device) {
         return ESP_ERR_INVALID_ARG;
     }
 
-    vTaskDelay(DELAY_10);
+    vTaskDelay(DELAY_20);
 
     if(set_FIFO_INT(device) != ESP_OK) {
         return ESP_ERR_INVALID_ARG;
@@ -259,15 +261,15 @@ esp_err_t acc_config(struct i2c_device* device) {
     return ESP_OK;
 }
 
-float low_pass_filter_M(const float M) {
+// float low_pass_filter_M(const float M) {
 
-    static float y = M_REST;  
+//     static float y = M_REST;  
 
-    //previous low pass filter value which needs for the next
-    y += (M - y) / SMOOTHING_FACTOR;
+//     //previous low pass filter value which needs for the next
+//     y += (M - y) / SMOOTHING_FACTOR;
 
-    return y;
-}
+//     return y;
+// }
 
 bool verify_step(const Three_Axis_t* ax) {
 
@@ -278,7 +280,7 @@ bool verify_step(const Three_Axis_t* ax) {
     float M = sqrt((ax->a_x * ax->a_x) + 
                    (ax->a_y * ax->a_y) + 
                    (ax->a_z * ax->a_z));
-    float filtered_M = low_pass_filter_M(M);
+    float filtered_M = M;
         
     static bool up = false;
 
@@ -366,7 +368,6 @@ void task_acc(void* pvParameters) {
     Gyro_Axis_final_t  f_gyro;
 
     for(;;) {
-        DBG_PRINTF("CIAO");
         esp_err_t err = mpu6050_read_FIFO(device, &axis, &gyro, &f_axis, &f_gyro);
         if(err == ERR) {
             printf("Error reading!\n");
@@ -376,6 +377,6 @@ void task_acc(void* pvParameters) {
             printf("TOO MUCH data!\n");
         } 
 
-        vTaskDelay(DELAY_10);
+        vTaskDelay(100 / portTICK_PERIOD_MS);
     }
 }
