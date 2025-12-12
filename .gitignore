@@ -6,3 +6,4 @@
 log.txt
 *.log
 tools/pyHrGraphs/venv
+.vscode/extensions.json
