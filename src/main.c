@@ -1,3 +1,4 @@
+#include "MPU6050_api.h"
 #include <stdio.h>
 #include <math.h>
 #include <stdbool.h>
@@ -70,6 +71,27 @@ static void touch_sensor_task(void *pvParameter)
             }
         }
         vTaskDelay(pdMS_TO_TICKS(100));
+    }
+}
+
+/* Send data to the website */
+void gyro_ble_task(void *pvParameter)
+{
+    struct i2c_device *mpu_device = (struct i2c_device *)pvParameter;
+    Gyro_Axis_t gyro_raw = {0};
+    uint8_t gyro_buffer[6] = {0};
+
+    while (1)
+    {
+        if (notify_enabled && ble_manager_is_connected())
+        {
+            mpu6050_read_reg(mpu_device, MPU6050_GYRO_XOUT_H, gyro_buffer, 6);
+
+            ble_manager_notify_gyro(
+                ble_manager_get_conn_handle(),
+                &gyro_raw);
+        }
+        vTaskDelay(pdMS_TO_TICKS(200));
     }
 }
 
@@ -378,6 +400,10 @@ void app_main()
         1,
         &ppg_task_handle,
         0);
+
+    //* Start Gyro BLE notification task */
+    // xTaskCreatePinnedToCore(gyro_ble_task, "gyro_ble_task", 4096, &mpu6050_device, 1, NULL, 0);
+
     /* Start touch sensor task */
     // xTaskCreate(touch_sensor_task, "touch_sensor", 4096, NULL, 10, NULL);
 

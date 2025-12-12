@@ -1,11 +1,13 @@
 const SERVICE_UUID = 0x1847;
 const TIME_CHAR_UUID = 0x2a2b;
 const FLOAT32_CHAR_UUID = 0x0014;
+const GYRO_CHAR_UUID = 0x0015;
 const DEVICE_NAME = "ESP32_BLE";
 
 let bluetoothDevice = null;
 let timeCharacteristic = null;
 let float32Characteristic = null;
+let gyroCharacteristic = null;
 
 const statusDiv = document.getElementById("status");
 const connectBtn = document.getElementById("connectBtn");
@@ -53,11 +55,18 @@ async function toggleConnection() {
     const service = await server.getPrimaryService(SERVICE_UUID);
     timeCharacteristic = await service.getCharacteristic(TIME_CHAR_UUID);
     float32Characteristic = await service.getCharacteristic(FLOAT32_CHAR_UUID);
+    gyroCharacteristic = await service.getCharacteristic(GYRO_CHAR_UUID);
 
     await float32Characteristic.startNotifications();
     float32Characteristic.addEventListener(
       "characteristicvaluechanged",
       handleNotification
+    );
+
+    await gyroCharacteristic.startNotifications();
+    gyroCharacteristic.addEventListener(
+      "characteristicvaluechanged",
+      handleGyroNotification
     );
 
     await sendTimeValue(Date.now());
@@ -75,6 +84,17 @@ function onDisconnected() {
   updateUI(false);
   timeCharacteristic = null;
   float32Characteristic = null;
+  gyroCharacteristic = null;
+}
+
+function handleGyroNotification(event) {
+  const value = event.target.value;
+  if (value.byteLength >= 6) {
+    const gx = value.getInt16(0, true);
+    const gy = value.getInt16(2, true);
+    const gz = value.getInt16(4, true);
+    log("Gyro: X=${gx} Y=${gy} Z=${gz}");
+  }
 }
 
 async function sendTimeValue(timestamp) {
