@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Where am I? (city)</title>
+  <style>
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial; padding: 2rem; max-width: 720px; margin: auto; }
+    button { padding: .6rem 1rem; font-size: 1rem; border-radius: .4rem; cursor: pointer; }
+    #status { margin-top: 1rem; }
+    .muted { color: #666; font-size: .95rem; }
+    .error { color: #a33; }
+    .success { color: #0a6; }
+    pre { background:#f6f6f6;padding:1rem;border-radius:.4rem;overflow:auto; }
+  </style>
+</head>
+<body>
+  <h1>Where am I?</h1>
+  <p>Click the button to allow location access and see the <strong>city</strong> you're in.</p>
+
+  <button id="btn">Get my city</button>
+  <div id="status" class="muted">No request yet.</div>
+
+  <h3>Raw position (for debugging)</h3>
+  <pre id="raw">—</pre>
+
+  <script>
+    const btn = document.getElementById('btn');
+    const status = document.getElementById('status');
+    const raw = document.getElementById('raw');
+
+    // When user clicks, start the flow
+    btn.addEventListener('click', () => {
+      status.textContent = 'Asking for location permission…';
+      status.className = 'muted';
+
+      if (!('geolocation' in navigator)) {
+        status.textContent = 'Geolocation is not supported by this browser.';
+        status.className = 'error';
+        return;
+      }
+
+      // Use highAccuracy option to prefer GPS on mobiles when available.
+      navigator.geolocation.getCurrentPosition(
+        handlePosition,
+        handleError,
+        { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
+      );
+    });
+
+    // Called when permission granted and position obtained
+    async function handlePosition(position) {
+      const { latitude, longitude, accuracy, altitude } = position.coords;
+      const ts = new Date(position.timestamp).toLocaleString();
+
+      raw.textContent = JSON.stringify({
+        latitude, longitude, accuracy, altitude, timestamp: ts
+      }, null, 2);
+
+      status.textContent = `Got coordinates (accuracy ±${Math.round(accuracy)} m). Reverse-geocoding…`;
+      status.className = 'muted';
+
+      try {
+        // Use OpenStreetMap Nominatim reverse geocoding (no API key needed)
+        // NOTE: For heavy use you MUST run your own instance or follow usage policy:
+        // https://operations.osmfoundation.org/policies/nominatim/
+        const url = new URL('https://nominatim.openstreetmap.org/reverse');
+        url.searchParams.set('format', 'jsonv2');
+        url.searchParams.set('lat', latitude);
+        url.searchParams.set('lon', longitude);
+        url.searchParams.set('accept-language', navigator.language || 'en');
+        url.searchParams.set('addressdetails', '1'); // include address parts
+        url.searchParams.set('zoom', '10'); // zoom 10 is city / town level
+
+        const resp = await fetch(url.toString(), {
+          method: 'GET',
+          // Important: do NOT set User-Agent here; browsers block it. Nominatim accepts query params for identification.
+          // Optionally include an email param to identify your app:
+          // url.searchParams.set('email', 'your-email@example.com');
+        });
+
+        if (!resp.ok) throw new Error(`Reverse geocoding failed: ${resp.status} ${resp.statusText}`);
+
+        const data = await resp.json();
+
+        // Nominatim returns address object with possible keys: city, town, village, hamlet, county, state, country
+        const address = data.address || {};
+        const city = address.city || address.town || address.village || address.hamlet || address.county || null;
+
+        if (city) {
+          status.textContent = `You're in: ${city} (${address.state || address.country || ''}) — accuracy ±${Math.round(accuracy)} m.`;
+          status.className = 'success';
+        } else {
+          status.textContent = `Couldn't determine a "city" name from coordinates. Best guess: ${data.display_name || 'unknown'}.`;
+          status.className = 'muted';
+        }
+
+        // append the reverse response for debugging
+        raw.textContent += '\n\nReverse geocoding response:\n' + JSON.stringify(data, null, 2);
+
+      } catch (err) {
+        status.textContent = 'Reverse geocoding error: ' + err.message;
+        status.className = 'error';
+      }
+    }
+
+    function handleError(err) {
+      // Provide friendly messages for common permission errors
+      switch (err.code) {
+        case err.PERMISSION_DENIED:
+          status.textContent = 'Permission denied. Please allow location in your browser settings.';
+          break;
+        case err.POSITION_UNAVAILABLE:
+          status.textContent = 'Position unavailable. Try again outdoors or enable device location services.';
+          break;
+        case err.TIMEOUT:
+          status.textContent = 'Location request timed out. Try again.';
+          break;
+        default:
+          status.textContent = 'Error getting location: ' + (err.message || 'unknown');
+      }
+      status.className = 'error';
+    }
+  </script>
+</body>
+</html>
