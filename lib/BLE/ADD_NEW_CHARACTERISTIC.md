@@ -80,6 +80,12 @@ int ble_manager_notify_gyro(uint16_t conn_handle, const Gyro_Axis_t *gyro_data)
 
     return 0;
 }
+
+// Get gyro characteristic handle
+uint16_t ble_manager_get_gyro_char_handle(void)
+{
+    return gyro_char_handle;
+}
 ```
 
 
