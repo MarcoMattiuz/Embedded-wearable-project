@@ -6,6 +6,9 @@ struct global_param
     float BPM;
     float AVG_BPM;
     bool show_heart;
+    int step_cntr;
 };
+
+extern struct global_param global_parameters;
 
 #endif

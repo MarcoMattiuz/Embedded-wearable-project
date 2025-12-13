@@ -12,6 +12,8 @@
 #include "reg.h"
 #include "macros.h"
 #include "I2C_api.h"
+#include "../SHARED/global_param.h"
+#include "../sh1106/display_fsm.h"
 
 // ! return ESP_ERR_INVALID_ARG in this part of the project is considered as STANDARD ERROR
 
@@ -36,7 +38,5 @@ float low_pass_filter_M     (const float M);
 bool  verify_step           (const Three_Axis_t* ax);
 bool  verify_wrist_rotation (const Gyro_Axis_final_t* g);
 void  motion_analysis       (const Three_Axis_t* ax, const Gyro_Axis_final_t* gyro);
-
-void task_acc (void* pvParameters);
 
 #endif

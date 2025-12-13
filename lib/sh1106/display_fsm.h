@@ -32,7 +32,8 @@ typedef enum
     EVT_BUTTON_EDGE,
     EVT_LONG_PRESS,
     EVT_REFRESH,
-    EVT_FRAME
+    EVT_FRAME,
+    EVT_TURN_ON_DISPLAY
 } EventType;
 
 typedef struct

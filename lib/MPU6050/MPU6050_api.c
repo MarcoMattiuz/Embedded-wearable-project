@@ -1,7 +1,6 @@
 #include "MPU6050_api.h"
 
-int        step_cntr = 0;
-Rotation_t rotation  = { 0.0f, 0 };
+Rotation_t rotation = { 0.0f, 0 };
 
 esp_err_t mpu6050_write_reg(struct i2c_device* device, uint8_t reg_to_write, uint8_t val_to_write) { 
 
@@ -54,11 +53,10 @@ void read_sample_ACC(Three_Axis_t* ax, Three_Axis_final_t* f_ax, uint8_t* r_buff
     ax->a_y = (int16_t)(r_buff[i + 2] << 8) | r_buff[i + 3];
     ax->a_z = (int16_t)(r_buff[i + 4] << 8) | r_buff[i + 5];
 
+    //"normalization"
     f_ax->a_x = ax->a_x / M_REST;
     f_ax->a_y = ax->a_y / M_REST;
     f_ax->a_z = ax->a_z / M_REST;   
-    
-    // printf("ACC --- X: %f, Y: %f, Z: %f\n", f_ax->a_x, f_ax->a_y, f_ax->a_z);
 }
 
 void read_sample_GYRO(Gyro_Axis_t* gyro, Gyro_Axis_final_t* f_gyro, uint8_t* r_buff, int i) {
@@ -75,8 +73,6 @@ void read_sample_GYRO(Gyro_Axis_t* gyro, Gyro_Axis_final_t* f_gyro, uint8_t* r_b
     f_gyro->g_x = gyro->g_x / SENS_GYRO_RANGE;
     f_gyro->g_y = gyro->g_y / SENS_GYRO_RANGE;
     f_gyro->g_z = gyro->g_z / SENS_GYRO_RANGE;
-
-   // printf("GYRO --- X: %f, Y: %f, Z: %f\n", f_gyro->g_x, f_gyro->g_y, f_gyro->g_z);
 }
 
 esp_err_t empty_FIFO(struct i2c_device* device, Three_Axis_t *axis, Three_Axis_final_t* f_ax, Gyro_Axis_t* gyro, Gyro_Axis_final_t* f_gyro, uint8_t* reading_buffer, int fs) {
@@ -280,15 +276,14 @@ bool verify_step(const Three_Axis_t* ax) {
     float M = sqrt((ax->a_x * ax->a_x) + 
                    (ax->a_y * ax->a_y) + 
                    (ax->a_z * ax->a_z));
-    float filtered_M = M;
         
     static bool up = false;
 
-    if(!up && filtered_M > (M_REST + THRESHOLD_H)) { //rising edge
+    if(!up && M > (M_REST + THRESHOLD_H)) { //rising edge
         // ! this means that one step is detected when M raises above TH_H and up is false (down) 
         up = true;
         return true;
-    } else if(up && filtered_M < (M_REST + THRESHOLD_L)) { //falling edge
+    } else if(up && M < (M_REST + THRESHOLD_L)) { //falling edge
         up = false;
     }
 
@@ -335,48 +330,13 @@ void motion_analysis(const Three_Axis_t* ax, const Gyro_Axis_final_t* gyro) {
     bool wrist = verify_wrist_rotation(gyro);
 
     if(step && !wrist) {
-        STEP_COUNTER_INC(step_cntr);
-        printf("STEPS: %d\n", step_cntr);
+        global_parameters.step_cntr ++;
+        printf("STEPS: %d\n", global_parameters.step_cntr);
         fflush(stdout);
     } else if(wrist) {
         printf("WRIST ROTATION DETECT\n");
         fflush(stdout);
-        // xTaskNotify(task_turn_on_display, 1, eSetBits);
-    }
-}
 
-void task_acc(void* pvParameters) {
-
-    // vTaskDelay(DELAY_20);
-
-    struct i2c_device* device = (struct i2c_device *) pvParameters;
-
-    if(device == NULL) {
-        printf("task_acc: invalid device\n");
-        vTaskDelete(NULL);
-        abort();
-    }
-
-    if(acc_config(device) != ESP_OK) {
-        printf("Configuration error!\n");
-        abort();
-    }
-
-    Three_Axis_t       axis;
-    Gyro_Axis_t        gyro;
-    Three_Axis_final_t f_axis;
-    Gyro_Axis_final_t  f_gyro;
-
-    for(;;) {
-        esp_err_t err = mpu6050_read_FIFO(device, &axis, &gyro, &f_axis, &f_gyro);
-        if(err == ERR) {
-            printf("Error reading!\n");
-        } else if (err == FIFO_EMPTY) {
-            printf("FIFO empty!\n");
-        } else if(err == RESET_FIFO) {
-            printf("TOO MUCH data!\n");
-        } 
-
-        vTaskDelay(100 / portTICK_PERIOD_MS);
+        xQueueSend(event_queue, EVT_TURN_ON_DISPLAY, 0);
     }
 }

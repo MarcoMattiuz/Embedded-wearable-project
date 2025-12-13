@@ -29,7 +29,6 @@ struct ppg_task_params
 
 BaseType_t retF;
 
-static struct global_param global_parameters;
 static i2c_master_bus_handle_t i2c_bus_0;
 static i2c_master_bus_handle_t i2c_bus_1;
 static esp_lcd_panel_handle_t panel_handle;
@@ -234,6 +233,42 @@ void PPG_sensor_task(void *parameters)
         // }
 
         vTaskDelay(300 / portTICK_PERIOD_MS);
+    }
+}
+
+void task_acc(void* pvParameters) {
+
+    struct i2c_device* device = (struct i2c_device *) pvParameters;
+
+    global_parameters.step_cntr = 0;
+
+    if(device == NULL) {
+        printf("task_acc: invalid device\n");
+        vTaskDelete(NULL);
+        abort();
+    }
+
+    if(acc_config(device) != ESP_OK) {
+        printf("Configuration error!\n");
+        abort();
+    }
+
+    Three_Axis_t       axis;
+    Gyro_Axis_t        gyro;
+    Three_Axis_final_t f_axis;
+    Gyro_Axis_final_t  f_gyro;
+
+    for(;;) {
+        esp_err_t err = mpu6050_read_FIFO(device, &axis, &gyro, &f_axis, &f_gyro);
+        if(err == ERR) {
+            printf("Error reading!\n");
+        } else if (err == FIFO_EMPTY) {
+            printf("FIFO empty!\n");
+        } else if(err == RESET_FIFO) {
+            printf("TOO MUCH data!\n");
+        } 
+
+        vTaskDelay(100 / portTICK_PERIOD_MS);
     }
 }
 

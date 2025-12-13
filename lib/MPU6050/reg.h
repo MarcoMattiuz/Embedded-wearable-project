@@ -6,6 +6,7 @@
 
 #include <stdio.h>
 #include <stdbool.h>
+#include "../SHARED/global_param.h"
 
 /*
     bit 7 → 0x80   (128)
@@ -184,9 +185,7 @@ typedef struct {
     uint32_t last_trigger;
 } Rotation_t;
 
-extern int step_cntr;
-#define STEP_COUNTER_INC(x) ((x)++)
-#define SMOOTHING_FACTOR 4
+// #define SMOOTHING_FACTOR 4
 /*
     We need two thresholds for M
       high 
