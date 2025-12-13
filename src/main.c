@@ -329,7 +329,7 @@ void app_main()
     init_I2C_bus_PORT1(&i2c_bus_1);
 
     add_device_MAX30102(&max30102_device);
-    add_device_MPU6050(&mpu6050_device);
+    // add_device_MPU6050(&mpu6050_device);
     // add_device_SH1106 (&panel_handle);
 
     // parameters init
@@ -361,14 +361,14 @@ void app_main()
     //     NULL
     // );
 
-    retF = xTaskCreatePinnedToCore(
-        task_acc,
-        "task_acc_debug",
-        4096,
-        &mpu6050_device,
-        2,
-        NULL,
-        1);
+    // retF = xTaskCreatePinnedToCore(
+    //     task_acc,
+    //     "task_acc_debug",
+    //     4096,
+    //     &mpu6050_device,
+    //     2,
+    //     NULL,
+    //     1);
 
     xTaskCreatePinnedToCore(
         PPG_sensor_task,

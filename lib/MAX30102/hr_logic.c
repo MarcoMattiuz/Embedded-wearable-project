@@ -163,8 +163,8 @@ void calculateBPM(int16_t ir_ac, float *BPM, float *AVG_BPM) {
         oldBPM = currBPM;
         if (currBPM > 40 && currBPM < 210) {
 
-            rate_size = (2 + (int) (deltaBPM / 3));
-            if(rate_size >= MAX_RATE_SIZE) rate_size = MAX_RATE_SIZE;
+            // rate_size = (2 + (int) (deltaBPM / 3));
+            // if(rate_size >= MAX_RATE_SIZE) rate_size = MAX_RATE_SIZE;
             // Memorizza BPM e crea media scorrevole
             rates[rates_index] = currBPM;
             rates_index = (rates_index + 1) % rate_size;
