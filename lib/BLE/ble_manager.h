@@ -12,6 +12,7 @@
 #include "services/gap/ble_svc_gap.h"
 #include "services/gatt/ble_svc_gatt.h"
 #include <string.h>
+#include "reg.h"
 
 /* Device Custom Service UUID */
 #define DEVICE_CUSTOM_SERVICE_UUID 0x1847
@@ -19,6 +20,12 @@
 #define TIME_CHAR_UUID 0x2A2B
 /* Float32 characteristic */
 #define FLOAT32_CHAR_UUID 0x0014
+/* Gyro characteristic */
+#define GYRO_CHAR_UUID 0x0015
+/* Int16 characteristic */
+#define INT16_CHAR_UUID 0x0016
+/* Uint32 characteristic */
+#define UINT32_CHAR_UUID 0x0017
 
 /* Current Time characteristic format */
 typedef struct __attribute__((packed)) {
@@ -43,6 +50,15 @@ int ble_manager_init(const char *device_name);
 /* Send notification with float32 data */
 int ble_manager_notify_message(uint16_t conn_handle, uint16_t char_handle, const void *data, uint16_t len);
 
+/* Send notification with Gyro_Axis_t data */
+int ble_manager_notify_gyro(uint16_t conn_handle, const Gyro_Axis_t *gyro_data);
+
+/* Send notification with int16_t data */
+int ble_manager_notify_int16(uint16_t conn_handle, int16_t value);
+
+/* Send notification with uint32_t data */
+int ble_manager_notify_uint32(uint16_t conn_handle, uint32_t value);
+
 /* Get connection status */
 bool ble_manager_is_connected(void);
 
@@ -51,6 +67,15 @@ uint16_t ble_manager_get_conn_handle(void);
 
 /* Get float32 characteristic handle */
 uint16_t ble_manager_get_float32_char_handle(void);
+
+/* Get gyro characteristic handle */
+uint16_t ble_manager_get_gyro_char_handle(void);
+
+/* Get int16 characteristic handle */
+uint16_t ble_manager_get_int16_char_handle(void);
+
+/* Get uint32 characteristic handle */
+uint16_t ble_manager_get_uint32_char_handle(void);
 
 /* Register callbacks */
 void ble_manager_register_notify_state_cb(ble_notify_state_cb_t cb);
