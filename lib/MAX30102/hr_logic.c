@@ -146,7 +146,7 @@ bool beat_detected(int16_t ir_ac) {
     Every time a new bpm is calculated it is used to calculate the delta of samples for the 
     rate_size, and then it is used a circular buffer to calculate the avg bpm, (avg goes from 2 - 10)
 */
-void calculateBPM(int16_t ir_ac, float *BPM, float *AVG_BPM) {
+void calculateBPM(int16_t ir_ac, int16_t *BPM, int16_t *AVG_BPM) {
     sample_counter++;
     if (beat_detected(ir_ac)) {
         long now = sample_counter;
@@ -175,8 +175,7 @@ void calculateBPM(int16_t ir_ac, float *BPM, float *AVG_BPM) {
 
             *BPM = currBPM;
             *AVG_BPM = sum / rate_size;
-
-            DBG_PRINTF(">--BEAT--< BPM: %.1f | AVG: %.1f\n - deltaBPM: %d - rate_size: %d\n", *BPM, *AVG_BPM, deltaBPM, rate_size);
+            DBG_PRINTF(">--BEAT--< BPM: %d | AVG: %d\n - deltaBPM: %d - rate_size: %d\n", *BPM, *AVG_BPM, deltaBPM, rate_size);
             // DBG_PRINTF(">-----BEAT-----<\n");
         }
     }

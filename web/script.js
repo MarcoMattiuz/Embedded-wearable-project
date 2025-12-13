@@ -2,12 +2,16 @@ const SERVICE_UUID = 0x1847;
 const TIME_CHAR_UUID = 0x2a2b;
 const FLOAT32_CHAR_UUID = 0x0014;
 const GYRO_CHAR_UUID = 0x0015;
+const INT16_CHAR_UUID = 0x0016;
+const UINT32_CHAR_UUID = 0x0017;
 const DEVICE_NAME = "ESP32_BLE";
 
 let bluetoothDevice = null;
 let timeCharacteristic = null;
 let float32Characteristic = null;
 let gyroCharacteristic = null;
+let int16Charateristic = null;
+let uint32Charateristic = null;
 
 const statusDiv = document.getElementById("status");
 const connectBtn = document.getElementById("connectBtn");
@@ -16,7 +20,11 @@ const DataDiv = document.getElementById("data");
 
 /* data */
 window.IRACsampleArr = [];
+window.BPMsampleArr = [];
+window.AVGBPMsampleArr = [];
 let MAX_SIZE_IRAC_BUFFER = 960;
+let MAX_SIZE_BPM_BUFFER = 200;
+
 
 function log(message, type = "info") {
   const entry = document.createElement("div");
@@ -56,6 +64,8 @@ async function toggleConnection() {
     timeCharacteristic = await service.getCharacteristic(TIME_CHAR_UUID);
     float32Characteristic = await service.getCharacteristic(FLOAT32_CHAR_UUID);
     gyroCharacteristic = await service.getCharacteristic(GYRO_CHAR_UUID);
+    int16Charateristic = await service.getCharacteristic(INT16_CHAR_UUID);
+    uint32Charateristic = await service.getCharacteristic(UINT32_CHAR_UUID);
 
     await float32Characteristic.startNotifications();
     float32Characteristic.addEventListener(
@@ -67,6 +77,18 @@ async function toggleConnection() {
     gyroCharacteristic.addEventListener(
       "characteristicvaluechanged",
       handleGyroNotification
+    );
+
+    await int16Charateristic.startNotifications();
+    int16Charateristic.addEventListener(
+      "characteristicvaluechanged",
+      handleBPM
+    );
+
+    await uint32Charateristic.startNotifications();
+    uint32Charateristic.addEventListener(
+      "characteristicvaluechanged",
+      handleAVGBPM
     );
 
     await sendTimeValue(Date.now());
@@ -139,6 +161,34 @@ async function sendTimeValue(timestamp) {
 
 //     log(`Float32: ${float32Value.toFixed(2)}`, 'success');
 // }
+
+function updateDropdown(bpm, avg) {
+    document.getElementById("dropdown-bpm").textContent = `BPM: ${bpm}`;
+    document.getElementById("dropdown-avg").textContent = `AVG BPM: ${avg}`;
+}
+
+function handleBPM(event) {
+  const value = event.target.value;
+  window.BPMsampleArr.push(value.getInt16(0, true));
+  log("BPM: " + window.BPMsampleArr);
+  if (window.BPMsampleArr.length >= MAX_SIZE_BPM_BUFFER) {
+    window.BPMsampleArr = [];
+  }
+  updateDropdown(BPMsampleArr.at(-1),AVGBPMsampleArr.at(-1));
+  updateBPMGraph();
+}
+
+function handleAVGBPM(event) {
+  const value = event.target.value;
+  window.AVGBPMsampleArr.push(value.getInt16(0, true));
+  log("AVG_BPM: " + window.AVGBPMsampleArr);
+  if (window.AVGBPMsampleArr.length >= MAX_SIZE_BPM_BUFFER) {
+    window.AVGBPMsampleArr = [];
+  }
+  updateDropdown(BPMsampleArr.at(-1),AVGBPMsampleArr.at(-1));
+  updateBPMGraph();
+}
+
 function handleNotification(event) {
   const value = event.target.value;
   // 16bit = 2 byte
@@ -148,32 +198,12 @@ function handleNotification(event) {
   if (window.IRACsampleArr.length >= MAX_SIZE_IRAC_BUFFER) {
     window.IRACsampleArr = [];
   }
-  // DataDiv.innerHTML = `
-  //     <strong>Array int16 ricevuto:</strong><br>
-  //     [${window.IRACsampleArr.join(', ')}]<br>
-  //     <strong>Timestamp:</strong> ${new Date().toLocaleTimeString()}
-  // `;
+
   updateGraphs();
-//   console.log(`Array int16: [${window.IRACsampleArr.join(', ')}]`, 'success');
+  console.log(`Array int16: [${window.IRACsampleArr.join(', ')}]`, 'success');
 }
 
-// function handleNotification(event) {
-//   const value = event.target.value;
-//   // 16bit = 2 byte
-//   for (let i = 0; i < value.byteLength; i += 4) {
-//     window.IRACsampleArr.push(value.getInt32(i, true));
-//   }
-//   if (window.IRACsampleArr.length >= MAX_SIZE_IRAC_BUFFER) {
-//     window.IRACsampleArr = [];
-//   }
-//   // DataDiv.innerHTML = `
-//   //     <strong>Array int16 ricevuto:</strong><br>
-//   //     [${window.IRACsampleArr.join(', ')}]<br>
-//   //     <strong>Timestamp:</strong> ${new Date().toLocaleTimeString()}
-//   // `;
-//   updateGraph();
-//   console.log(`Array int16: [${window.IRACsampleArr.join(', ')}]`, 'success');
-// }
+
 
 connectBtn.addEventListener("click", toggleConnection);
 
@@ -184,5 +214,3 @@ if (!navigator.bluetooth) {
   statusDiv.textContent = "Browser not supported";
   statusDiv.className = "status disconnected";
 }
-
-
