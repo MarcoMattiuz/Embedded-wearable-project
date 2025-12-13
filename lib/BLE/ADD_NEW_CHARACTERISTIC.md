@@ -57,6 +57,25 @@ static int gatt_svr_chr_access(uint16_t conn_handle, uint16_t attr_handle,
     // ...
 }
 
+/* GAP event handler */
+static int ble_gap_event(struct ble_gap_event *event, void *arg)
+{
+    //...
+    case BLE_GAP_EVENT_SUBSCRIBE:
+            ESP_LOGI(TAG, "Subscribe event; cur_notify=%d, attr_handle=%d",
+                    event->subscribe.cur_notify, event->subscribe.attr_handle);
+            
+            if (event->subscribe.attr_handle == gyro_char_handle) {
+                bool notify_enabled = event->subscribe.cur_notify;
+                
+                if (notify_state_callback) {
+                    notify_state_callback(notify_enabled);
+                }
+            }
+            break;
+
+}
+
 // Send notification with Gyro_Axis_t data
 int ble_manager_notify_gyro(uint16_t conn_handle, const Gyro_Axis_t *gyro_data)
 {
