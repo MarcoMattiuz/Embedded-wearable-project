@@ -1,17 +1,19 @@
 const SERVICE_UUID = 0x1847;
 const TIME_CHAR_UUID = 0x2a2b;
-const FLOAT32_CHAR_UUID = 0x0014;
+const IRACBUFFER_CHAR_UUID = 0x0014;
 const GYRO_CHAR_UUID = 0x0015;
 const BPM_CHAR_UUID = 0x0016;
 const AVGBPM_CHAR_UUID = 0x0017;
+const IRRAWBUFFER_CHAR_UUID = 0x0018;
+
 const DEVICE_NAME = "ESP32_BLE";
 
 let bluetoothDevice = null;
 let timeCharacteristic = null;
-let float32Characteristic = null;
+let iracbufferCharacteristic = null;
 let gyroCharacteristic = null;
-let int16Charateristic = null;
-let uint32Charateristic = null;
+let bpmCharateristic = null;
+let avgbpmCharateristic = null;
 
 const statusDiv = document.getElementById("status");
 const connectBtn = document.getElementById("connectBtn");
@@ -20,10 +22,12 @@ const DataDiv = document.getElementById("data");
 
 /* data */
 window.IRACsampleArr = [];
+window.IRRAWsampleArr = [];
 window.BPMsampleArr = [];
 window.AVGBPMsampleArr = [];
 let MAX_SIZE_IRAC_BUFFER = 960;
 let MAX_SIZE_BPM_BUFFER = 200;
+let MAX_SIZE_IRRAW_BUFFER = 960;
 
 
 function log(message, type = "info") {
@@ -62,15 +66,22 @@ async function toggleConnection() {
 
     const service = await server.getPrimaryService(SERVICE_UUID);
     timeCharacteristic = await service.getCharacteristic(TIME_CHAR_UUID);
-    float32Characteristic = await service.getCharacteristic(FLOAT32_CHAR_UUID);
+    iracbufferCharacteristic = await service.getCharacteristic(IRACBUFFER_CHAR_UUID);
+    irrawbufferCharacteristic = await service.getCharacteristic(IRRAWBUFFER_CHAR_UUID);
     gyroCharacteristic = await service.getCharacteristic(GYRO_CHAR_UUID);
-    int16Charateristic = await service.getCharacteristic(BPM_CHAR_UUID);
-    uint32Charateristic = await service.getCharacteristic(AVGBPM_CHAR_UUID);
+    bpmCharateristic = await service.getCharacteristic(BPM_CHAR_UUID);
+    avgbpmCharateristic = await service.getCharacteristic(AVGBPM_CHAR_UUID);
 
-    await float32Characteristic.startNotifications();
-    float32Characteristic.addEventListener(
+    await iracbufferCharacteristic.startNotifications();
+    iracbufferCharacteristic.addEventListener(
       "characteristicvaluechanged",
-      handleNotification
+      handleIRACbuffer
+    );
+
+    await irrawbufferCharacteristic.startNotifications();
+    irrawbufferCharacteristic.addEventListener(
+      "characteristicvaluechanged",
+      handleIRRAWbuffer
     );
 
     await gyroCharacteristic.startNotifications();
@@ -79,14 +90,14 @@ async function toggleConnection() {
       handleGyroNotification
     );
 
-    await int16Charateristic.startNotifications();
-    int16Charateristic.addEventListener(
+    await bpmCharateristic.startNotifications();
+    bpmCharateristic.addEventListener(
       "characteristicvaluechanged",
       handleBPM
     );
 
-    await uint32Charateristic.startNotifications();
-    uint32Charateristic.addEventListener(
+    await avgbpmCharateristic.startNotifications();
+    avgbpmCharateristic.addEventListener(
       "characteristicvaluechanged",
       handleAVGBPM
     );
@@ -105,7 +116,7 @@ function onDisconnected() {
   log("Device disconnected", "error");
   updateUI(false);
   timeCharacteristic = null;
-  float32Characteristic = null;
+  iracbufferCharacteristic = null;
   gyroCharacteristic = null;
 }
 
@@ -150,17 +161,7 @@ async function sendTimeValue(timestamp) {
   }
 }
 
-// function handleNotification(event) {
-//     const value = event.target.value;
-//     const float32Value = value.getFloat32(0, true);
 
-//     DataDiv.innerHTML = `
-//         <strong>Float32:</strong> ${float32Value.toFixed(2)}<br>
-//         <strong>Timestamp:</strong> ${new Date().toLocaleTimeString()}
-//     `;
-
-//     log(`Float32: ${float32Value.toFixed(2)}`, 'success');
-// }
 
 function updateDropdown(bpm, avg) {
     document.getElementById("dropdown-bpm").textContent = `BPM: ${bpm}`;
@@ -169,27 +170,39 @@ function updateDropdown(bpm, avg) {
 
 function handleBPM(event) {
   const value = event.target.value;
-  window.BPMsampleArr.push(value.getInt16(0, true));
-  log("BPM: " + window.BPMsampleArr);
+  const now = new Date();
+  const timestamp = now.getHours().toString().padStart(2, '0') + ':' + 
+                    now.getMinutes().toString().padStart(2, '0');
+  window.BPMsampleArr.push({
+    value: value.getInt16(0, true),
+    timestamp: timestamp
+  });
+  log("BPM: " + window.BPMsampleArr.map(s => s.value).join(', '));
   if (window.BPMsampleArr.length >= MAX_SIZE_BPM_BUFFER) {
     window.BPMsampleArr = [];
   }
-  updateDropdown(BPMsampleArr.at(-1),AVGBPMsampleArr.at(-1));
+  updateDropdown(BPMsampleArr.at(-1).value, AVGBPMsampleArr.at(-1).value);
   updateBPMGraph();
 }
 
 function handleAVGBPM(event) {
   const value = event.target.value;
-  window.AVGBPMsampleArr.push(value.getInt16(0, true));
-  log("AVG_BPM: " + window.AVGBPMsampleArr);
+  const now = new Date();
+  const timestamp = now.getHours().toString().padStart(2, '0') + ':' + 
+                    now.getMinutes().toString().padStart(2, '0');
+  window.AVGBPMsampleArr.push({
+    value: value.getInt16(0, true),
+    timestamp: timestamp
+  });
+  log("AVG_BPM: " + window.AVGBPMsampleArr.map(s => s.value).join(', '));
   if (window.AVGBPMsampleArr.length >= MAX_SIZE_BPM_BUFFER) {
     window.AVGBPMsampleArr = [];
   }
-  updateDropdown(BPMsampleArr.at(-1),AVGBPMsampleArr.at(-1));
+  updateDropdown(BPMsampleArr.at(-1).value, AVGBPMsampleArr.at(-1).value);
   updateBPMGraph();
 }
 
-function handleNotification(event) {
+function handleIRACbuffer(event) {
   const value = event.target.value;
   // 16bit = 2 byte
   for (let i = 0; i < value.byteLength; i += 2) {
@@ -199,8 +212,24 @@ function handleNotification(event) {
     window.IRACsampleArr = [];
   }
 
-  updateGraphs();
-  console.log(`Array int16: [${window.IRACsampleArr.join(', ')}]`, 'success');
+  updateIRACGraphs();
+  console.log(`Array IR AC int16: [${window.IRACsampleArr.join(', ')}]`, 'success');
+}
+
+function handleIRRAWbuffer(event) {
+  const value = event.target.value;
+  // 32bit = 4 byte
+  for (let i = 0; i < value.byteLength; i += 4) {
+    if (i + 4 <= value.byteLength) {
+      window.IRRAWsampleArr.push(value.getUint32(i, true));
+    }
+  }
+  if (window.IRRAWsampleArr.length >= MAX_SIZE_IRRAW_BUFFER) {
+    window.IRRAWsampleArr = [];
+  }
+
+  updateIRRAWGraphs();
+  console.log(`Array IR RAW Uint32: [${window.IRRAWsampleArr.join(', ')}]`, 'success');
 }
 
 

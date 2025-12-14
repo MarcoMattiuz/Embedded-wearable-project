@@ -18,14 +18,16 @@
 #define DEVICE_CUSTOM_SERVICE_UUID 0x1847
 /* Current Time characteristic */
 #define TIME_CHAR_UUID 0x2A2B
-/* Float32 characteristic */
-#define FLOAT32_CHAR_UUID 0x0014
+/* IRACBUFFER characteristic */
+#define IRACBUFFER_CHAR_UUID 0x0014
 /* Gyro characteristic */
 #define GYRO_CHAR_UUID 0x0015
-/* Int16 characteristic */
+/* BPM characteristic */
 #define BPM_CHAR_UUID 0x0016
-/* Uint32 characteristic */
+/* AVGBPM characteristic */
 #define AVGBPM_CHAR_UUID 0x0017
+/* IRRAW characteristic */
+#define IRRAWBUFFER_CHAR_UUID 0x0018
 
 /* Current Time characteristic format */
 typedef struct __attribute__((packed)) {
@@ -48,7 +50,10 @@ typedef void (*ble_time_write_cb_t)(current_time_t *time_data);
 int ble_manager_init(const char *device_name);
 
 /* Send notification with float32 data */
-int ble_manager_notify_message(uint16_t conn_handle, uint16_t char_handle, const void *data, uint16_t len);
+int ble_manager_notify_iracbuffer(uint16_t conn_handle, uint16_t char_handle, const void *data, uint16_t len);
+
+/* Send notification with float32 data */
+int ble_manager_notify_irrawbuffer(uint16_t conn_handle, uint16_t char_handle, const void *data, uint16_t len);
 
 /* Send notification with Gyro_Axis_t data */
 int ble_manager_notify_gyro(uint16_t conn_handle, const Gyro_Axis_t *gyro_data);
@@ -65,8 +70,10 @@ bool ble_manager_is_connected(void);
 /* Get current connection handle */
 uint16_t ble_manager_get_conn_handle(void);
 
-/* Get float32 characteristic handle */
-uint16_t ble_manager_get_float32_char_handle(void);
+/* Get iracbuffer characteristic handle */
+uint16_t ble_manager_get_iracbuffer_char_handle(void);
+/* Get irraw characteristic handle */
+uint16_t ble_manager_get_irrawbuffer_char_handle(void);
 
 /* Get gyro characteristic handle */
 uint16_t ble_manager_get_gyro_char_handle(void);

@@ -10,7 +10,8 @@ static uint8_t ble_addr_type;
 static const char *device_name = NULL;
 
 /* Characteristic handles */
-static uint16_t float32_char_handle;
+static uint16_t iracbuffer_char_handle;
+static uint16_t irrawbuffer_char_handle;
 static uint16_t gyro_char_handle;
 static uint16_t bpm_char_handle;
 static uint16_t avgbpm_char_handle;
@@ -20,7 +21,8 @@ static ble_notify_state_cb_t notify_state_callback = NULL;
 static ble_time_write_cb_t time_write_callback = NULL;
 
 /* Current float32 values for read operations */
-static float current_float32_value = 0.0f;
+static float current_iracbuffer_value = 0.0f;
+static float current_irrawbuffer_value = 0.0f;
 static Gyro_Axis_t current_gyro_value = {0};
 static int16_t current_bpm_value = 0;
 static uint32_t current_avgbpm_value = 0;
@@ -43,12 +45,20 @@ static const struct ble_gatt_svc_def gatt_svr_svcs[] = {
                 .access_cb = gatt_svr_chr_access,
                 .flags = BLE_GATT_CHR_F_WRITE,
             }, {
-                /* Float32 Characteristic - notifiable to client */
-                .uuid = BLE_UUID16_DECLARE(FLOAT32_CHAR_UUID),
+                /* irac buffer Characteristic - notifiable to client */
+                .uuid = BLE_UUID16_DECLARE(IRACBUFFER_CHAR_UUID),
                 .access_cb = gatt_svr_chr_access,
-                .val_handle = &float32_char_handle,
+                .val_handle = &iracbuffer_char_handle,
                 .flags = BLE_GATT_CHR_F_NOTIFY,
-            }, {
+            }, 
+            {
+                /* irraw buffer Characteristic - notifiable to client */
+                .uuid = BLE_UUID16_DECLARE(IRRAWBUFFER_CHAR_UUID),
+                .access_cb = gatt_svr_chr_access,
+                .val_handle = &irrawbuffer_char_handle,
+                .flags = BLE_GATT_CHR_F_NOTIFY,
+            },
+            {
                 /* Gyro Characteristic - notifiable to client */
                 .uuid = BLE_UUID16_DECLARE(GYRO_CHAR_UUID),
                 .access_cb = gatt_svr_chr_access,
@@ -104,12 +114,19 @@ static int gatt_svr_chr_access(uint16_t conn_handle, uint16_t attr_handle,
             }
             return BLE_ATT_ERR_INVALID_ATTR_VALUE_LEN;
         }
-    } else if (uuid == FLOAT32_CHAR_UUID) {
+    } else if (uuid == IRACBUFFER_CHAR_UUID) {
         if (ctxt->op == BLE_GATT_ACCESS_OP_READ_CHR) {
-            rc = os_mbuf_append(ctxt->om, &current_float32_value, sizeof(float));
+            rc = os_mbuf_append(ctxt->om, &current_iracbuffer_value, sizeof(float));
             return rc == 0 ? 0 : BLE_ATT_ERR_UNLIKELY;
         }
-    } else if (uuid == GYRO_CHAR_UUID) {
+    } 
+    else if (uuid == IRRAWBUFFER_CHAR_UUID) {
+        if (ctxt->op == BLE_GATT_ACCESS_OP_READ_CHR) {
+            rc = os_mbuf_append(ctxt->om, &current_irrawbuffer_value, sizeof(float));
+            return rc == 0 ? 0 : BLE_ATT_ERR_UNLIKELY;
+        }
+    } 
+    else if (uuid == GYRO_CHAR_UUID) {
         if (ctxt->op == BLE_GATT_ACCESS_OP_READ_CHR) {
             rc = os_mbuf_append(ctxt->om, &current_gyro_value, sizeof(Gyro_Axis_t));
             return rc == 0 ? 0 : BLE_ATT_ERR_UNLIKELY;
@@ -267,7 +284,15 @@ static int ble_gap_event(struct ble_gap_event *event, void *arg)
         ESP_LOGI(TAG, "Subscribe event; cur_notify=%d, attr_handle=%d",
                  event->subscribe.cur_notify, event->subscribe.attr_handle);
         
-        if (event->subscribe.attr_handle == float32_char_handle) {
+        if (event->subscribe.attr_handle == iracbuffer_char_handle) {
+            bool notify_enabled = event->subscribe.cur_notify;
+            
+            if (notify_state_callback) {
+                notify_state_callback(notify_enabled);
+            }
+        }
+
+        if (event->subscribe.attr_handle == irrawbuffer_char_handle) {
             bool notify_enabled = event->subscribe.cur_notify;
             
             if (notify_state_callback) {
@@ -382,14 +407,41 @@ int ble_manager_init(const char *dev_name)
 }
 
 /* Send notification with float32 data */
-int ble_manager_notify_message(uint16_t conn_handle, uint16_t char_handle, const void *data, uint16_t len)
+int ble_manager_notify_iracbuffer(uint16_t conn_handle, uint16_t char_handle, const void *data, uint16_t len)
 {
     struct os_mbuf *om;
     int rc;
 
     /* Update current value for read operations */
-    if (len == sizeof(float) && char_handle == float32_char_handle) {
-        memcpy(&current_float32_value, data, sizeof(float));
+    if (len == sizeof(float) && char_handle == iracbuffer_char_handle) {
+        memcpy(&current_iracbuffer_value, data, sizeof(float));
+    }
+
+    /* Create mbuf and send notification */
+    om = ble_hs_mbuf_from_flat(data, len);
+    if (om == NULL) {
+        ESP_LOGE(TAG, "Error allocating mbuf");
+        return -1;
+    }
+
+    rc = ble_gatts_notify_custom(conn_handle, char_handle, om);
+    if (rc != 0) {
+        ESP_LOGE(TAG, "Error sending notification; rc=%d", rc);
+        return rc;
+    }
+
+    return 0;
+}
+
+/* Send notification with float32 data */
+int ble_manager_notify_irrawbuffer(uint16_t conn_handle, uint16_t char_handle, const void *data, uint16_t len)
+{
+    struct os_mbuf *om;
+    int rc;
+
+    /* Update current value for read operations */
+    if (len == sizeof(float) && char_handle == irrawbuffer_char_handle) {
+        memcpy(&current_irrawbuffer_value, data, sizeof(float));
     }
 
     /* Create mbuf and send notification */
@@ -511,9 +563,14 @@ uint16_t ble_manager_get_conn_handle(void)
 }
 
 /* Get float32 characteristic handle */
-uint16_t ble_manager_get_float32_char_handle(void)
+uint16_t ble_manager_get_iracbuffer_char_handle(void)
 {
-    return float32_char_handle;
+    return iracbuffer_char_handle;
+}
+
+uint16_t ble_manager_get_irrawbuffer_char_handle(void)
+{
+    return irrawbuffer_char_handle;
 }
 
 /* Register callbacks */

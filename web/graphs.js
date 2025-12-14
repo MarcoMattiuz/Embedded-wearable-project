@@ -13,7 +13,8 @@ var traceBPM = {
   line: { width: 2, color: "#ff6b35" },
   xaxis: "x",
   yaxis: "y",
-  hovertemplate: "BPM: %{y}<br>Time: %{x:.1f}s<extra></extra>",
+  hovertemplate: "BPM: %{y}<br>Time: %{customdata}<extra></extra>",
+  customdata: [],
 };
 var traceAVGBPM = {
   type: "scatter",
@@ -22,7 +23,8 @@ var traceAVGBPM = {
   xaxis: "x2",
   yaxis: "y2",
   line: { width: 2, color: "#4ecdc4" },
-  hovertemplate: "AVG BPM: %{y}<br>Time: %{x:.1f}s<extra></extra>",
+  hovertemplate: "AVG BPM: %{y}<br>Time: %{customdata}<extra></extra>",
+  customdata: [],
 };
 
 var layoutFILTERED = {
@@ -134,26 +136,28 @@ function updateBPMGraph() {
   )
     return;
 
-  const BPMarr = window.BPMsampleArr;
+  const BPMarr = window.BPMsampleArr.map(item => item.value);
   const BPMsamples = BPMarr.map((_, i) => i);
   const BPMtime = BPMsamples.map((s) => s * 2.5);
+  const BPMtimestamps = window.BPMsampleArr.map(item => item.timestamp);
 
-  const AVGBPMarr = window.AVGBPMsampleArr;
+  const AVGBPMarr = window.AVGBPMsampleArr.map(item => item.value);
   const AVGBPMsamples = AVGBPMarr.map((_, i) => i);
   const AVGBPMtime = AVGBPMsamples.map((s) => s * 2.5);
+  const AVGBPMtimestamps = window.AVGBPMsampleArr.map(item => item.timestamp);
 
   Plotly.update("graphBPM", {
     x: [BPMtime, AVGBPMtime],
     y: [BPMarr, AVGBPMarr],
+    customdata: [BPMtimestamps, AVGBPMtimestamps],
   });
 }
-function updateGraphs() {
+function updateIRACGraphs() {
   if (!window.IRACsampleArr || window.IRACsampleArr.length === 0) return;
 
   const arr = window.IRACsampleArr;
   const samples = arr.map((_, i) => i);
   const time = samples.map((s) => s * 0.02);
-  console.log(arr.length);
   const N = 240;
   const start = Math.max(0, time.length - N);
   const end = time.length;
@@ -177,21 +181,26 @@ function updateGraphs() {
       },
     }
   );
+}
+
+function updateIRRAWGraphs() {
+  if (!window.IRRAWsampleArr || window.IRRAWsampleArr.length === 0) return;
+
+  const arr = window.IRRAWsampleArr;
+  const samples = arr.map((_, i) => i);
+  const time = samples.map((s) => s * 0.02);
+  const N = 240;
+  const start = Math.max(0, time.length - N);
+  const end = time.length;
+  const arr_max = Math.max(arr);
+  const arr_min = Math.min(arr);
+
+  
   Plotly.update(
     "graphRAW",
     {
       x: [time],
       y: [arr],
-    },
-    {
-      xaxis: {
-        range: [time[start], time[end - 1]],
-      },
-    },
-    {
-      yaxis: {
-        range: [arr[arr_max], arr[arr_min]],
-      },
     }
   );
 }

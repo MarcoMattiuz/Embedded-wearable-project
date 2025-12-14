@@ -63,9 +63,9 @@ static void touch_sensor_task(void *pvParameter)
                 float touch_value_send = 9.9f;
                 ESP_LOGI(TAG, "Touch detected! Sending %.1f", touch_value_send);
 
-                ble_manager_notify_message(
+                ble_manager_notify_iracbuffer(
                     ble_manager_get_conn_handle(),
-                    ble_manager_get_float32_char_handle(),
+                    ble_manager_get_iracbuffer_char_handle(),
                     &touch_value_send,
                     sizeof(touch_value_send));
             }
@@ -200,12 +200,19 @@ void send_ppg_data_task(void *parameters)
         ESP_LOGI(TAG, "Sending AVG_BPM");
         ble_manager_notify_avgbpm(ble_manager_get_conn_handle(), global_parameters.AVG_BPM);
         // send IR filtered buffer
-        ESP_LOGI(TAG, "Sending IR buffer");
-        ble_manager_notify_message(
+        ESP_LOGI(TAG, "Sending IR ac buffer");
+        ble_manager_notify_iracbuffer(
             ble_manager_get_conn_handle(),
-            ble_manager_get_float32_char_handle(),
+            ble_manager_get_iracbuffer_char_handle(),
             &IR_ac_buffer,
             sizeof(int16_t) * MAX30102_BPM_SAMPLES_SIZE);
+        // send IR raw buffer
+        ESP_LOGI(TAG, "Sending IR raw buffer");
+        ble_manager_notify_irrawbuffer(
+            ble_manager_get_conn_handle(),
+            ble_manager_get_irrawbuffer_char_handle(),
+            &IR_buffer,
+            sizeof(uint32_t) * MAX30102_BPM_SAMPLES_SIZE);
     }
     vTaskDelay(100 / portTICK_PERIOD_MS);
     vTaskDelete(NULL);
