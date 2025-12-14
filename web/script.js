@@ -1,3 +1,5 @@
+import { update3DObject } from "./script3D";
+
 const SERVICE_UUID = 0x1847;
 const TIME_CHAR_UUID = 0x2a2b;
 const IRACBUFFER_CHAR_UUID = 0x0014;
@@ -121,12 +123,15 @@ function onDisconnected() {
 }
 
 function handleGyroNotification(event) {
+
   const value = event.target.value;
+
   if (value.byteLength >= 6) {
-    const gx = value.getInt16(0, true);
-    const gy = value.getInt16(2, true);
-    const gz = value.getInt16(4, true);
-    log("Gyro: X=${gx} Y=${gy} Z=${gz}");
+    const gx = value.getFloat32(0, true);
+    const gy = value.getFloat32(4, true);
+    const gz = value.getFloat32(8, true);
+
+    update3DObject(gx, gy, gz);
   }
 }
 
@@ -160,8 +165,6 @@ async function sendTimeValue(timestamp) {
     log(`Write error: ${error}`, "error");
   }
 }
-
-
 
 function updateDropdown(bpm, avg) {
     document.getElementById("dropdown-bpm").textContent = `BPM: ${bpm}`;
@@ -231,8 +234,6 @@ function handleIRRAWbuffer(event) {
   updateIRRAWGraphs();
   console.log(`Array IR RAW Uint32: [${window.IRRAWsampleArr.join(', ')}]`, 'success');
 }
-
-
 
 connectBtn.addEventListener("click", toggleConnection);
 
