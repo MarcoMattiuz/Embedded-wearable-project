@@ -73,6 +73,12 @@ void read_sample_GYRO(Gyro_Axis_t* gyro, Gyro_Axis_final_t* f_gyro, uint8_t* r_b
     f_gyro->g_x = gyro->g_x / SENS_GYRO_RANGE;
     f_gyro->g_y = gyro->g_y / SENS_GYRO_RANGE;
     f_gyro->g_z = gyro->g_z / SENS_GYRO_RANGE;
+
+    // send gyro data
+    ble_manager_get_gyro_char_handle(
+        ble_manager_get_conn_handle(),
+        f_gyro
+    );
 }
 
 esp_err_t empty_FIFO(struct i2c_device* device, Three_Axis_t *axis, Three_Axis_final_t* f_ax, Gyro_Axis_t* gyro, Gyro_Axis_final_t* f_gyro, uint8_t* reading_buffer, int fs) {

@@ -14,6 +14,7 @@
 #include "I2C_api.h"
 #include "../SHARED/global_param.h"
 #include "../sh1106/display_fsm.h"
+#include "../BLE/ble_manager.h"
 
 // ! return ESP_ERR_INVALID_ARG in this part of the project is considered as STANDARD ERROR
 
