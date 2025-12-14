@@ -2,8 +2,8 @@ const SERVICE_UUID = 0x1847;
 const TIME_CHAR_UUID = 0x2a2b;
 const FLOAT32_CHAR_UUID = 0x0014;
 const GYRO_CHAR_UUID = 0x0015;
-const INT16_CHAR_UUID = 0x0016;
-const UINT32_CHAR_UUID = 0x0017;
+const BPM_CHAR_UUID = 0x0016;
+const AVGBPM_CHAR_UUID = 0x0017;
 const DEVICE_NAME = "ESP32_BLE";
 
 let bluetoothDevice = null;
@@ -64,8 +64,8 @@ async function toggleConnection() {
     timeCharacteristic = await service.getCharacteristic(TIME_CHAR_UUID);
     float32Characteristic = await service.getCharacteristic(FLOAT32_CHAR_UUID);
     gyroCharacteristic = await service.getCharacteristic(GYRO_CHAR_UUID);
-    int16Charateristic = await service.getCharacteristic(INT16_CHAR_UUID);
-    uint32Charateristic = await service.getCharacteristic(UINT32_CHAR_UUID);
+    int16Charateristic = await service.getCharacteristic(BPM_CHAR_UUID);
+    uint32Charateristic = await service.getCharacteristic(AVGBPM_CHAR_UUID);
 
     await float32Characteristic.startNotifications();
     float32Characteristic.addEventListener(

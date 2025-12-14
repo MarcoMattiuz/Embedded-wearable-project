@@ -195,10 +195,10 @@ void send_ppg_data_task(void *parameters)
     {
         //send bpm
         ESP_LOGI(TAG, "Sending BPM");
-        ble_manager_notify_int16(ble_manager_get_conn_handle(), global_parameters.BPM);
+        ble_manager_notify_bpm(ble_manager_get_conn_handle(), global_parameters.BPM);
         //send avg bpm
         ESP_LOGI(TAG, "Sending AVG_BPM");
-        ble_manager_notify_uint32(ble_manager_get_conn_handle(), global_parameters.AVG_BPM);
+        ble_manager_notify_avgbpm(ble_manager_get_conn_handle(), global_parameters.AVG_BPM);
         // send IR filtered buffer
         ESP_LOGI(TAG, "Sending IR buffer");
         ble_manager_notify_message(

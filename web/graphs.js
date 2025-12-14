@@ -1,16 +1,16 @@
 var traceFILTERED = {
   type: "scatter",
-  line: { width: 2, color: "orange" },
+  line: { width: 2, color: "#4ecdc4" },
 };
 var traceRAW = {
   type: "scatter",
-  line: { width: 2, color: "blue" },
+  line: { width: 2, color: "#ff9a56" },
 };
 var traceBPM = {
   type: "scatter",
   mode: "lines+markers",
   name: "BPM",
-  line: { width: 2, color: "orange" },
+  line: { width: 2, color: "#ff6b35" },
   xaxis: "x",
   yaxis: "y",
   hovertemplate: "BPM: %{y}<br>Time: %{x:.1f}s<extra></extra>",
@@ -21,7 +21,7 @@ var traceAVGBPM = {
   name: "AVG BPM",
   xaxis: "x2",
   yaxis: "y2",
-  line: { width: 2, color: "blue" },
+  line: { width: 2, color: "#4ecdc4" },
   hovertemplate: "AVG BPM: %{y}<br>Time: %{x:.1f}s<extra></extra>",
 };
 

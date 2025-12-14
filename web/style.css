@@ -25,7 +25,7 @@ body {
 
 body {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  background: linear-gradient(135deg, #041f2d 0%, #0a3d4f 100%);
 
   width: 100%;
   min-height: 100%;
@@ -40,7 +40,7 @@ body {
 }
 
 .container {
-  background: #2d2d44;
+  background: #0f5a7a;
   border-radius: 20px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
   padding: 40px;
@@ -50,7 +50,7 @@ body {
 }
 
 h1 {
-  color: #e0e0e0;
+  color: #fff9e6;
   margin-bottom: 10px;
   text-align: center;
 }
@@ -62,28 +62,28 @@ h1 {
 .control-group label {
   display: block;
   margin-bottom: 8px;
-  color: #e0e0e0;
+  color: #fff9e6;
   font-weight: bold;
 }
 
 input[type="text"] {
   width: 100%;
   padding: 12px;
-  border: 2px solid #4a4a5e;
+  border: 2px solid #ff9a56;
   border-radius: 8px;
   font-size: 14px;
-  background: #1e1e2e;
-  color: #e0e0e0;
+  background: #083d56;
+  color: #fff9e6;
   transition: border-color 0.3s;
 }
 
 input[type="text"]:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #ff6b35;
 }
 
 .btn-send {
-  background: #2ecc71;
+  background: #ff6b35;
   color: white;
 }
 
@@ -92,8 +92,8 @@ input[type="text"]:focus {
 }
 
 .data-display {
-  background: #1e1e2e;
-  border: 2px solid #4a4a5e;
+  background: #083d56;
+  border: 2px solid #ff9a56;
   border-radius: 10px;
   padding: 15px;
   margin: 20px 0;
@@ -104,14 +104,14 @@ input[type="text"]:focus {
 
 .data-label {
   font-weight: bold;
-  color: #a0a0b0;
+  color: #ffb88c;
   font-size: 12px;
   text-transform: uppercase;
   margin-bottom: 8px;
 }
 
 .data-value {
-  color: #e0e0e0;
+  color: #fff9e6;
   font-size: 14px;
 }
 
@@ -129,9 +129,9 @@ input[type="text"]:focus {
   overflow-y: auto;
   overflow-x: hidden;
 
-  background: #1a1a28;
-  color: #ecf0f1;
-  border-top: 2px solid #4a4a5e;
+  background: #0a2d3f;
+  color: #fff9e6;
+  border-top: 2px solid #ff9a56;
 
   padding: 12px 18px;
   padding-top: 20px; /* spazio per la maniglia */
@@ -165,7 +165,7 @@ input[type="text"]:focus {
   transform: translateX(-50%);
   width: 60px;
   height: 3px;
-  background: #4a4a5e;
+  background: #ff9a56;
   border-radius: 3px;
   opacity: 0.6;
 }
@@ -176,25 +176,25 @@ input[type="text"]:focus {
 }
 
 .log-entry.info {
-  color: #3498db;
+  color: #4ecdc4;
 }
 
 .log-entry.success {
-  color: #2ecc71;
+  color: #95e1d3;
 }
 
 .log-entry.error {
-  color: #e74c3c;
+  color: #ff6b5b;
 }
 
 .warning {
-  background: #3d3519;
-  border: 1px solid #ffc107;
+  background: #1a4d2e;
+  border: 1px solid #ff9a56;
   border-radius: 8px;
   padding: 12px;
   margin-bottom: 20px;
   font-size: 13px;
-  color: #ffd43b;
+  color: #ffb88c;
 }
 
 .graphsContainer {
@@ -255,9 +255,9 @@ input[type="text"]:focus {
   align-items: center;
   gap: 20px;
 
-  background: #16213e;
+  background: #0a3d62;
   padding: 12px 20px;
-  border-bottom: 2px solid #1a1a2e;
+  border-bottom: 2px solid #ff9a56;
 
   z-index: 9999;
 }
@@ -276,15 +276,15 @@ input[type="text"]:focus {
 
 /* Colori dinamici */
 .status.disconnected {
-  background: #3d1f1f;
-  color: #ff6b6b;
-  border: 1px solid #ff6b6b;
+  background: #5d2e2e;
+  color: #ff6b5b;
+  border: 1px solid #ff6b5b;
 }
 
 .status.connected {
-  background: #1f3d2f;
-  color: #51cf66;
-  border: 1px solid #51cf66;
+  background: #2d5a3d;
+  color: #95e1d3;
+  border: 1px solid #95e1d3;
 }
 
 .btn-connect,
@@ -293,7 +293,7 @@ input[type="text"]:focus {
   padding: 10px 0;
   text-align: center;
 
-  background: #0f3460;
+  background: #0a5f7f;
   color: #fff;
   border: none;
   font-size: 1rem;
@@ -329,22 +329,22 @@ button:disabled {
 }
 
 .btn-connect {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #ff6b35 0%, #ff9a56 100%);
   color: white;
 }
 
 .btn-disconnect {
-  background: #e74c3c;
+  background: #ff6b5b;
   color: white;
 }
 
 .btn-read {
-  background: #3498db;
+  background: #4ecdc4;
   color: white;
 }
 
 .btn-imu {
-  background: #9b59b6;
+  background: #ff9a56;
   color: white;
 }
 
@@ -359,7 +359,7 @@ button:disabled {
 
 /* Button dropdown */
 .dropdown-btn {
-    background-color: #333;
+    background-color: #0a5f7f;
     color: white;
     padding: 8px 12px;
     border: none;
@@ -369,14 +369,14 @@ button:disabled {
 }
 
 .dropdown-btn:hover {
-    background-color: #444;
+    background-color: #ff9a56;
 }
 
 /* Content nascosto */
 .dropdown-content {
     display: none;
     position: absolute;
-    background-color: #222;
+    background-color: #0a3d62;
     min-width: 160px;
     padding: 10px;
     border-radius: 6px;
