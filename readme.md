@@ -41,6 +41,9 @@ To ensure maintainability and accessibility for anyone interested in experimenti
 
 ## Project structure
 
+## Project structure
+
+```ascii
 EmbeddedProject/
 ├── .github/
 │   └── workflows/
@@ -67,6 +70,7 @@ EmbeddedProject/
 ├── .gitignore
 ├── platformio.ini
 └── README.md
+```
 
 ## Run / debug the project
 - The project was developed using Platformio IDE (vscode extension) for its integrated tools. We suggets to use it to flash the code. 
