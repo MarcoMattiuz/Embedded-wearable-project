@@ -40,4 +40,6 @@ bool  verify_step           (const Three_Axis_t* ax);
 bool  verify_wrist_rotation (const Gyro_Axis_final_t* g);
 void  motion_analysis       (const Three_Axis_t* ax, const Gyro_Axis_final_t* gyro);
 
+void task_acc (void* pvParameters);
+
 #endif
