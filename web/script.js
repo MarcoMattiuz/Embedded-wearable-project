@@ -1,5 +1,3 @@
-import { update3DObject } from "./script3D";
-
 const SERVICE_UUID = 0x1847;
 const TIME_CHAR_UUID = 0x2a2b;
 const IRACBUFFER_CHAR_UUID = 0x0014;

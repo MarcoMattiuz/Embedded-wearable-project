@@ -1,24 +1,23 @@
-let container, scene, camera, renderer, cube;
+import * as THREE from 'three';
+import { STLLoader } from 'three/addons/loaders/STLLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+let container, scene, camera, renderer, model, controls;
 
 function init3DObject() {
 
     container = document.getElementById("object");
 
-    // Fix per evitare overflow
     container.style.position = "relative";
     container.style.overflow = "hidden";
 
-    // Renderer
     renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(container.clientWidth, container.clientHeight);
     container.appendChild(renderer.domElement);
 
-    // Scene
     scene = new THREE.Scene();
-    // scene.background = new THREE.Color(0x111111);
 
-    // Camera
     camera = new THREE.PerspectiveCamera(
         60,
         container.clientWidth / container.clientHeight,
@@ -26,25 +25,70 @@ function init3DObject() {
         1000
     );
     camera.position.z = 3;
+    camera.position.y = 0;
+    camera.position.x = 0;
 
-    // Lights
+    controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.autoRotate = false;
+
     const light = new THREE.DirectionalLight(0xffffff, 1.2);
-    light.position.set(2, 2, 3);
+    light.position.set(10, 10, 100);
     scene.add(light);
 
-    // Cube
-    const cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
-    const cubeMaterial = new THREE.MeshStandardMaterial({
-        color: 0x00ff88,
-        roughness: 0.4,
-        metalness: 0.3
+    const centerGeometry = new THREE.SphereGeometry(0.1, 32, 32);
+    const centerMaterial = new THREE.MeshStandardMaterial({
+        color: 0xff6b35,
+        emissive: 0xff6b35,
+        emissiveIntensity: 0.8
     });
-    cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
-    scene.add(cube);
+    const centerPoint = new THREE.Mesh(centerGeometry, centerMaterial);
+    centerPoint.position.set(0, 0, 0);
+    scene.add(centerPoint);
+
+    const axesHelper = new THREE.AxesHelper(2);
+    scene.add(axesHelper);
+
+    const gridHelper = new THREE.GridHelper(10, 10, 0x444444, 0x888888);
+    scene.add(gridHelper);
+
+    const loader = new STLLoader();
+
+    loader.load(
+        "models/object.stl",
+        (geometry) => {
+            const material = new THREE.MeshStandardMaterial({
+                color: 0xfffdd0,
+                roughness: 0.4,
+                metalness: 0.3
+            });
+
+            model = new THREE.Mesh(geometry, material);
+
+            model.scale.set(0.01, 0.01, 0.01);
+            model.rotation.x = -Math.PI / 2;
+            model.position.set(0, 0, 0.8);
+
+            scene.add(model);
+        },
+        undefined,
+        (error) => {
+            console.error('Errore caricamento STL:', error);
+            const geometry = new THREE.BoxGeometry(2, 2, 2);
+            const material = new THREE.MeshStandardMaterial({
+                color: 0xfffdd0,
+                roughness: 0.4,
+                metalness: 0.3
+            });
+            model = new THREE.Mesh(geometry, material);
+            model.position.set(0, 0, 0);
+            scene.add(model);
+        }
+    );
 
     animate();
 
-    // Resize handling
     window.addEventListener("resize", () => {
         const w = container.clientWidth;
         const h = container.clientHeight;
@@ -55,17 +99,31 @@ function init3DObject() {
     });
 }
 
-// Cube animation
 function animate() {
 
     requestAnimationFrame(animate);
 
+    if (controls) {
+        controls.update();
+    }
+
+    if (model) {
+        update3DObject(
+            model.rotation.x + 0.005,
+            model.rotation.y + 0.01,
+            model.rotation.z + 0.003
+        );
+    }
+
     renderer.render(scene, camera);
 }
 
-export function update3DObject(gx, gy, gz) {
+function update3DObject(gx, gy, gz) {
 
-    cube.rotation.set(gx, gy, gz);
+    if (!model) return;
+
+    model.rotation.set(gx, gy, gz);
 }
+
 
 init3DObject();
