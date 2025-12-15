@@ -103,10 +103,6 @@ function animate() {
 
     requestAnimationFrame(animate);
 
-    if (controls) {
-        controls.update();
-    }
-
     if (model) {
         update3DObject(
             model.rotation.x + 0.005,

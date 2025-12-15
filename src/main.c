@@ -30,7 +30,6 @@ struct ppg_task_params
 
 BaseType_t retF;
 
-static struct global_param global_parameters;
 static i2c_master_bus_handle_t i2c_bus_0;
 static i2c_master_bus_handle_t i2c_bus_1;
 static esp_lcd_panel_handle_t panel_handle;
@@ -75,26 +74,26 @@ static void touch_sensor_task(void *pvParameter)
 }
 
 /* Send data to the website */
-void gyro_ble_task(void *pvParameter)
-{
-    struct i2c_device *mpu_device = (struct i2c_device *)pvParameter;
-    Gyro_Axis_t gyro_raw = {0};
-    uint8_t gyro_buffer[6] = {0};
+// void gyro_ble_task(void *pvParameter)
+// {
+//     struct i2c_device *mpu_device = (struct i2c_device *)pvParameter;
+//     Gyro_Axis_t gyro_raw = {0};
+//     uint8_t gyro_buffer[6] = {0};
 
-    while (1)
-    {
-        if (notify_enabled && ble_manager_is_connected())
-        {
+//     while (1)
+//     {
+//         if (notify_enabled && ble_manager_is_connected())
+//         {
 
-            // mpu6050_read_reg(mpu_device, MPU6050_GYRO_XOUT_H, gyro_buffer, 6); 
+//             // mpu6050_read_reg(mpu_device, MPU6050_GYRO_XOUT_H, gyro_buffer, 6); 
 
-            ble_manager_notify_gyro(
-                ble_manager_get_conn_handle(),
-                &gyro_raw);
-        }
-        vTaskDelay(pdMS_TO_TICKS(200));
-    }
-}
+//             ble_manager_notify_gyro(
+//                 ble_manager_get_conn_handle(),
+//                 &gyro_raw);
+//         }
+//         vTaskDelay(pdMS_TO_TICKS(200));
+//     }
+// }
 
 /* Get the current time from the website and set RTC */
 static void on_time_write(current_time_t *time_data)

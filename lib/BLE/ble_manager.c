@@ -461,7 +461,7 @@ int ble_manager_notify_irrawbuffer(uint16_t conn_handle, uint16_t char_handle, c
 }
 
 /* Send notification with Gyro_Axis_t data */
-int ble_manager_notify_gyro(uint16_t conn_handle, const Gyro_Axis_t *gyro_data)
+int ble_manager_notify_gyro(uint16_t conn_handle, const Gyro_Axis_final_t *gyro_data)
 {
     struct os_mbuf *om;
     int rc;
