@@ -124,7 +124,7 @@ function handleGyroNotification(event) {
 
   const value = event.target.value;
 
-  if (value.byteLength >= 6) {
+  if (value.byteLength >= 12) {
     const gx = value.getFloat32(0, true);
     const gy = value.getFloat32(4, true);
     const gz = value.getFloat32(8, true);
