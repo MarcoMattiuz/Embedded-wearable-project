@@ -84,10 +84,14 @@ void read_sample_GYRO(Gyro_Axis_t *gyro, Gyro_Axis_final_t *f_gyro, uint8_t *r_b
     f_gyro->g_y = gyro->g_y / SENS_GYRO_RANGE;
     f_gyro->g_z = gyro->g_z / SENS_GYRO_RANGE;
 
-    //send gyro data via BLE
-    ble_manager_notify_gyro(
-        ble_manager_get_conn_handle(),
-        f_gyro);
+    //I create a new task to avoid waiting
+    xTaskCreate(
+            send_gyro_data_debug,
+            "send_gyro_data_debug",
+            4096,
+            f_gyro,
+            1,
+            NULL);
 }
 
 esp_err_t empty_FIFO(struct i2c_device *device, Three_Axis_t *axis, Three_Axis_final_t *f_ax, Gyro_Axis_t *gyro, Gyro_Axis_final_t *f_gyro, uint8_t *reading_buffer, int fs)
@@ -300,16 +304,6 @@ esp_err_t acc_config(struct i2c_device *device)
     return ESP_OK;
 }
 
-// float low_pass_filter_M(const float M) {
-
-//     static float y = M_REST;
-
-//     //previous low pass filter value which needs for the next
-//     y += (M - y) / SMOOTHING_FACTOR;
-
-//     return y;
-// }
-
 bool verify_step(const Three_Axis_t *ax)
 {
 
@@ -393,8 +387,19 @@ void motion_analysis(const Three_Axis_t *ax, const Gyro_Axis_final_t *gyro)
         printf("WRIST ROTATION DETECT\n");
         fflush(stdout);
 
-        xQueueSend(event_queue, EVT_TURN_ON_DISPLAY, 0);
+        EventType evt = EVT_TURN_ON_DISPLAY;       
+        xQueueSend(event_queue, &evt, 0);
     }
+}
+
+void send_gyro_data_debug(void *pvParameters) {
+
+    Gyro_Axis_final_t* data = (Gyro_Axis_final_t*) pvParameters;
+
+    //send gyro data via BLE
+    ble_manager_notify_gyro(
+                        ble_manager_get_conn_handle(),
+                        data);
 }
 
 void task_acc(void *pvParameters)
