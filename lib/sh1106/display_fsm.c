@@ -96,7 +96,10 @@ static void IRAM_ATTR button_isr(void *arg)
     last_button_isr_time = now;
 
     EventType evt = EVT_BUTTON_EDGE;
-    xQueueSendFromISR(event_queue, &evt, NULL);
+    
+    
+    
+    (event_queue, &evt, NULL);
 }
 
 

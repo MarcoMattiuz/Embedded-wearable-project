@@ -25,7 +25,7 @@ To ensure maintainability and accessibility for anyone interested in experimenti
 ## Team Contributions
 | Member | Contributions |
 |--------|---------------|
-| **Marco Mattiuz** | developed a library for the MAX30102 sensor using I2C protocol. The library also includes signal processing to calculate heart rate. Created the graphs in the web app using (plotly.js). Wrote some of the BLE connectivity |
+| **Marco Mattiuz** | developed a library for the MAX30102 sensor using I2C protocol. The library also includes signal processing to calculate heart rate. Created the graphs in the web app using (plotly.js). Wrote some of the BLE connectivity functions |
 | **Luca Guojie Zhan** | developed a library for the sh1106 oled monitor using I2C protocol. Wrote the code to handle button and wrist rotation events (the button uses interrupts) to change the state of the display and to turn it off. Implemented weather API in the web app.|
 | **Giorgio Marasca** | developed BLE connectivity in esp32 board and web application. TODO: Developed a library for the C02 sensor using I2C protocol.|
 | **Francesco Buscardo** | developed a library for MPU6050 sensor using I2C protocol. The library also calculates step count and detects wrist rotation. TODO: 3D orientation visualization. (with three.js)|

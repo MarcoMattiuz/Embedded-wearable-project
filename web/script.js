@@ -166,7 +166,8 @@ async function sendTimeValue(timestamp) {
 
 function updateDropdown(bpm, avg) {
     document.getElementById("dropdown-bpm").textContent = `BPM: ${bpm}`;
-    document.getElementById("dropdown-avg").textContent = `AVG BPM: ${avg}`;
+    document.getElementById("dropdown-avg").textContent = `AVG(4) BPM: ${avg}`;
+    document.getElementById("dropdown-total-avg").textContent = `TOTAL AVG BPM: ${Math.round(window.AVGBPMsampleArr.reduce((a, b) => a + b.value, 0) / window.AVGBPMsampleArr.length)}`;
 }
 
 function handleBPM(event) {
