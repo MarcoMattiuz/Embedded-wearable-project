@@ -21,7 +21,8 @@
 #include <sys/time.h>
 #include <time.h>
 #include "esp_task_wdt.h"
-
+#include "driver/adc.h"
+#include "esp_adc_cal.h"
 struct ppg_task_params
 {
     struct i2c_device *device;
@@ -85,7 +86,7 @@ static void touch_sensor_task(void *pvParameter)
 //         if (notify_enabled && ble_manager_is_connected())
 //         {
 
-//             // mpu6050_read_reg(mpu_device, MPU6050_GYRO_XOUT_H, gyro_buffer, 6); 
+//             // mpu6050_read_reg(mpu_device, MPU6050_GYRO_XOUT_H, gyro_buffer, 6);
 
 //             ble_manager_notify_gyro(
 //                 ble_manager_get_conn_handle(),
@@ -189,13 +190,13 @@ void add_device_MPU6050(struct i2c_device *device)
 }
 
 void send_ppg_data_task(void *parameters)
-{  
+{
     if (notify_enabled && ble_manager_is_connected())
     {
-        //send bpm
+        // send bpm
         ESP_LOGI(TAG, "Sending BPM");
         ble_manager_notify_bpm(ble_manager_get_conn_handle(), global_parameters.BPM);
-        //send avg bpm
+        // send avg bpm
         ESP_LOGI(TAG, "Sending AVG_BPM");
         ble_manager_notify_avgbpm(ble_manager_get_conn_handle(), global_parameters.AVG_BPM);
         // send IR filtered buffer
@@ -273,9 +274,7 @@ void PPG_sensor_task(void *parameters)
                 4096,
                 NULL,
                 1,
-                NULL
-            );
-            
+                NULL);
         }
         // i2c_master_transmit_receive(device->i2c_dev_handle, &ovf_cntr, 1, &wr_ptr, 1, 1000);
         // DBG_PRINTF("overflow: %d\n",wr_ptr);
@@ -373,6 +372,42 @@ void LCD_task(void *parameters)
 void app_main()
 {
     esp_task_wdt_deinit();
+
+    // ADC init  GPIO32 -> ADC1_CHANNEL_4
+    adc1_config_width(ADC_WIDTH_BIT_12);
+    adc1_config_channel_atten(ADC1_CHANNEL_4, ADC_ATTEN_DB_11);
+    while (1)
+    {
+        int val = adc1_get_raw(ADC1_CHANNEL_4);
+        DBG_PRINTF("ADC1 CHANNEL 4 VALUE: %d\n", val);
+        // Vout = Dout * Vmax(3.3V) / Dmax    
+        // V max for our battey is 4.2V but the circuit (voltage divider) attenuates it.
+        // to get the max Vout the formulae is: Vout = Vin × R2 / (R1 + R2) 
+        // R1 = 10kohm, R2 = 10kohm Vin = 4.2V => Vout = 4.2 * 10k / (10k + 10k) = 2.1V   
+        float voltage = val * 3.3 / 4095;
+        DBG_PRINTF("Voltage: %.2f V\n", voltage);
+
+        // 4.2V=2.1V -> 100%
+        // 3.95V= 1.97V -> 75%
+        // 3.7V= 1.85V -> 50%
+        // 3.5V= 1.75V -> 25%
+        // 3.3V= 1.65V -> 0%
+        float battery_percentage = 0.0f;
+        if (voltage >= 2.1f)
+            battery_percentage = 100.0f;
+        else if (voltage >= 1.97f)
+            battery_percentage = 75.0f + (voltage - 1.97f) * (25.0f / (2.1f - 1.97f));
+        else if (voltage >= 1.85f)
+            battery_percentage = 50.0f + (voltage - 1.85f) * (25.0f / (1.97f - 1.85f));
+        else if (voltage >= 1.75f)
+            battery_percentage = 25.0f + (voltage - 1.75f) * (25.0f / (1.85f - 1.75f));
+        else if (voltage >= 1.65f)
+            battery_percentage = (voltage - 1.65f) * (25.0f / (1.75f - 1.65f));
+        else
+            battery_percentage = 0.0f;
+        DBG_PRINTF("Battery: %.1f %%\n", battery_percentage);
+        vTaskDelay(2000 / portTICK_PERIOD_MS);
+    }
 
     // I2C busses init
     init_I2C_bus_PORT0(&i2c_bus_0);
