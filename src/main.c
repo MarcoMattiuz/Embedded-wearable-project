@@ -378,7 +378,7 @@ void app_main()
     init_I2C_bus_PORT0(&i2c_bus_0);
     init_I2C_bus_PORT1(&i2c_bus_1);
 
-    add_device_MAX30102(&max30102_device);
+    // add_device_MAX30102(&max30102_device);
     // add_device_MPU6050(&mpu6050_device);
     // add_device_SH1106 (&panel_handle);
 
@@ -420,14 +420,14 @@ void app_main()
     //     NULL,
     //     1);
 
-    xTaskCreatePinnedToCore(
-        PPG_sensor_task,
-        "PPG_sensor_task_debug",
-        4096,
-        &parameters_ppg_max30102,
-        1,
-        &ppg_task_handle,
-        0);
+    // xTaskCreatePinnedToCore(
+    //     PPG_sensor_task,
+    //     "PPG_sensor_task_debug",
+    //     4096,
+    //     &parameters_ppg_max30102,
+    //     1,
+    //     &ppg_task_handle,
+    //     0);
 
     //* Start Gyro BLE notification task */
     // xTaskCreatePinnedToCore(gyro_ble_task, "gyro_ble_task", 4096, &mpu6050_device, 1, NULL, 0);
