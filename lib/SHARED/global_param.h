@@ -1,6 +1,9 @@
 #ifndef __GLOBAL_PARAM_H__
 #define __GLOBAL_PARAM_H__
 
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
 enum BATTERY_STATE_ENUM
 {
     BATTERY_EMPTY = 0,

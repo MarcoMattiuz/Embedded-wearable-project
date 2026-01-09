@@ -391,19 +391,20 @@ static void bettery_level_task(void *pvParameter)
         // 3.5V= 1.75V -> 25%
         // 3.3V= 1.65V -> 0%
 
-        if (voltage >= 2.1f)
+
+        if (voltage >= 2.0f)
             global_parameters.battery_state = BATTERY_FULL;
-        else if (voltage >= 1.97f)
+        else if (voltage >= 1.90f)
             global_parameters.battery_state = BATTERY_HIGH;
-        else if (voltage >= 1.85f)
+        else if (voltage >= 1.82f)
             global_parameters.battery_state = BATTERY_MEDIUM;
-        else if (voltage >= 1.75f)
+        else if (voltage >= 1.72f)
             global_parameters.battery_state = BATTERY_LOW;
         else
             global_parameters.battery_state = BATTERY_EMPTY;
 
         DBG_PRINTF("Battery: %d\n", global_parameters.battery_state);
-        vTaskDelay(2000 / portTICK_PERIOD_MS);
+        vTaskDelay(10000 / portTICK_PERIOD_MS);
     }
 }
 
