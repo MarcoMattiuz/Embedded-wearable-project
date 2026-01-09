@@ -369,10 +369,8 @@ void LCD_task(void *parameters)
     }
 }
 
-void app_main()
+static void bettery_level_task(void *pvParameter)
 {
-    esp_task_wdt_deinit();
-
     // ADC init  GPIO32 -> ADC1_CHANNEL_4
     adc1_config_width(ADC_WIDTH_BIT_12);
     adc1_config_channel_atten(ADC1_CHANNEL_4, ADC_ATTEN_DB_11);
@@ -380,10 +378,10 @@ void app_main()
     {
         int val = adc1_get_raw(ADC1_CHANNEL_4);
         DBG_PRINTF("ADC1 CHANNEL 4 VALUE: %d\n", val);
-        // Vout = Dout * Vmax(3.3V) / Dmax    
+        // Vout = Dout * Vmax(3.3V) / Dmax
         // V max for our battey is 4.2V but the circuit (voltage divider) attenuates it.
-        // to get the max Vout the formulae is: Vout = Vin × R2 / (R1 + R2) 
-        // R1 = 10kohm, R2 = 10kohm Vin = 4.2V => Vout = 4.2 * 10k / (10k + 10k) = 2.1V   
+        // to get the max Vout the formulae is: Vout = Vin × R2 / (R1 + R2)
+        // R1 = 10kohm, R2 = 10kohm Vin = 4.2V => Vout = 4.2 * 10k / (10k + 10k) = 2.1V
         float voltage = val * 3.3 / 4095;
         DBG_PRINTF("Voltage: %.2f V\n", voltage);
 
@@ -392,22 +390,26 @@ void app_main()
         // 3.7V= 1.85V -> 50%
         // 3.5V= 1.75V -> 25%
         // 3.3V= 1.65V -> 0%
-        float battery_percentage = 0.0f;
+
         if (voltage >= 2.1f)
-            battery_percentage = 100.0f;
+            global_parameters.battery_state = BATTERY_FULL;
         else if (voltage >= 1.97f)
-            battery_percentage = 75.0f + (voltage - 1.97f) * (25.0f / (2.1f - 1.97f));
+            global_parameters.battery_state = BATTERY_HIGH;
         else if (voltage >= 1.85f)
-            battery_percentage = 50.0f + (voltage - 1.85f) * (25.0f / (1.97f - 1.85f));
+            global_parameters.battery_state = BATTERY_MEDIUM;
         else if (voltage >= 1.75f)
-            battery_percentage = 25.0f + (voltage - 1.75f) * (25.0f / (1.85f - 1.75f));
-        else if (voltage >= 1.65f)
-            battery_percentage = (voltage - 1.65f) * (25.0f / (1.75f - 1.65f));
+            global_parameters.battery_state = BATTERY_LOW;
         else
-            battery_percentage = 0.0f;
-        DBG_PRINTF("Battery: %.1f %%\n", battery_percentage);
+            global_parameters.battery_state = BATTERY_EMPTY;
+
+        DBG_PRINTF("Battery: %d\n", global_parameters.battery_state);
         vTaskDelay(2000 / portTICK_PERIOD_MS);
     }
+}
+
+void app_main()
+{
+    esp_task_wdt_deinit();
 
     // I2C busses init
     init_I2C_bus_PORT0(&i2c_bus_0);
@@ -463,6 +465,15 @@ void app_main()
     //     1,
     //     &ppg_task_handle,
     //     0);
+
+    //* Start battery level monitoring task */
+    xTaskCreate(
+        bettery_level_task,
+        "battery_level_task",
+        2048,
+        NULL,
+        1,
+        NULL);
 
     //* Start Gyro BLE notification task */
     // xTaskCreatePinnedToCore(gyro_ble_task, "gyro_ble_task", 4096, &mpu6050_device, 1, NULL, 0);
