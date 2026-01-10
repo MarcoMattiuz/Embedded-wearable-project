@@ -25,7 +25,7 @@ To ensure maintainability and accessibility for anyone interested in experimenti
 ## Team Contributions
 | Member | Contributions |
 |--------|---------------|
-| **Marco Mattiuz** | developed a library for the MAX30102 sensor using I2C protocol. The library also includes signal processing to calculate heart rate. Created the graphs in the web app using (plotly.js). Wrote some of the BLE connectivity functions |
+| **Marco Mattiuz** | developed a library for the MAX30102 sensor using I2C protocol. The library also includes signal processing to calculate heart rate. Created the graphs in the web app using (plotly.js). Wrote some of the BLE connectivity functions. Created the task that uses the ADC to measures the voltage of the battery and estimate the charge state. |
 | **Luca Guojie Zhan** | developed a library for the sh1106 oled monitor using I2C protocol. Wrote the code to handle button and wrist rotation events (the button uses interrupts) to change the state of the display and to turn it off. Implemented weather API in the web app.|
 | **Giorgio Marasca** | developed BLE connectivity in esp32 board and web application. TODO: Developed a library for the C02 sensor using I2C protocol.|
 | **Francesco Buscardo** | developed a library for MPU6050 sensor using I2C protocol. The library also calculates step count and detects wrist rotation. TODO: 3D orientation visualization. (with three.js)|
@@ -46,27 +46,34 @@ To ensure maintainability and accessibility for anyone interested in experimenti
 ```ascii
 EmbeddedProject/
 ├── .github/
-│   └── workflows/
+│   ├── workflows/
+│   │   └── deploy.yml
 ├── .pio/
 │   └── build/ ...
 ├── lib/
+│   ├── BLE/
+│   │   └── ... .c / .h
+│   ├── sh1160/
+│   │   └── ... .c / .h
 │   ├── MAX30102/
 │   │   └── max30102_api.c / .h
 │   ├── MPU6050/
 │   │   └── mpu6050_api.c / .h
 │   ├── SHARED/
 │   │   └── common_utils.c / .h
-│   └── ... (other shared libraries)
+│   └── ... (other)
 ├── src/
 │   └── main.c
 ├── tools/
 │   └── python_scripts.py
 ├── web/
+│   ├── models/
+│   ├── libs/
 │   ├── index.html
 │   ├── graphs.js
 │   ├── script.js
 │   ├── style.css
-│   └── ... (other assets)
+│   └── ... (other files)
 ├── .gitignore
 ├── platformio.ini
 └── README.md
@@ -87,4 +94,5 @@ python3 -m venv venv
 source venv/bin/activate
 python3 graph.py
 ```
+- later in the project we added graphs in the web application, so now you can see there the raw and filtered data of the ppg sensor
 ⚠️ the python script has **sps** hard coded in, so if you change it in the MAX30102 configuration keep in mind that you will have to change it also there.
