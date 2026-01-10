@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+
 enum BATTERY_STATE_ENUM
 {
     BATTERY_EMPTY = 0,
