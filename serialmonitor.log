@@ -1,93 +1,29 @@
---- Terminal on /dev/cu.usbserial-210 | 115200 8-N-1
+Please wait while upgrading PlatformIO...
+PlatformIO has been successfully upgraded to 6.1.19a2!
+
+********************************************************************************
+If you like PlatformIO, please:
+- star it on GitHub > https://github.com/platformio/platformio-core
+- follow us on LinkedIn to stay up-to-date on the latest project news > https://www.linkedin.com/company/platformio/
+- try PlatformIO IDE for embedded development > https://platformio.org/platformio-ide
+********************************************************************************
+
+--- Terminal on /dev/cu.usbserial-0001 | 115200 8-N-1
 --- Available filters and text transformations: colorize, debug, default, direct, esp32_exception_decoder, hexlify, log2file, nocontrol, printable, send_on_enter, time
 --- More details at https://bit.ly/pio-monitor-filters
 --- Quit: Ctrl+C | Menu: Ctrl+T | Help: Ctrl+T followed by Ctrl+H
-BPM: 76.923080,AVG_BPM: 53.037109I (413696) MAIN: task_acc created: OK
-BPM: 76.923080,AVG_BPM: 53.037109I (416096) MAIN: task_acc created: OK
-BPM: 76.923080,AVG_BPM: 53.037109I (418496) MAIN: task_acc created: OK
-BPM: 76.923080,AVG_BPM: 53.037109I (420896) MAIN: task_acc created: OK
-BPM: 76.923080,AVG_BPM: 53.037109I (423296) MAIN: task_acc created: OK
-BPM: 76.923080,AVG_BPM: 53.037109I (425696) MAIN: task_acc created: OK
->--BEAT--< BPM: 187.5 | AVG: 55.1
- - deltaBPM: 158 - rate_size: 10
->--BEAT--< BPM: 85.7 | AVG: 57.7
- - deltaBPM: 101 - rate_size: 10
-BPM: 85.714287,AVG_BPM: 57.691875I (428096) MAIN: task_acc created: OK
-BPM: 85.714287,AVG_BPM: 57.691875I (430506) MAIN: task_acc created: OK
-BPM: 85.714287,AVG_BPM: 57.691875I (432906) MAIN: task_acc created: OK
->--BEAT--< BPM: 50.8 | AVG: 58.4
- - deltaBPM: 39 - rate_size: 10
->--BEAT--< BPM: 115.4 | AVG: 64.0
- - deltaBPM: 64 - rate_size: 10
->--BEAT--< BPM: 125.0 | AVG: 77.5
- - deltaBPM: 9 - rate_size: 5
->--BEAT--< BPM: 53.6 | AVG: 63.1
- - deltaBPM: 71 - rate_size: 10
-BPM: 53.571430,AVG_BPM: 63.074402I (435316) MAIN: task_acc created: OK
->--BEAT--< BPM: 73.2 | AVG: 61.7
- - deltaBPM: 19 - rate_size: 8
->--BEAT--< BPM: 68.2 | AVG: 41.1
- - deltaBPM: 4 - rate_size: 3
->--BEAT--< BPM: 88.2 | AVG: 69.6
- - deltaBPM: 20 - rate_size: 8
-BPM: 88.235291,AVG_BPM: 69.637924I (437736) MAIN: task_acc created: OK
-STEPS: 101
-BPM: 88.235291,AVG_BPM: 69.637924I (440136) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (442536) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (444936) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (447336) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (449736) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (452136) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (454536) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (456936) MAIN: task_acc created: OK
-STEPS: 102
-BPM: 88.235291,AVG_BPM: 69.637924I (459336) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (461736) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (464136) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (466536) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (468936) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (471336) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (473736) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (476136) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (478536) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (480936) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (483336) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (485736) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (488136) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (490536) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (492936) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (495336) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (497736) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (500136) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (502536) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (504936) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (507336) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (509736) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (512136) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (514536) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (516936) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (519336) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (521736) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (524136) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (526536) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (528936) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (531336) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (533736) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (536136) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (538536) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (540936) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (543336) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (545736) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (548136) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (550536) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (552936) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (555336) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (557736) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (560136) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (562536) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (564936) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (567336) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (569736) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (572136) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (574536) MAIN: task_acc created: OK
-BPM: 88.235291,AVG_BPM: 69.637924I (576936) MAIN: task_acc created: OK
+BPM: 0 - AVG_BPM: 0 
+notify DISABLED - not connected
+I (87777) MAIN: Current time: 1970-01-01 00:01:27
+I (88777) MAIN: Current time: 1970-01-01 00:01:28
+BPM: 0 - AVG_BPM: 0 
+notify DISABLED - not connected
+I (89777) MAIN: Current time: 1970-01-01 00:01:29
+I (90777) MAIN: Current time: 1970-01-01 00:01:30
+I (91777) MAIN: Current time: 1970-01-01 00:01:31
+BPM: 0 - AVG_BPM: 0 
+notify DISABLED - not connected
+I (92777) MAIN: Current time: 1970-01-01 00:01:32
+I (93777) MAIN: Current time: 1970-01-01 00:01:33
+BPM: 0 - AVG_BPM: 0 
+notify DISABLED - not connected
