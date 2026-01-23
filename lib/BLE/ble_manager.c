@@ -274,30 +274,6 @@ static int ble_gap_event(struct ble_gap_event *event, void *arg)
                 notify_state_callback(notify_enabled);
             }
         }
-
-        if (event->subscribe.attr_handle == int16_char_handle) {
-            bool notify_enabled = event->subscribe.cur_notify;
-            
-            if (notify_state_callback) {
-                notify_state_callback(notify_enabled);
-            }
-        }
-
-        if (event->subscribe.attr_handle == uint32_char_handle) {
-            bool notify_enabled = event->subscribe.cur_notify;
-            
-            if (notify_state_callback) {
-                notify_state_callback(notify_enabled);
-            }
-        }
-
-        if (event->subscribe.attr_handle == gyro_char_handle) {
-            bool notify_enabled = event->subscribe.cur_notify;
-            
-            if (notify_state_callback) {
-                notify_state_callback(notify_enabled);
-            }
-        }
         break;
 
     case BLE_GAP_EVENT_MTU:
@@ -465,7 +441,7 @@ int ble_manager_notify_uint32(uint16_t conn_handle, uint32_t value)
     /* Update current value for read operations */
     current_uint32_value = value;
 
-    om = ble_hs_mbuf_from_flat(&value, sizeof(int16_t));
+    om = ble_hs_mbuf_from_flat(&value, sizeof(uint32_t));
     if (om == NULL) {
         ESP_LOGE(TAG, "Error allocating mbuf for uint32");
         return -1;

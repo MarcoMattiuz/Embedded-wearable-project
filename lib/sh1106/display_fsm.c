@@ -35,8 +35,9 @@ void fn_BPM(esp_lcd_panel_handle_t *panel_handle, struct global_param *param)
         drawBitmapToBuffer(heartBitmap, buffer_data, 0, 0, 64, 64);
     }
 
-    char str[6];
-    // snprintf(str, sizeof(str), "%d", param->AVG_BPM);
+    char str[3];
+    // sprintf(str, "%d", (int)param->AVG_BPM);
+    sprintf(str, "%d", (int)param->AVG_BPM);
 
     drawStringToBuffer(str, buffer_data, 0, 0);
 

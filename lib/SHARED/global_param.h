@@ -3,8 +3,8 @@
 
 struct global_param
 {
-    int16_t BPM;
-    int16_t AVG_BPM;
+    float BPM;
+    float AVG_BPM;
     bool show_heart;
 };
 

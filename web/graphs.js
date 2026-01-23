@@ -55,7 +55,7 @@ var layoutRAW = {
 var config = {
   staticPlot: true,
   displayModeBar: false,
-  responsive: true,
+  responsize: true,
 };
 
 Plotly.newPlot("graphFILTERED", [traceFILTERED], layoutFILTERED, config);
@@ -63,22 +63,8 @@ Plotly.newPlot("graphRAW", [traceRAW], layoutRAW, config);
 
 var traceBPM = {
   type: "scatter",
-  mode: "lines+markers",
-  name: "BPM",
+  mode: "markers",
   line: { width: 2, color: "orange" },
-  xaxis: "x",
-  yaxis: "y",
-  hovertemplate: "BPM: %{y}<br>Time: %{x:.1f}s<extra></extra>",
-};
-
-var traceAVGBPM = {
-  type: "scatter",
-  mode: "lines+markers",
-  name: "AVG BPM",
-  xaxis: "x2",
-  yaxis: "y2",
-  line: { width: 2, color: "blue" },
-  hovertemplate: "AVG BPM: %{y}<br>Time: %{x:.1f}s<extra></extra>",
 };
 
 var layoutBPM = {
@@ -102,53 +88,10 @@ var layoutBPM = {
     showgrid: false,
     zeroline: true,
   },
-  xaxis2: {
-    title: "Time (s)",
-    titlefont: { color: "white" },
-    tickfont: { color: "white" },
-    showgrid: false,
-    zeroline: true,
-    overlaying: "x",
-    side: "top",
-  },
-  yaxis2: {
-    title: "IR_AC",
-    titlefont: { color: "white" },
-    tickfont: { color: "white" },
-    showgrid: false,
-    zeroline: true,
-    overlaying: "y",
-    side: "right",
-  },
 };
 
-var config2 = {
-  staticPlot: false,
-  displayModeBar: false,
-  responsize: true,
-};
-Plotly.newPlot("graphBPM", [traceBPM, traceAVGBPM], layoutBPM, config2);
-
-function updateBPMGraph(){
-   if (!window.BPMsampleArr || window.BPMsampleArr.length === 0 || 
-    !window.AVGBPMsampleArr || window.AVGBPMsampleArr.length === 0
-   ) return;
-
-  const BPMarr = window.BPMsampleArr;
-  const BPMsamples = BPMarr.map((_, i) => i);
-  const BPMtime = BPMsamples.map((s) => s * 2.5);
-
-  const AVGBPMarr = window.AVGBPMsampleArr;
-  const AVGBPMsamples = AVGBPMarr.map((_, i) => i);
-  const AVGBPMtime = AVGBPMsamples.map((s) => s * 2.5);
-
-  Plotly.update("graphBPM",
-  {
-    x: [BPMtime, AVGBPMtime],
-    y: [BPMarr, AVGBPMarr],
-  }
-);
-}
+Plotly.newPlot("graphBPM", [traceBPM], layoutBPM, config);
+//TODO: add button to stop the update of a graph
 function updateGraphs() {
   if (!window.IRACsampleArr || window.IRACsampleArr.length === 0) return;
 
@@ -181,6 +124,23 @@ function updateGraphs() {
   );
   Plotly.update(
     "graphRAW",
+    {
+      x: [time],
+      y: [arr],
+    },
+    {
+      xaxis: {
+        range: [time[start], time[end - 1]],
+      },
+    },
+    {
+      yaxis: {
+        range: [arr[arr_max], arr[arr_min]],
+      },
+    }
+  );
+  Plotly.update(
+    "graphBPM",
     {
       x: [time],
       y: [arr],

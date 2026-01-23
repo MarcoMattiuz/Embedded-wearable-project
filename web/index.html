@@ -1,43 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ESP32 BLE</title>
-    <link rel="stylesheet" href="style.css" />
-    <script src="libs/plotly.js"></script>
+    <link rel="stylesheet" href="style.css">
+     <script src="libs/plotly.js"></script>
     <script src="https://unpkg.com/three@0.152.2/build/three.min.js"></script>
-  </head>
-  <body>
+</head>
+<body>
     <div class="top-bar">
-      <div class="dropdown">
-        <button class="dropdown-btn">BPM ▼</button>
-        <div class="dropdown-content">
-          <div id="dropdown-bpm">BPM: --</div>
-          <div id="dropdown-avg">AVG BPM: --</div>
+        <div id="status" class="status disconnected">
+            Disconnected
         </div>
-      </div>
 
-      <div id="status" class="status disconnected">Disconnected</div>
-
-      <button id="connectBtn" class="btn btn-connect">Connect</button>
+        <button id="connectBtn" class="btn btn-connect">
+            Connect
+        </button>
     </div>
+
 
     <div class="graphsContainer">
-      <div id="graphBPM"></div>
-      <div id="graphFILTERED"></div>
-      <div id="graphRAW"></div>
-      <div id="object"></div>
+        <div id="graphBPM"></div>
+        <div id="graphFILTERED" ></div>
+        <div id="graphRAW" ></div>
+        <div id="object"></div>
     </div>
 
+
     <div class="log" id="log">
-      <div id="log-resize-handle"></div>
-      <div class="log-entry info">System ready. Click Connect to start.</div>
+        <div id="log-resize-handle"></div>
+        <div class="log-entry info">System ready. Click Connect to start.</div>
     </div>
 
     <script src="drag.js"></script>
     <script src="script3D.js"></script>
     <script src="script.js"></script>
     <script src="graphs.js"></script>
-  </body>
+</body>
 </html>
