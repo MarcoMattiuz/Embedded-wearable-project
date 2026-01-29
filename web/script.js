@@ -5,6 +5,7 @@ const GYRO_CHAR_UUID = 0x0015;
 const BPM_CHAR_UUID = 0x0016;
 const AVGBPM_CHAR_UUID = 0x0017;
 const IRRAWBUFFER_CHAR_UUID = 0x0018;
+const WEATHER_CHAR_UUID = 0x0019;
 
 const DEVICE_NAME = "ESP32_BLE";
 
@@ -15,6 +16,8 @@ let gyroCharacteristic = null;
 let bpmCharateristic = null;
 let avgbpmCharateristic = null;
 let float32Characteristic = null;
+let weatherCharacteristic = null;
+
 
 let latitude = 0.0;
 let longitude = 0.0;
@@ -83,6 +86,7 @@ async function toggleConnection() {
     gyroCharacteristic = await service.getCharacteristic(GYRO_CHAR_UUID);
     bpmCharateristic = await service.getCharacteristic(BPM_CHAR_UUID);
     avgbpmCharateristic = await service.getCharacteristic(AVGBPM_CHAR_UUID);
+    weatherCharacteristic = await service.getCharacteristic(WEATHER_CHAR_UUID);
 
     await iracbufferCharacteristic.startNotifications();
     iracbufferCharacteristic.addEventListener(
@@ -118,6 +122,8 @@ async function toggleConnection() {
 
     log("Connected successfully!", "success");
     updateUI(true);
+
+    getWeather();
   } catch (error) {
     log(`Error: ${error}`, "error");
     console.error(error);
@@ -301,6 +307,26 @@ function mapWeatherCode(code) {
   }
 }
 
+async function sendWeatherData(temp, weatherType) {
+  if (!weatherCharacteristic) {
+    log("Weather characteristic not available!", "error");
+    return;
+  }
+
+  try {
+    const buffer = new ArrayBuffer(5);
+    const view = new DataView(buffer);
+    view.setFloat32(0, temp, true);    // float temperature
+    view.setUint8(4, weatherType);     // int weather type
+
+    await weatherCharacteristic.writeValue(buffer);
+    log(`Weather sent: temp=${temp}, type=${weatherType}`, "success");
+  } catch (error) {
+    log(`Error sending weather: ${error}`, "error");
+  }
+}
+
+
 
 function getGeolocation(){
 
@@ -313,10 +339,6 @@ function getGeolocation(){
   function success(position) {
     latitude = position.coords.latitude;
     longitude = position.coords.longitude;
-    alert("Latitude: " + position.coords.latitude +
-      "Longitude: " + position.coords.longitude);
-
-    getWeather();
   }
 
   function error() {
@@ -327,23 +349,27 @@ function getGeolocation(){
 
 function getWeather() {
 
+  getGeolocation();
+
   const URL = "https://api.open-meteo.com/v1/forecast?latitude=" + latitude + "&longitude=" + longitude + "&current=weather_code,temperature_2m";
   fetch(URL)
     .then((r) => json = r.json())
-    .then(data => {          
-      console.log(URL);
-      const x = data.current.weather_code;
-      const code = mapWeatherCode(x);
-      console.log("code:", code);
+    .then(data => {    
+      console.log("URL:", URL);
+
+      const weatherCode = data.current.weather_code;
+      const code = mapWeatherCode(weatherCode);
       const temp = data.current.temperature_2m;
-      console.log("temp:", temp);
+
+      console.log("code:", code, "temp:", temp);
+
+      sendWeatherData(temp, code);
     })
     .catch((e) => console.error(e));
 
 
 }
 
-getGeolocation();
 
 connectBtn.addEventListener("click", toggleConnection);
 
