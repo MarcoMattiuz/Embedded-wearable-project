@@ -133,14 +133,26 @@ static void rtc_clock_task(void *pvParameter)
 {
     time_t now;
     struct tm timeinfo;
-    char strftime_buf[64];
+    char time_buf[64];
 
     while (1)
     {
         time(&now);
         localtime_r(&now, &timeinfo);
-        strftime(strftime_buf, sizeof(strftime_buf), "%Y-%m-%d %H:%M:%S", &timeinfo);
-        ESP_LOGI(TAG, "Current time: %s", strftime_buf);
+        strftime(time_buf, sizeof(time_buf), "%Y-%m-%d %H:%M:%S", &timeinfo);
+        ESP_LOGI(TAG, "Current time: %s", time_buf);
+
+        int year, month, day, hour, minute, second;
+
+        sscanf(time_buf, "%d-%d-%d %d:%d:%d",
+               &year, &month, &day,
+               &hour, &minute, &second);
+
+        snprintf(global_parameters.date, sizeof(global_parameters.date), "%d/%d/%02d",
+                 day,
+                 month,
+                 year % 100);
+        snprintf(global_parameters.time_str, sizeof(global_parameters.time_str), "%02d:%02d", hour, minute);
 
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
@@ -301,6 +313,7 @@ void LCD_task(void *parameters)
     {
         if (xQueueReceive(event_queue, &evt, portMAX_DELAY))
         {
+
             switch (evt)
             {
             case EVT_BUTTON_EDGE:
@@ -316,13 +329,21 @@ void LCD_task(void *parameters)
                     xTimerStop(long_press_timer_handle, 0);
                     if (!long_press_triggered && LCD_ON) // short press
                     {
+
                         (*fsm[next_state].state_function)(&panel_handle, &global_parameters);
 
-                        // Start/stop BPM animation if needed
+                        current_state = next_state;
+                        next_state = get_next_state(current_state);
+
+                        // Start/stop BPM animation if on BPM screen
                         if (current_state == STATE_BPM)
+                        {
                             xTimerStart(frame_timer_handle, 0);
+                        }
                         else
+                        {
                             xTimerStop(frame_timer_handle, 0);
+                        }
                     }
                 }
                 break;
@@ -337,8 +358,12 @@ void LCD_task(void *parameters)
                 {
                     xTimerStart(refresh_timer_handle, 0);
                     TurnLcdOn(panel_handle);
+
                     current_state = STATE_BPM;
+                    next_state = get_next_state(current_state);
+
                     (*fsm[current_state].state_function)(&panel_handle, &global_parameters);
+                    global_parameters.show_heart = true;
                     xTimerStart(frame_timer_handle, 0); // start animation
                 }
                 else
@@ -353,14 +378,6 @@ void LCD_task(void *parameters)
             case EVT_REFRESH:
                 (*fsm[current_state].state_function)(&panel_handle, &global_parameters);
                 break;
-
-            case EVT_FRAME:
-                if (current_state == STATE_BPM)
-                {
-                    global_parameters.show_heart = !global_parameters.show_heart;
-                    (*fsm[current_state].state_function)(&panel_handle, &global_parameters);
-                    break;
-                }
 
             default:
                 break;
@@ -391,7 +408,6 @@ static void bettery_level_task(void *pvParameter)
         // 3.5V= 1.75V -> 25%
         // 3.3V= 1.65V -> 0%
 
-
         if (voltage >= 2.0f)
             global_parameters.battery_state = BATTERY_FULL;
         else if (voltage >= 1.90f)
@@ -418,7 +434,7 @@ void app_main()
 
     // add_device_MAX30102(&max30102_device);
     // add_device_MPU6050(&mpu6050_device);
-    // add_device_SH1106 (&panel_handle);
+    add_device_SH1106(&panel_handle);
 
     // parameters init
     parameters_ppg_max30102.bus = i2c_bus_0;
@@ -439,15 +455,15 @@ void app_main()
     ble_manager_register_time_write_cb(on_time_write);
 
     TaskHandle_t ppg_task_handle = NULL;
+
     // tasks
-    // xTaskCreate(
-    //     LCD_task,
-    //     "LCD_task_debug",
-    //     4096,
-    //     &panel_handle,
-    //     1,
-    //     NULL
-    // );
+    xTaskCreate(
+        LCD_task,
+        "LCD_task_debug",
+        4096,
+        &panel_handle,
+        1,
+        NULL);
 
     // retF = xTaskCreatePinnedToCore(
     //     task_acc,
@@ -468,13 +484,13 @@ void app_main()
     //     0);
 
     //* Start battery level monitoring task */
-    xTaskCreate(
+    /* xTaskCreate(
         bettery_level_task,
         "battery_level_task",
         2048,
         NULL,
         1,
-        NULL);
+        NULL); */
 
     //* Start Gyro BLE notification task */
     // xTaskCreatePinnedToCore(gyro_ble_task, "gyro_ble_task", 4096, &mpu6050_device, 1, NULL, 0);

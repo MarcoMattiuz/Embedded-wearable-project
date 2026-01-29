@@ -14,28 +14,6 @@
 #include "macros.h"
 
 
-typedef enum
-{
-    STATE_BPM,
-    STATE_WEATHER,
-} State_t;
-
-typedef enum
-{
-    SUNNY,
-    CLOUDY,
-    RAINY,
-} WeatherType;
-
-typedef enum
-{
-    EVT_BUTTON_EDGE,
-    EVT_LONG_PRESS,
-    EVT_REFRESH,
-    EVT_FRAME,
-    EVT_TURN_ON_DISPLAY
-} EventType;
-
 typedef struct
 {
     State_t state;
@@ -54,7 +32,17 @@ extern TimerHandle_t frame_timer_handle;
 extern bool long_press_triggered;
 extern uint32_t last_button_isr_time;
 extern StateMachine_t fsm[];
-void GPIO_init();
 
+void GPIO_init();
+extern State_t get_next_state(State_t s);
+void fn_BPM(esp_lcd_panel_handle_t *, struct global_param *param);
+void fn_WEATHER(esp_lcd_panel_handle_t *, struct global_param *param);
+void fn_CLOCK(esp_lcd_panel_handle_t *, struct global_param *param);
+void fn_BATTERY(esp_lcd_panel_handle_t *, struct global_param *param);
+void fn_STEPS(esp_lcd_panel_handle_t *, struct global_param *param);
+void fn_CO2(esp_lcd_panel_handle_t *, struct global_param *param);
+
+void long_press_timer_handler(TimerHandle_t xTimer);
+void refresh_timer_handler(TimerHandle_t xTimer);
 
 #endif

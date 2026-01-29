@@ -18,6 +18,14 @@ let float32Characteristic = null;
 
 let latitude = 0.0;
 let longitude = 0.0;
+const WeatherType= {
+    SUNNY : 0,
+  CLOUDY: 1,
+  RAINY: 2,
+  FOGGY: 3,
+  SNOWY: 4,
+  THUNDERSTORM: 5,
+};
 
 const statusDiv = document.getElementById("status");
 const connectBtn = document.getElementById("connectBtn");
@@ -238,24 +246,24 @@ function handleIRRAWbuffer(event) {
   console.log(`Array IR RAW Uint32: [${window.IRRAWsampleArr.join(', ')}]`, 'success');
 }
 
-//convert weather code from api to a string description
+//convert weather code from api to a WeatherType
 function mapWeatherCode(code) {
   switch (code) {
 
     // CLEAR
     case 0:
-      return "clear";
+      return WeatherType.SUNNY;
 
     // CLOUDY
     case 1:
     case 2:
     case 3:
-      return "cloudy";
+      return WeatherType.CLOUDY;
 
     // FOG
     case 45:
     case 48:
-      return "fog";
+      return WeatherType.FOGGY;
 
     // DRIZZLE or RAIN
     case 51:
@@ -271,7 +279,7 @@ function mapWeatherCode(code) {
     case 80:
     case 81:
     case 82:
-      return "rainy";
+      return WeatherType.RAINY;
 
     // SNOW
     case 71:
@@ -280,16 +288,16 @@ function mapWeatherCode(code) {
     case 77:
     case 85:
     case 86:
-      return "snow";
+      return WeatherType.SNOWY;
 
     // THUNDERSTORM
     case 95:
     case 96:
     case 99:
-      return "thunderstorm";
+      return WeatherType.THUNDERSTORM;
 
     default:
-      return "cloudy";
+      return WeatherType.CLOUDY;
   }
 }
 
@@ -324,10 +332,9 @@ function getWeather() {
     .then((r) => json = r.json())
     .then(data => {          
       console.log(URL);
-      const code = data.current.weather_code;
-      console.log("Weather code:", code);
-      const description = mapWeatherCode(code);
-      console.log("description:", description);
+      const x = data.current.weather_code;
+      const code = mapWeatherCode(x);
+      console.log("code:", code);
       const temp = data.current.temperature_2m;
       console.log("temp:", temp);
     })
