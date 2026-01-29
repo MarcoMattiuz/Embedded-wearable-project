@@ -14,6 +14,10 @@ let iracbufferCharacteristic = null;
 let gyroCharacteristic = null;
 let bpmCharateristic = null;
 let avgbpmCharateristic = null;
+let float32Characteristic = null;
+
+let latitude = 0.0;
+let longitude = 0.0;
 
 const statusDiv = document.getElementById("status");
 const connectBtn = document.getElementById("connectBtn");
@@ -233,6 +237,106 @@ function handleIRRAWbuffer(event) {
   updateIRRAWGraphs();
   console.log(`Array IR RAW Uint32: [${window.IRRAWsampleArr.join(', ')}]`, 'success');
 }
+
+//convert weather code from api to a string description
+function mapWeatherCode(code) {
+  switch (code) {
+
+    // CLEAR
+    case 0:
+      return "clear";
+
+    // CLOUDY
+    case 1:
+    case 2:
+    case 3:
+      return "cloudy";
+
+    // FOG
+    case 45:
+    case 48:
+      return "fog";
+
+    // DRIZZLE or RAIN
+    case 51:
+    case 53:
+    case 55:
+    case 56:
+    case 57:
+    case 61:
+    case 63:
+    case 65:
+    case 66:
+    case 67:
+    case 80:
+    case 81:
+    case 82:
+      return "rainy";
+
+    // SNOW
+    case 71:
+    case 73:
+    case 75:
+    case 77:
+    case 85:
+    case 86:
+      return "snow";
+
+    // THUNDERSTORM
+    case 95:
+    case 96:
+    case 99:
+      return "thunderstorm";
+
+    default:
+      return "cloudy";
+  }
+}
+
+
+function getGeolocation(){
+
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(success, error);
+  } else {
+    alert("Geolocation is not supported by this browser");
+  }
+
+  function success(position) {
+    latitude = position.coords.latitude;
+    longitude = position.coords.longitude;
+    alert("Latitude: " + position.coords.latitude +
+      "Longitude: " + position.coords.longitude);
+
+    getWeather();
+  }
+
+  function error() {
+    alert("Sorry, no position available.");
+  }
+  
+}
+
+function getWeather() {
+
+  const URL = "https://api.open-meteo.com/v1/forecast?latitude=" + latitude + "&longitude=" + longitude + "&current=weather_code,temperature_2m";
+  fetch(URL)
+    .then((r) => json = r.json())
+    .then(data => {          
+      console.log(URL);
+      const code = data.current.weather_code;
+      console.log("Weather code:", code);
+      const description = mapWeatherCode(code);
+      console.log("description:", description);
+      const temp = data.current.temperature_2m;
+      console.log("temp:", temp);
+    })
+    .catch((e) => console.error(e));
+
+
+}
+
+getGeolocation();
 
 connectBtn.addEventListener("click", toggleConnection);
 
