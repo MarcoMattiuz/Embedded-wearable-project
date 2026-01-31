@@ -387,7 +387,7 @@ void motion_analysis(const Three_Axis_t *ax, const Gyro_Axis_final_t *gyro)
         printf("WRIST ROTATION DETECT\n");
         fflush(stdout);
 
-        EventType evt = EVT_TURN_ON_DISPLAY;       
+        EventType evt = EVT_GYRO;       
         xQueueSend(event_queue, &evt, 0);
     }
 }

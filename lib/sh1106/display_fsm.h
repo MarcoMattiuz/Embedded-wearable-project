@@ -33,7 +33,7 @@ typedef enum
     EVT_LONG_PRESS,
     EVT_REFRESH,
     EVT_FRAME,
-    EVT_TURN_ON_DISPLAY
+    EVT_GYRO
 } EventType;
 
 typedef struct
