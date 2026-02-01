@@ -212,16 +212,7 @@ esp_err_t set_USR_CTRL(struct i2c_device *device)
 }
 
 esp_err_t set_FIFO_EN(struct i2c_device *device)
-{
-
-    return mpu6050_write_reg(device,
-                             MPU6050_FIFO_EN,
-                             FIFO_EN_BIT_ACCEL | FIFO_EN_BIT_XG | FIFO_EN_BIT_YG | FIFO_EN_BIT_ZG);
-}
-
-esp_err_t set_FIFO_INT(struct i2c_device *device)
-{
-
+{ 
     /*
         set FIFO_EN register to:
 
@@ -234,6 +225,25 @@ esp_err_t set_FIFO_INT(struct i2c_device *device)
             |    | YG_FIFO_EN
             | XG_FIFO_EN
 
+    */
+   // write of all the sensors data in the FIFO
+
+    return mpu6050_write_reg(device,
+                             MPU6050_FIFO_EN,
+                             FIFO_EN_BIT_ACCEL | FIFO_EN_BIT_XG | FIFO_EN_BIT_YG | FIFO_EN_BIT_ZG);
+}
+
+esp_err_t set_FIFO_INT(struct i2c_device *device)
+{
+    /*
+        set INT_ENABLE register to:
+
+        7 | 6 | 5 | 4 | 3 | 2 | 1 | 0
+        -----------------------------
+        0 | 0 | 0 | 1 | 0 | 0 | 0 | 0
+                    ^
+                    |
+                    | FIFO_OFLOW_EN
     */
     return mpu6050_write_reg(device,
                              MPU6050_INT_ENABLE,
@@ -248,7 +258,6 @@ esp_err_t acc_config(struct i2c_device *device)
         return ESP_ERR_INVALID_ARG;
     }
 
-    // TODO: set regulare VVOLTAGE
     // sensor wake up
     if (mpu6050_write_reg(device, PWR_MGMT_1, PWR_MGMT_1_CONFIG) != ESP_OK)
     {
@@ -267,8 +276,7 @@ esp_err_t acc_config(struct i2c_device *device)
     }
 
     /*
-        config g_range 8
-        AFS_SELF = 2 dec
+        config g_range
     */
     if (mpu6050_write_reg(device, MPU6050_ACCEL_CONFIG, MPU6050_ACC_G_RANGE) != ESP_OK)
     {

@@ -133,7 +133,7 @@
     4, 3:    AFS_SELF
     2, 1, 0: -
 
-    AFS_SELF | g_ramge | hex
+    AFS_SELF | g_range | hex
         0         2      0x00
         1         4      0x08
         2         8      0x10
