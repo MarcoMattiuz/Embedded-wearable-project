@@ -28,6 +28,8 @@
 #define AVGBPM_CHAR_UUID 0x0017
 /* IRRAW characteristic */
 #define IRRAWBUFFER_CHAR_UUID 0x0018
+/* Weather data characteristic*/
+#define WEATHER_CHAR_UUID 0x0019
 
 /* Current Time characteristic format */
 typedef struct __attribute__((packed)) {

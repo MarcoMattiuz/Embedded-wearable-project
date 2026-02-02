@@ -36,10 +36,7 @@ To ensure maintainability and accessibility for anyone interested in experimenti
 - **MPU6050 mpu**
 - **SH1106 oled diplay**
 - TODO: **C02 sensor**
-- Voltage step-up
 - **3.7V lithium battery**
-
-## Project structure
 
 ## Project structure
 
@@ -94,5 +91,5 @@ python3 -m venv venv
 source venv/bin/activate
 python3 graph.py
 ```
-- later in the project we added graphs in the web application, so now you can see there the raw and filtered data of the ppg sensor
 ⚠️ the python script has **sps** hard coded in, so if you change it in the MAX30102 configuration keep in mind that you will have to change it also there.
+- later in the project we added graphs in the web application, so now you can see there the raw and filtered data of the ppg sensor

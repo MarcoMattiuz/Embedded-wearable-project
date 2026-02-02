@@ -5,6 +5,7 @@ const GYRO_CHAR_UUID = 0x0015;
 const BPM_CHAR_UUID = 0x0016;
 const AVGBPM_CHAR_UUID = 0x0017;
 const IRRAWBUFFER_CHAR_UUID = 0x0018;
+const WEATHER_CHAR_UUID = 0x0019;
 
 const DEVICE_NAME = "ESP32_BLE";
 
@@ -15,9 +16,18 @@ let gyroCharacteristic = null;
 let bpmCharateristic = null;
 let avgbpmCharateristic = null;
 let float32Characteristic = null;
+let weatherCharacteristic = null;
 
 let latitude = 0.0;
 let longitude = 0.0;
+const WeatherType = {
+  SUNNY: 0,
+  CLOUDY: 1,
+  RAINY: 2,
+  FOGGY: 3,
+  SNOWY: 4,
+  THUNDERSTORM: 5,
+};
 
 const statusDiv = document.getElementById("status");
 const connectBtn = document.getElementById("connectBtn");
@@ -32,7 +42,6 @@ window.AVGBPMsampleArr = [];
 let MAX_SIZE_IRAC_BUFFER = 960;
 let MAX_SIZE_BPM_BUFFER = 200;
 let MAX_SIZE_IRRAW_BUFFER = 960;
-
 
 function log(message, type = "info") {
   const entry = document.createElement("div");
@@ -70,46 +79,49 @@ async function toggleConnection() {
 
     const service = await server.getPrimaryService(SERVICE_UUID);
     timeCharacteristic = await service.getCharacteristic(TIME_CHAR_UUID);
-    iracbufferCharacteristic = await service.getCharacteristic(IRACBUFFER_CHAR_UUID);
-    irrawbufferCharacteristic = await service.getCharacteristic(IRRAWBUFFER_CHAR_UUID);
+    iracbufferCharacteristic =
+      await service.getCharacteristic(IRACBUFFER_CHAR_UUID);
+    irrawbufferCharacteristic = await service.getCharacteristic(
+      IRRAWBUFFER_CHAR_UUID,
+    );
     gyroCharacteristic = await service.getCharacteristic(GYRO_CHAR_UUID);
     bpmCharateristic = await service.getCharacteristic(BPM_CHAR_UUID);
     avgbpmCharateristic = await service.getCharacteristic(AVGBPM_CHAR_UUID);
+    weatherCharacteristic = await service.getCharacteristic(WEATHER_CHAR_UUID);
 
     await iracbufferCharacteristic.startNotifications();
     iracbufferCharacteristic.addEventListener(
       "characteristicvaluechanged",
-      handleIRACbuffer
+      handleIRACbuffer,
     );
 
     await irrawbufferCharacteristic.startNotifications();
     irrawbufferCharacteristic.addEventListener(
       "characteristicvaluechanged",
-      handleIRRAWbuffer
+      handleIRRAWbuffer,
     );
 
     await gyroCharacteristic.startNotifications();
     gyroCharacteristic.addEventListener(
       "characteristicvaluechanged",
-      handleGyroNotification
+      handleGyroNotification,
     );
 
     await bpmCharateristic.startNotifications();
-    bpmCharateristic.addEventListener(
-      "characteristicvaluechanged",
-      handleBPM
-    );
+    bpmCharateristic.addEventListener("characteristicvaluechanged", handleBPM);
 
     await avgbpmCharateristic.startNotifications();
     avgbpmCharateristic.addEventListener(
       "characteristicvaluechanged",
-      handleAVGBPM
+      handleAVGBPM,
     );
 
     await sendTimeValue(Date.now());
 
     log("Connected successfully!", "success");
     updateUI(true);
+
+    getWeather();
   } catch (error) {
     log(`Error: ${error}`, "error");
     console.error(error);
@@ -125,15 +137,19 @@ function onDisconnected() {
 }
 
 function handleGyroNotification(event) {
-
   const value = event.target.value;
 
-  if (value.byteLength >= 6) {
+  if (value.byteLength >= 12) {
     const gx = value.getFloat32(0, true);
     const gy = value.getFloat32(4, true);
     const gz = value.getFloat32(8, true);
 
-    update3DObject(gx, gy, gz);
+    if (typeof window.update3DObject === "function") {
+      window.update3DObject(gx, gy, gz);
+    }
+    console.log(
+      `Gyro - X: ${gx.toFixed(2)}, Y: ${gy.toFixed(2)}, Z: ${gz.toFixed(2)}`,
+    );
   }
 }
 
@@ -169,21 +185,24 @@ async function sendTimeValue(timestamp) {
 }
 
 function updateDropdown(bpm, avg) {
-    document.getElementById("dropdown-bpm").textContent = `BPM: ${bpm}`;
-    document.getElementById("dropdown-avg").textContent = `AVG(4) BPM: ${avg}`;
-    document.getElementById("dropdown-total-avg").textContent = `TOTAL AVG BPM: ${Math.round(window.AVGBPMsampleArr.reduce((a, b) => a + b.value, 0) / window.AVGBPMsampleArr.length)}`;
+  document.getElementById("dropdown-bpm").textContent = `BPM: ${bpm}`;
+  document.getElementById("dropdown-avg").textContent = `AVG(4) BPM: ${avg}`;
+  document.getElementById("dropdown-total-avg").textContent =
+    `TOTAL AVG BPM: ${Math.round(window.AVGBPMsampleArr.reduce((a, b) => a + b.value, 0) / window.AVGBPMsampleArr.length)}`;
 }
 
 function handleBPM(event) {
   const value = event.target.value;
   const now = new Date();
-  const timestamp = now.getHours().toString().padStart(2, '0') + ':' + 
-                    now.getMinutes().toString().padStart(2, '0');
+  const timestamp =
+    now.getHours().toString().padStart(2, "0") +
+    ":" +
+    now.getMinutes().toString().padStart(2, "0");
   window.BPMsampleArr.push({
     value: value.getInt16(0, true),
-    timestamp: timestamp
+    timestamp: timestamp,
   });
-  log("BPM: " + window.BPMsampleArr.map(s => s.value).join(', '));
+  log("BPM: " + window.BPMsampleArr.map((s) => s.value).join(", "));
   if (window.BPMsampleArr.length >= MAX_SIZE_BPM_BUFFER) {
     window.BPMsampleArr = [];
   }
@@ -194,13 +213,15 @@ function handleBPM(event) {
 function handleAVGBPM(event) {
   const value = event.target.value;
   const now = new Date();
-  const timestamp = now.getHours().toString().padStart(2, '0') + ':' + 
-                    now.getMinutes().toString().padStart(2, '0');
+  const timestamp =
+    now.getHours().toString().padStart(2, "0") +
+    ":" +
+    now.getMinutes().toString().padStart(2, "0");
   window.AVGBPMsampleArr.push({
     value: value.getInt16(0, true),
-    timestamp: timestamp
+    timestamp: timestamp,
   });
-  log("AVG_BPM: " + window.AVGBPMsampleArr.map(s => s.value).join(', '));
+  log("AVG_BPM: " + window.AVGBPMsampleArr.map((s) => s.value).join(", "));
   if (window.AVGBPMsampleArr.length >= MAX_SIZE_BPM_BUFFER) {
     window.AVGBPMsampleArr = [];
   }
@@ -219,7 +240,10 @@ function handleIRACbuffer(event) {
   }
 
   updateIRACGraphs();
-  console.log(`Array IR AC int16: [${window.IRACsampleArr.join(', ')}]`, 'success');
+  console.log(
+    `Array IR AC int16: [${window.IRACsampleArr.join(", ")}]`,
+    "success",
+  );
 }
 
 function handleIRRAWbuffer(event) {
@@ -235,27 +259,29 @@ function handleIRRAWbuffer(event) {
   }
 
   updateIRRAWGraphs();
-  console.log(`Array IR RAW Uint32: [${window.IRRAWsampleArr.join(', ')}]`, 'success');
+  console.log(
+    `Array IR RAW Uint32: [${window.IRRAWsampleArr.join(", ")}]`,
+    "success",
+  );
 }
 
-//convert weather code from api to a string description
+//convert weather code from api to a WeatherType
 function mapWeatherCode(code) {
   switch (code) {
-
     // CLEAR
     case 0:
-      return "clear";
+      return WeatherType.SUNNY;
 
     // CLOUDY
     case 1:
     case 2:
     case 3:
-      return "cloudy";
+      return WeatherType.CLOUDY;
 
     // FOG
     case 45:
     case 48:
-      return "fog";
+      return WeatherType.FOGGY;
 
     // DRIZZLE or RAIN
     case 51:
@@ -271,7 +297,7 @@ function mapWeatherCode(code) {
     case 80:
     case 81:
     case 82:
-      return "rainy";
+      return WeatherType.RAINY;
 
     // SNOW
     case 71:
@@ -280,63 +306,83 @@ function mapWeatherCode(code) {
     case 77:
     case 85:
     case 86:
-      return "snow";
+      return WeatherType.SNOWY;
 
     // THUNDERSTORM
     case 95:
     case 96:
     case 99:
-      return "thunderstorm";
+      return WeatherType.THUNDERSTORM;
 
     default:
-      return "cloudy";
+      return WeatherType.CLOUDY;
   }
 }
 
-
-function getGeolocation(){
-
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(success, error);
-  } else {
-    alert("Geolocation is not supported by this browser");
+async function sendWeatherData(temp, weatherType) {
+  if (!weatherCharacteristic) {
+    log("Weather characteristic not available!", "error");
+    return;
   }
 
-  function success(position) {
-    latitude = position.coords.latitude;
-    longitude = position.coords.longitude;
-    alert("Latitude: " + position.coords.latitude +
-      "Longitude: " + position.coords.longitude);
+  try {
+    const buffer = new ArrayBuffer(5);
+    const view = new DataView(buffer);
+    view.setFloat32(0, temp, true); // float temperature
+    view.setUint8(4, weatherType); // int weather type
 
-    getWeather();
+    await weatherCharacteristic.writeValue(buffer);
+    log(`Weather sent: temp=${temp}, type=${weatherType}`, "success");
+  } catch (error) {
+    log(`Error sending weather: ${error}`, "error");
   }
-
-  function error() {
-    alert("Sorry, no position available.");
-  }
-  
 }
 
-function getWeather() {
+function getGeolocation() {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) {
+      log("Geolocation is not supported by this browser");
+      return;
+    }
 
-  const URL = "https://api.open-meteo.com/v1/forecast?latitude=" + latitude + "&longitude=" + longitude + "&current=weather_code,temperature_2m";
-  fetch(URL)
-    .then((r) => json = r.json())
-    .then(data => {          
-      console.log(URL);
-      const code = data.current.weather_code;
-      console.log("Weather code:", code);
-      const description = mapWeatherCode(code);
-      console.log("description:", description);
-      const temp = data.current.temperature_2m;
-      console.log("temp:", temp);
-    })
-    .catch((e) => console.error(e));
-
-
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        resolve({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        });
+      },
+      () => log("Sorry, no position available."),
+    );
+  });
 }
 
-getGeolocation();
+async function getWeather() {
+  try {
+    const { latitude, longitude } = await getGeolocation();
+
+    const URL =
+      `https://api.open-meteo.com/v1/forecast` +
+      `?latitude=${latitude}&longitude=${longitude}` +
+      `&current=weather_code,temperature_2m`;
+
+    console.log("URL:", URL);
+
+    const r = await fetch(URL);
+    const data = await r.json();
+
+    const weatherCode = data.current.weather_code;
+    const code = mapWeatherCode(weatherCode);
+    const temp = data.current.temperature_2m;
+
+    console.log("code:", code, "temp:", temp);
+
+    sendWeatherData(temp, code);
+  } catch (error) {
+    console.error(error);
+    log(error, "error");
+  }
+}
 
 connectBtn.addEventListener("click", toggleConnection);
 

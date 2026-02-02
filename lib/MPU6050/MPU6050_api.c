@@ -84,10 +84,14 @@ void read_sample_GYRO(Gyro_Axis_t *gyro, Gyro_Axis_final_t *f_gyro, uint8_t *r_b
     f_gyro->g_y = gyro->g_y / SENS_GYRO_RANGE;
     f_gyro->g_z = gyro->g_z / SENS_GYRO_RANGE;
 
-    //send gyro data via BLE
-    ble_manager_notify_gyro(
-        ble_manager_get_conn_handle(),
-        f_gyro);
+    if (ble_manager_is_connected())
+    {
+        // printf("size: %d", sizeof(*f_gyro));
+        ble_manager_notify_gyro(
+            ble_manager_get_conn_handle(),
+            f_gyro);
+    }
+
 }
 
 esp_err_t empty_FIFO(struct i2c_device *device, Three_Axis_t *axis, Three_Axis_final_t *f_ax, Gyro_Axis_t *gyro, Gyro_Axis_final_t *f_gyro, uint8_t *reading_buffer, int fs)
@@ -209,15 +213,6 @@ esp_err_t set_USR_CTRL(struct i2c_device *device)
 
 esp_err_t set_FIFO_EN(struct i2c_device *device)
 {
-
-    return mpu6050_write_reg(device,
-                             MPU6050_FIFO_EN,
-                             FIFO_EN_BIT_ACCEL | FIFO_EN_BIT_XG | FIFO_EN_BIT_YG | FIFO_EN_BIT_ZG);
-}
-
-esp_err_t set_FIFO_INT(struct i2c_device *device)
-{
-
     /*
         set FIFO_EN register to:
 
@@ -230,6 +225,25 @@ esp_err_t set_FIFO_INT(struct i2c_device *device)
             |    | YG_FIFO_EN
             | XG_FIFO_EN
 
+    */
+    // write of all the sensors data in the FIFO
+
+    return mpu6050_write_reg(device,
+                             MPU6050_FIFO_EN,
+                             FIFO_EN_BIT_ACCEL | FIFO_EN_BIT_XG | FIFO_EN_BIT_YG | FIFO_EN_BIT_ZG);
+}
+
+esp_err_t set_FIFO_INT(struct i2c_device *device)
+{
+    /*
+        set INT_ENABLE register to:
+
+        7 | 6 | 5 | 4 | 3 | 2 | 1 | 0
+        -----------------------------
+        0 | 0 | 0 | 1 | 0 | 0 | 0 | 0
+                    ^
+                    |
+                    | FIFO_OFLOW_EN
     */
     return mpu6050_write_reg(device,
                              MPU6050_INT_ENABLE,
@@ -244,7 +258,6 @@ esp_err_t acc_config(struct i2c_device *device)
         return ESP_ERR_INVALID_ARG;
     }
 
-    // TODO: set regulare VVOLTAGE
     // sensor wake up
     if (mpu6050_write_reg(device, PWR_MGMT_1, PWR_MGMT_1_CONFIG) != ESP_OK)
     {
@@ -263,8 +276,7 @@ esp_err_t acc_config(struct i2c_device *device)
     }
 
     /*
-        config g_range 8
-        AFS_SELF = 2 dec
+        config g_range
     */
     if (mpu6050_write_reg(device, MPU6050_ACCEL_CONFIG, MPU6050_ACC_G_RANGE) != ESP_OK)
     {
@@ -299,16 +311,6 @@ esp_err_t acc_config(struct i2c_device *device)
 
     return ESP_OK;
 }
-
-// float low_pass_filter_M(const float M) {
-
-//     static float y = M_REST;
-
-//     //previous low pass filter value which needs for the next
-//     y += (M - y) / SMOOTHING_FACTOR;
-
-//     return y;
-// }
 
 bool verify_step(const Three_Axis_t *ax)
 {
@@ -393,9 +395,21 @@ void motion_analysis(const Three_Axis_t *ax, const Gyro_Axis_final_t *gyro)
         printf("WRIST ROTATION DETECT\n");
         fflush(stdout);
 
-        // xQueueSend(event_queue, EVT_TURN_ON_DISPLAY, 0);
+        EventType evt = EVT_GYRO;
+        xQueueSend(event_queue, &evt, 0);
     }
 }
+
+// void send_gyro_data_debug(void *pvParameters)
+// {
+
+//     Gyro_Axis_final_t *data = (Gyro_Axis_final_t *)pvParameters;
+
+//     // send gyro data via BLE
+//     ble_manager_notify_gyro(
+//         ble_manager_get_conn_handle(),
+//         data);
+// }
 
 void task_acc(void *pvParameters)
 {

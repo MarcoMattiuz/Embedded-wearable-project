@@ -1,20 +1,18 @@
 #include "display_fsm.h"
 #include "string.h"
 
-void fn_BPM(esp_lcd_panel_handle_t *, struct global_param *param);
-void fn_WEATHER(esp_lcd_panel_handle_t *, struct global_param *param);
-static void IRAM_ATTR button_isr(void *);
-void long_press_timer_handler(TimerHandle_t xTimer);
-void refresh_timer_handler(TimerHandle_t xTimer);
-
 StateMachine_t fsm[] = {
     {STATE_BPM, fn_BPM},
-    {STATE_WEATHER, fn_WEATHER}};
+    {STATE_CLOCK, fn_CLOCK},
+    {STATE_WEATHER, fn_WEATHER},
+    {STATE_STEPS, fn_STEPS},
+    {STATE_BATTERY, fn_BATTERY},
+    {STATE_CO2, fn_CO2},
+};
 
-WeatherType weather = SUNNY;
 uint8_t buffer_data[SH1106_BUFFER_SIZE];
 State_t current_state = STATE_BPM;
-State_t next_state = STATE_WEATHER;
+State_t next_state = STATE_CLOCK;
 
 QueueHandle_t event_queue = NULL;
 TimerHandle_t long_press_timer_handle;
@@ -26,6 +24,17 @@ uint32_t last_button_isr_time = 0;
 
 int test = 0;
 
+void fn_CLOCK(esp_lcd_panel_handle_t *panel_handle, struct global_param *param)
+{
+    memset(buffer_data, 0, sizeof(buffer_data));
+
+    drawStringToBuffer(param->date, buffer_data, 64 + 5, 28);
+    drawStringToBuffer(param->time_str, buffer_data, 64 + 5, 28 + 8);
+
+    drawBitmapToBuffer(clockBitmap, buffer_data, 0, 0, 64, 64);
+
+    drawBufferToLcd(buffer_data, *panel_handle);
+}
 void fn_BPM(esp_lcd_panel_handle_t *panel_handle, struct global_param *param)
 {
     memset(buffer_data, 0, sizeof(buffer_data));
@@ -35,33 +44,125 @@ void fn_BPM(esp_lcd_panel_handle_t *panel_handle, struct global_param *param)
         drawBitmapToBuffer(heartBitmap, buffer_data, 0, 0, 64, 64);
     }
 
-    char str[6];
-    // snprintf(str, sizeof(str), "%d", param->AVG_BPM);
+    char str[12];
+    snprintf(str, sizeof(str), "%d BPM", param->AVG_BPM);
 
-    drawStringToBuffer(str, buffer_data, 0, 0);
+    drawStringToBuffer(str, buffer_data, 64 + 5, 28);
 
     drawBufferToLcd(buffer_data, *panel_handle);
+}
 
-    next_state = STATE_WEATHER;
-    current_state = STATE_BPM;
+void fn_STEPS(esp_lcd_panel_handle_t *panel_handle, struct global_param *param)
+{
+    memset(buffer_data, 0, sizeof(buffer_data));
+
+    char buff[10];
+    sprintf(buff, "%d", param->step_cntr);
+
+    drawStringToBuffer(buff, buffer_data, 64 + 5, 28);
+
+    drawBitmapToBuffer(stepsBitmap, buffer_data, 0, 0, 64, 64);
+
+    drawBufferToLcd(buffer_data, *panel_handle);
 }
 
 void fn_WEATHER(esp_lcd_panel_handle_t *panel_handle, struct global_param *param)
 {
     memset(buffer_data, 0, sizeof(buffer_data));
+    char buff[10];
+    sprintf(buff, "%.1f C", param->temperature);
 
-    switch (weather)
+    drawStringToBuffer(buff, buffer_data, 64 + 5, 28);
+    switch (param->weather)
     {
     case SUNNY:
+    {
         drawBitmapToBuffer(sunnyBitmap, buffer_data, 0, 0, 64, 64);
-        drawBufferToLcd(buffer_data, *panel_handle);
-        break;
-    default:
         break;
     }
+    case CLOUDY:
+    {
+        drawBitmapToBuffer(cloudyBitmap, buffer_data, 0, 0, 64, 64);
+        break;
+    }
+    case FOGGY:
+    {
+        drawBitmapToBuffer(fogBitmap, buffer_data, 0, 0, 64, 64);
+        break;
+    }
+    case SNOWY:
+    {
+        drawBitmapToBuffer(snowBitmap, buffer_data, 0, 0, 64, 64);
+        break;
+    }
+    case THUNDERSTORM:
+    {
+        drawBitmapToBuffer(thunderBitmap, buffer_data, 0, 0, 64, 64);
+        break;
+    }
+    case RAINY:
+    {
+        drawBitmapToBuffer(rainyBitmap, buffer_data, 0, 0, 64, 64);
+        break;
+    }
+    default:
+    {
+        drawBitmapToBuffer(cloudyBitmap, buffer_data, 0, 0, 64, 64);
 
-    next_state = STATE_BPM;
-    current_state = STATE_WEATHER;
+        break;
+    }
+    }
+    drawBufferToLcd(buffer_data, *panel_handle);
+}
+
+void fn_BATTERY(esp_lcd_panel_handle_t *panel_handle, struct global_param *param)
+{
+    memset(buffer_data, 0, sizeof(buffer_data));
+
+    switch (param->battery_state)
+    {
+    case BATTERY_EMPTY:
+    {
+        drawBitmapToBuffer(emptyBatteryBitmap, buffer_data, 32, 0, 64, 64);
+        break;
+    }
+    case BATTERY_LOW:
+    {
+        drawBitmapToBuffer(lowBatteryBitmap, buffer_data, 32, 0, 64, 64);
+        break;
+    }
+    case BATTERY_MEDIUM:
+    {
+        drawBitmapToBuffer(mediumBatteryBitmap, buffer_data, 32, 0, 64, 64);
+        break;
+    }
+    case BATTERY_HIGH:
+    {
+        drawBitmapToBuffer(highBatteryBitmap, buffer_data, 32, 0, 64, 64);
+        break;
+    }
+    default:
+    {
+        drawBitmapToBuffer(fullBatteryBitmap, buffer_data, 32, 0, 64, 64);
+        break;
+    }
+    }
+
+    drawBufferToLcd(buffer_data, *panel_handle);
+}
+
+void fn_CO2(esp_lcd_panel_handle_t *panel_handle, struct global_param *param)
+{
+    memset(buffer_data, 0, sizeof(buffer_data));
+
+    char buff[10];
+    sprintf(buff, "%d ppm", param->CO2);
+
+    drawStringToBuffer(buff, buffer_data, 64 + 5, 28);
+
+    drawBitmapToBuffer(co2Bitmap, buffer_data, 0, 0, 64, 64);
+
+    drawBufferToLcd(buffer_data, *panel_handle);
 }
 
 void long_press_timer_handler(TimerHandle_t xTimer)
@@ -80,7 +181,8 @@ void refresh_timer_handler(TimerHandle_t xTimer)
 void frame_timer_handler(TimerHandle_t xTimer)
 {
 
-    EventType evt = EVT_FRAME;
+    EventType evt = EVT_REFRESH;
+    global_parameters.show_heart = !global_parameters.show_heart;
     xQueueSend(event_queue, &evt, 0);
 }
 
@@ -96,12 +198,9 @@ static void IRAM_ATTR button_isr(void *arg)
     last_button_isr_time = now;
 
     EventType evt = EVT_BUTTON_EDGE;
-    
-    
-    
-    // (event_queue, &evt, NULL);
-}
 
+    xQueueSendFromISR(event_queue, &evt, NULL);
+}
 
 void GPIO_init()
 {
@@ -130,12 +229,14 @@ void GPIO_init()
         NULL,
         long_press_timer_handler);
 
+    // on screen data refresh timer
     refresh_timer_handle = xTimerCreate(
         "refresh",
         pdMS_TO_TICKS(REFRESH_TIME_MS),
         pdTRUE, // repeating timer
         NULL,
         refresh_timer_handler);
+    // bpm screen blinking heart timer
     frame_timer_handle = xTimerCreate(
         "refresh",
         pdMS_TO_TICKS(FRAME_TIME_MS),
@@ -144,4 +245,7 @@ void GPIO_init()
         frame_timer_handler);
 }
 
-
+State_t get_next_state(State_t s)
+{
+    return (State_t)((s + 1) % STATE_COUNT);
+}

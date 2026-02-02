@@ -16,8 +16,6 @@
 #include "../sh1106/display_fsm.h"
 #include "../BLE/ble_manager.h"
 
-// ! return ESP_ERR_INVALID_ARG in this part of the project is considered as STANDARD ERROR
-
 esp_err_t mpu6050_write_reg (struct i2c_device* device, uint8_t reg_to_write, uint8_t val_to_write);
 esp_err_t mpu6050_read_reg  (struct i2c_device* device, uint8_t reg_to_read, uint8_t* val_to_read, size_t val_size);
 
@@ -40,6 +38,7 @@ bool  verify_step           (const Three_Axis_t* ax);
 bool  verify_wrist_rotation (const Gyro_Axis_final_t* g);
 void  motion_analysis       (const Three_Axis_t* ax, const Gyro_Axis_final_t* gyro);
 
-void task_acc (void* pvParameters);
+void send_gyro_data_debug (void* pvParameters);
+void task_acc             (void* pvParameters);
 
 #endif

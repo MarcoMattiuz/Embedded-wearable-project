@@ -34,7 +34,7 @@
     -----------------------------
     0   0   0   0   1   0   0   0
     ^   ^   ^       ^   ^   ^   ^
-    |   |   |       |   |---|---| CLKSEL = 
+    |   |   |       |   |___|___| CLKSEL
     |   |   |       | TEMP_DIS
     |   |   | CYCLE
     |   | SLEEP
@@ -115,8 +115,8 @@
        2         1000      0x10     32.8
        3         2000      0x18     16.4
 */
-#define MPU6050_GYRO_RANGE  0x00
-#define SENS_GYRO_RANGE     131.0
+#define MPU6050_GYRO_RANGE  0x18
+#define SENS_GYRO_RANGE     16.4
 #define MPU6050_GYRO_XOUT_H 0x43
 #define MPU6050_GYRO_XOUT_L 0x44
 #define MPU6050_GYRO_YOUT_H 0x45
@@ -133,13 +133,13 @@
     4, 3:    AFS_SELF
     2, 1, 0: -
 
-    AFS_SELF | g_ramge | hex
+    AFS_SELF | g_range | hex
         0         2      0x00
         1         4      0x08
         2         8      0x10
         3        16      0x18
 */
-#define MPU6050_ACC_G_RANGE  0x00
+#define MPU6050_ACC_G_RANGE  0x08
 #define MPU6050_ACCEL_XOUT_H 0x3B
 #define MPU6050_ACCEL_XOUT_L 0x3C
 #define MPU6050_ACCEL_YOUT_H 0x3D

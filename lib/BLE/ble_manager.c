@@ -15,6 +15,8 @@ static uint16_t irrawbuffer_char_handle;
 static uint16_t gyro_char_handle;
 static uint16_t bpm_char_handle;
 static uint16_t avgbpm_char_handle;
+static uint16_t weather_char_handle;
+
 
 /* Callbacks */
 static ble_notify_state_cb_t notify_state_callback = NULL;
@@ -23,9 +25,12 @@ static ble_time_write_cb_t time_write_callback = NULL;
 /* Current float32 values for read operations */
 static float current_iracbuffer_value = 0.0f;
 static float current_irrawbuffer_value = 0.0f;
-static Gyro_Axis_t current_gyro_value = {0};
+static Gyro_Axis_final_t current_gyro_value = {0};
 static int16_t current_bpm_value = 0;
 static uint32_t current_avgbpm_value = 0;
+
+static float current_temperature = 0.0f;
+static uint8_t current_weather_type = 0;
 
 /* Function declarations */
 static int ble_gap_event(struct ble_gap_event *event, void *arg);
@@ -34,53 +39,62 @@ static int gatt_svr_chr_access(uint16_t conn_handle, uint16_t attr_handle,
 
 /* GATT server definition */
 static const struct ble_gatt_svc_def gatt_svr_svcs[] = {
-    {
-        /* Device Custom Service */
-        .type = BLE_GATT_SVC_TYPE_PRIMARY,
-        .uuid = BLE_UUID16_DECLARE(DEVICE_CUSTOM_SERVICE_UUID),
-        .characteristics = (struct ble_gatt_chr_def[])
-        { {
-                /* Time Characteristic - writable by client */
-                .uuid = BLE_UUID16_DECLARE(TIME_CHAR_UUID),
-                .access_cb = gatt_svr_chr_access,
-                .flags = BLE_GATT_CHR_F_WRITE,
-            }, {
-                /* irac buffer Characteristic - notifiable to client */
-                .uuid = BLE_UUID16_DECLARE(IRACBUFFER_CHAR_UUID),
-                .access_cb = gatt_svr_chr_access,
-                .val_handle = &iracbuffer_char_handle,
-                .flags = BLE_GATT_CHR_F_NOTIFY,
-            }, 
-            {
-                /* irraw buffer Characteristic - notifiable to client */
-                .uuid = BLE_UUID16_DECLARE(IRRAWBUFFER_CHAR_UUID),
-                .access_cb = gatt_svr_chr_access,
-                .val_handle = &irrawbuffer_char_handle,
-                .flags = BLE_GATT_CHR_F_NOTIFY,
-            },
-            {
-                /* Gyro Characteristic - notifiable to client */
-                .uuid = BLE_UUID16_DECLARE(GYRO_CHAR_UUID),
-                .access_cb = gatt_svr_chr_access,
-                .val_handle = &gyro_char_handle,
-                .flags = BLE_GATT_CHR_F_NOTIFY,
-            }, {
-                /* BPM Characteristic - notifiable to client */
-                .uuid = BLE_UUID16_DECLARE(BPM_CHAR_UUID),
-                .access_cb = gatt_svr_chr_access,
-                .val_handle = &bpm_char_handle,
-                .flags = BLE_GATT_CHR_F_NOTIFY,
-            }, {
-                /* AVGBPM Characteristic - notifiable to client */
-                .uuid = BLE_UUID16_DECLARE(AVGBPM_CHAR_UUID),
-                .access_cb = gatt_svr_chr_access,
-                .val_handle = &avgbpm_char_handle,
-                .flags = BLE_GATT_CHR_F_NOTIFY,
-            }, {
-                0, /* No more characteristics */
-            },
-        }
-    },
+    {/* Device Custom Service */
+     .type = BLE_GATT_SVC_TYPE_PRIMARY,
+     .uuid = BLE_UUID16_DECLARE(DEVICE_CUSTOM_SERVICE_UUID),
+     .characteristics = (struct ble_gatt_chr_def[]){
+         {
+             /* Time Characteristic - writable by client */
+             .uuid = BLE_UUID16_DECLARE(TIME_CHAR_UUID),
+             .access_cb = gatt_svr_chr_access,
+             .flags = BLE_GATT_CHR_F_WRITE,
+         },
+         {
+             /* irac buffer Characteristic - notifiable to client */
+             .uuid = BLE_UUID16_DECLARE(IRACBUFFER_CHAR_UUID),
+             .access_cb = gatt_svr_chr_access,
+             .val_handle = &iracbuffer_char_handle,
+             .flags = BLE_GATT_CHR_F_NOTIFY,
+         },
+         {
+             /* irraw buffer Characteristic - notifiable to client */
+             .uuid = BLE_UUID16_DECLARE(IRRAWBUFFER_CHAR_UUID),
+             .access_cb = gatt_svr_chr_access,
+             .val_handle = &irrawbuffer_char_handle,
+             .flags = BLE_GATT_CHR_F_NOTIFY,
+         },
+         {
+             /* Gyro Characteristic - notifiable to client */
+             .uuid = BLE_UUID16_DECLARE(GYRO_CHAR_UUID),
+             .access_cb = gatt_svr_chr_access,
+             .val_handle = &gyro_char_handle,
+             .flags = BLE_GATT_CHR_F_NOTIFY,
+         },
+         {
+             /* BPM Characteristic - notifiable to client */
+             .uuid = BLE_UUID16_DECLARE(BPM_CHAR_UUID),
+             .access_cb = gatt_svr_chr_access,
+             .val_handle = &bpm_char_handle,
+             .flags = BLE_GATT_CHR_F_NOTIFY,
+         },
+         {
+             /* AVGBPM Characteristic - notifiable to client */
+             .uuid = BLE_UUID16_DECLARE(AVGBPM_CHAR_UUID),
+             .access_cb = gatt_svr_chr_access,
+             .val_handle = &avgbpm_char_handle,
+             .flags = BLE_GATT_CHR_F_NOTIFY,
+         },
+         {
+             /* Weather Characteristic - writable by client */
+             .uuid = BLE_UUID16_DECLARE(WEATHER_CHAR_UUID),
+             .access_cb = gatt_svr_chr_access,
+             .val_handle = &weather_char_handle,
+             .flags = BLE_GATT_CHR_F_WRITE,
+         },
+         {
+             0, /* No more characteristics */
+         },
+     }},
     {
         0, /* No more services */
     },
@@ -128,7 +142,7 @@ static int gatt_svr_chr_access(uint16_t conn_handle, uint16_t attr_handle,
     } 
     else if (uuid == GYRO_CHAR_UUID) {
         if (ctxt->op == BLE_GATT_ACCESS_OP_READ_CHR) {
-            rc = os_mbuf_append(ctxt->om, &current_gyro_value, sizeof(Gyro_Axis_t));
+            rc = os_mbuf_append(ctxt->om, &current_gyro_value, sizeof(Gyro_Axis_final_t));
             return rc == 0 ? 0 : BLE_ATT_ERR_UNLIKELY;
         }
     } else if (uuid == BPM_CHAR_UUID) {
@@ -142,9 +156,37 @@ static int gatt_svr_chr_access(uint16_t conn_handle, uint16_t attr_handle,
             return rc == 0 ? 0 : BLE_ATT_ERR_UNLIKELY;
         }
     }
+    else if (uuid == WEATHER_CHAR_UUID)
+    {
+        if (ctxt->op == BLE_GATT_ACCESS_OP_WRITE_CHR)
+        {
+            int om_len = OS_MBUF_PKTLEN(ctxt->om);
 
-    return BLE_ATT_ERR_UNLIKELY;
-}
+            if (om_len == sizeof(float) + sizeof(uint8_t))
+            { // 5 bytes
+                uint8_t buf[5];
+                int rc = ble_hs_mbuf_to_flat(ctxt->om, buf, sizeof(buf), NULL);
+                if (rc == 0)
+                {
+                    // First 4 bytes = float temperature
+                    memcpy(&current_temperature, buf, sizeof(float));
+                    // Last byte = weather type
+                    current_weather_type = buf[4];
+
+                    ESP_LOGI(TAG, "Received weather: temp=%.2f, type=%d",
+                             current_temperature, current_weather_type);
+
+                    global_parameters.temperature = current_temperature;
+                    global_parameters.weather = current_weather_type;
+                    return 0;
+                }
+            }
+            return BLE_ATT_ERR_INVALID_ATTR_VALUE_LEN;
+        }
+    }
+
+        return BLE_ATT_ERR_UNLIKELY;
+    }
 
 /* GATT server registration callback */
 void gatt_svr_register_cb(struct ble_gatt_register_ctxt *ctxt, void *arg)
@@ -460,16 +502,16 @@ int ble_manager_notify_irrawbuffer(uint16_t conn_handle, uint16_t char_handle, c
     return 0;
 }
 
-/* Send notification with Gyro_Axis_t data */
+/* Send notification with Gyro_Axis_final_t data */
 int ble_manager_notify_gyro(uint16_t conn_handle, const Gyro_Axis_final_t *gyro_data)
 {
     struct os_mbuf *om;
     int rc;
 
     /* Update current value for read operations */
-    memcpy(&current_gyro_value, gyro_data, sizeof(Gyro_Axis_t));
+    memcpy(&current_gyro_value, gyro_data, sizeof(Gyro_Axis_final_t));
 
-    om = ble_hs_mbuf_from_flat(gyro_data, sizeof(Gyro_Axis_t));
+    om = ble_hs_mbuf_from_flat(gyro_data, sizeof(Gyro_Axis_final_t));
     if (om == NULL) {
         ESP_LOGE(TAG, "Error allocating mbuf for gyro");
         return -1;
