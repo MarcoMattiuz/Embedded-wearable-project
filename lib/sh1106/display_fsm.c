@@ -32,7 +32,7 @@ void fn_CLOCK(esp_lcd_panel_handle_t *panel_handle, struct global_param *param)
     drawStringToBuffer(param->time_str, buffer_data, 64 + 5, 28 + 8);
 
     drawBitmapToBuffer(clockBitmap, buffer_data, 0, 0, 64, 64);
-
+    
     drawBufferToLcd(buffer_data, *panel_handle);
 }
 void fn_BPM(esp_lcd_panel_handle_t *panel_handle, struct global_param *param)

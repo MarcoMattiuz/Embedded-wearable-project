@@ -56,7 +56,7 @@ struct global_param
     float temperature;
     char date[9];
     char time_str[6];
-    int CO2;
+    uint16_t CO2;
 };
 
 extern struct global_param global_parameters;

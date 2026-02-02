@@ -155,7 +155,7 @@ static void rtc_clock_task(void *pvParameter)
                  month,
                  year % 100);
         snprintf(global_parameters.time_str, sizeof(global_parameters.time_str), "%02d:%02d", hour, minute);
-
+        
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }
@@ -165,12 +165,14 @@ static void c02_check_task(void *pvParameter)
     ens160_data_t data;
     while(1)
     {
+        ESP_LOGI(TAG, "eCO2: %d ppm, TVOC: %d ppb, AQI: %d", data.eco2, data.tvoc, data.aqi);
+        global_parameters.CO2 = data.eco2;
+
         if (notify_enabled && ble_manager_is_connected())
         {
             esp_err_t ret = ens160_read_data(&data);
             if(ret == ESP_OK)
             {
-                ESP_LOGI(TAG, "eCO2: %d ppm, TVOC: %d ppb, AQI: %d", data.eco2, data.tvoc, data.aqi);
                 ble_manager_notify_ens160(
                     ble_manager_get_conn_handle(),
                     &data);
@@ -471,13 +473,17 @@ void app_main()
 {
     esp_task_wdt_deinit();
 
+    // TODO: remove
+    // Suppress NimBLE INFO logs (GATT procedure initiated, att_handle, etc.)
+    esp_log_level_set("NimBLE", ESP_LOG_WARN);
+
     // I2C busses init
     init_I2C_bus_PORT0(&i2c_bus_0);
     init_I2C_bus_PORT1(&i2c_bus_1);
 
-    // add_device_MAX30102(&max30102_device);
-    // add_device_MPU6050(&mpu6050_device);
-    // add_device_SH1106(&panel_handle);
+    add_device_MAX30102(&max30102_device);
+    add_device_MPU6050(&mpu6050_device);
+    add_device_SH1106(&panel_handle);
     ens160_init(i2c_bus_0);
 
   
@@ -520,14 +526,14 @@ void app_main()
         NULL,
         1);
 
-    xTaskCreatePinnedToCore(
-        PPG_sensor_task,
-        "PPG_sensor_task_debug",
-        4096,
-        &parameters_ppg_max30102,
-        1,
-        &ppg_task_handle,
-        0);
+    // xTaskCreatePinnedToCore(
+    //     PPG_sensor_task,
+    //     "PPG_sensor_task_debug",
+    //     4096,
+    //     &parameters_ppg_max30102,
+    //     1,
+    //     &ppg_task_handle,
+    //     0);
 
     //* Start battery level monitoring task */
     // xTaskCreate(
@@ -545,7 +551,7 @@ void app_main()
     // xTaskCreate(touch_sensor_task, "touch_sensor", 4096, NULL, 10, NULL);
 
     /* Start RTC clock display task */
-    // xTaskCreate(rtc_clock_task, "rtc_clock", 4096, NULL, 5, NULL);
+    xTaskCreate(rtc_clock_task, "rtc_clock", 4096, NULL, 5, NULL);
 
     /* Start CO2 check task */
     xTaskCreate(c02_check_task, "c02_check", 4096, NULL, 5, NULL);

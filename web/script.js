@@ -168,9 +168,9 @@ function handleGyroNotification(event) {
     if (typeof window.update3DObject === "function") {
       window.update3DObject(gx, gy, gz);
     }
-    console.log(
-      `Gyro - X: ${gx.toFixed(2)}, Y: ${gy.toFixed(2)}, Z: ${gz.toFixed(2)}`,
-    );
+    // console.log(
+    //   `Gyro - X: ${gx.toFixed(2)}, Y: ${gy.toFixed(2)}, Z: ${gz.toFixed(2)}`,
+    // );
   }
 }
 
