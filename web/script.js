@@ -5,6 +5,7 @@ const GYRO_CHAR_UUID = 0x0015;
 const BPM_CHAR_UUID = 0x0016;
 const AVGBPM_CHAR_UUID = 0x0017;
 const IRRAWBUFFER_CHAR_UUID = 0x0018;
+const ENS160_CHAR_UUID = 0x0029;
 
 const DEVICE_NAME = "ESP32_BLE";
 
@@ -14,6 +15,7 @@ let iracbufferCharacteristic = null;
 let gyroCharacteristic = null;
 let bpmCharateristic = null;
 let avgbpmCharateristic = null;
+let ens160Characteristic = null;
 
 const statusDiv = document.getElementById("status");
 const connectBtn = document.getElementById("connectBtn");
@@ -28,7 +30,6 @@ window.AVGBPMsampleArr = [];
 let MAX_SIZE_IRAC_BUFFER = 960;
 let MAX_SIZE_BPM_BUFFER = 200;
 let MAX_SIZE_IRRAW_BUFFER = 960;
-
 
 function log(message, type = "info") {
   const entry = document.createElement("div");
@@ -66,8 +67,12 @@ async function toggleConnection() {
 
     const service = await server.getPrimaryService(SERVICE_UUID);
     timeCharacteristic = await service.getCharacteristic(TIME_CHAR_UUID);
-    iracbufferCharacteristic = await service.getCharacteristic(IRACBUFFER_CHAR_UUID);
-    irrawbufferCharacteristic = await service.getCharacteristic(IRRAWBUFFER_CHAR_UUID);
+    iracbufferCharacteristic =
+      await service.getCharacteristic(IRACBUFFER_CHAR_UUID);
+    irrawbufferCharacteristic = await service.getCharacteristic(
+      IRRAWBUFFER_CHAR_UUID,
+    );
+    ens160Characteristic = await service.getCharacteristic(ENS160_CHAR_UUID);
     gyroCharacteristic = await service.getCharacteristic(GYRO_CHAR_UUID);
     bpmCharateristic = await service.getCharacteristic(BPM_CHAR_UUID);
     avgbpmCharateristic = await service.getCharacteristic(AVGBPM_CHAR_UUID);
@@ -75,31 +80,34 @@ async function toggleConnection() {
     await iracbufferCharacteristic.startNotifications();
     iracbufferCharacteristic.addEventListener(
       "characteristicvaluechanged",
-      handleIRACbuffer
+      handleIRACbuffer,
     );
 
     await irrawbufferCharacteristic.startNotifications();
     irrawbufferCharacteristic.addEventListener(
       "characteristicvaluechanged",
-      handleIRRAWbuffer
+      handleIRRAWbuffer,
+    );
+
+    await ens160Characteristic.startNotifications();
+    ens160Characteristic.addEventListener(
+      "characteristicvaluechanged",
+      handleENS160buffer,
     );
 
     await gyroCharacteristic.startNotifications();
     gyroCharacteristic.addEventListener(
       "characteristicvaluechanged",
-      handleGyroNotification
+      handleGyroNotification,
     );
 
     await bpmCharateristic.startNotifications();
-    bpmCharateristic.addEventListener(
-      "characteristicvaluechanged",
-      handleBPM
-    );
+    bpmCharateristic.addEventListener("characteristicvaluechanged", handleBPM);
 
     await avgbpmCharateristic.startNotifications();
     avgbpmCharateristic.addEventListener(
       "characteristicvaluechanged",
-      handleAVGBPM
+      handleAVGBPM,
     );
 
     await sendTimeValue(Date.now());
@@ -118,10 +126,21 @@ function onDisconnected() {
   timeCharacteristic = null;
   iracbufferCharacteristic = null;
   gyroCharacteristic = null;
+  ens160Characteristic = null;
+}
+
+function handleEns160Notification(event) {
+  const value = event.target.value;
+
+  if (value.byteLength >= 5) {
+    const eco2 = value.getUint16(0, true);
+    const tvoc = value.getUint16(2, true);
+    const aqi = value.getUint8(4);
+    log(`eCO2: ${eco2} ppm, TVOC: ${tvoc} ppb, AQI: ${aqi}`);
+  }
 }
 
 function handleGyroNotification(event) {
-
   const value = event.target.value;
 
   if (value.byteLength >= 6) {
@@ -165,21 +184,24 @@ async function sendTimeValue(timestamp) {
 }
 
 function updateDropdown(bpm, avg) {
-    document.getElementById("dropdown-bpm").textContent = `BPM: ${bpm}`;
-    document.getElementById("dropdown-avg").textContent = `AVG(4) BPM: ${avg}`;
-    document.getElementById("dropdown-total-avg").textContent = `TOTAL AVG BPM: ${Math.round(window.AVGBPMsampleArr.reduce((a, b) => a + b.value, 0) / window.AVGBPMsampleArr.length)}`;
+  document.getElementById("dropdown-bpm").textContent = `BPM: ${bpm}`;
+  document.getElementById("dropdown-avg").textContent = `AVG(4) BPM: ${avg}`;
+  document.getElementById("dropdown-total-avg").textContent =
+    `TOTAL AVG BPM: ${Math.round(window.AVGBPMsampleArr.reduce((a, b) => a + b.value, 0) / window.AVGBPMsampleArr.length)}`;
 }
 
 function handleBPM(event) {
   const value = event.target.value;
   const now = new Date();
-  const timestamp = now.getHours().toString().padStart(2, '0') + ':' + 
-                    now.getMinutes().toString().padStart(2, '0');
+  const timestamp =
+    now.getHours().toString().padStart(2, "0") +
+    ":" +
+    now.getMinutes().toString().padStart(2, "0");
   window.BPMsampleArr.push({
     value: value.getInt16(0, true),
-    timestamp: timestamp
+    timestamp: timestamp,
   });
-  log("BPM: " + window.BPMsampleArr.map(s => s.value).join(', '));
+  log("BPM: " + window.BPMsampleArr.map((s) => s.value).join(", "));
   if (window.BPMsampleArr.length >= MAX_SIZE_BPM_BUFFER) {
     window.BPMsampleArr = [];
   }
@@ -190,13 +212,15 @@ function handleBPM(event) {
 function handleAVGBPM(event) {
   const value = event.target.value;
   const now = new Date();
-  const timestamp = now.getHours().toString().padStart(2, '0') + ':' + 
-                    now.getMinutes().toString().padStart(2, '0');
+  const timestamp =
+    now.getHours().toString().padStart(2, "0") +
+    ":" +
+    now.getMinutes().toString().padStart(2, "0");
   window.AVGBPMsampleArr.push({
     value: value.getInt16(0, true),
-    timestamp: timestamp
+    timestamp: timestamp,
   });
-  log("AVG_BPM: " + window.AVGBPMsampleArr.map(s => s.value).join(', '));
+  log("AVG_BPM: " + window.AVGBPMsampleArr.map((s) => s.value).join(", "));
   if (window.AVGBPMsampleArr.length >= MAX_SIZE_BPM_BUFFER) {
     window.AVGBPMsampleArr = [];
   }
@@ -215,7 +239,10 @@ function handleIRACbuffer(event) {
   }
 
   updateIRACGraphs();
-  console.log(`Array IR AC int16: [${window.IRACsampleArr.join(', ')}]`, 'success');
+  console.log(
+    `Array IR AC int16: [${window.IRACsampleArr.join(", ")}]`,
+    "success",
+  );
 }
 
 function handleIRRAWbuffer(event) {
@@ -231,7 +258,10 @@ function handleIRRAWbuffer(event) {
   }
 
   updateIRRAWGraphs();
-  console.log(`Array IR RAW Uint32: [${window.IRRAWsampleArr.join(', ')}]`, 'success');
+  console.log(
+    `Array IR RAW Uint32: [${window.IRRAWsampleArr.join(", ")}]`,
+    "success",
+  );
 }
 
 connectBtn.addEventListener("click", toggleConnection);

@@ -12,6 +12,7 @@ static const char *device_name = NULL;
 /* Characteristic handles */
 static uint16_t iracbuffer_char_handle;
 static uint16_t irrawbuffer_char_handle;
+static uint16_t ens160_char_handle;
 static uint16_t gyro_char_handle;
 static uint16_t bpm_char_handle;
 static uint16_t avgbpm_char_handle;
@@ -23,6 +24,7 @@ static ble_time_write_cb_t time_write_callback = NULL;
 /* Current float32 values for read operations */
 static float current_iracbuffer_value = 0.0f;
 static float current_irrawbuffer_value = 0.0f;
+static ens160_data_t current_ens160_value = {0};
 static Gyro_Axis_t current_gyro_value = {0};
 static int16_t current_bpm_value = 0;
 static uint32_t current_avgbpm_value = 0;
@@ -57,8 +59,13 @@ static const struct ble_gatt_svc_def gatt_svr_svcs[] = {
                 .access_cb = gatt_svr_chr_access,
                 .val_handle = &irrawbuffer_char_handle,
                 .flags = BLE_GATT_CHR_F_NOTIFY,
-            },
-            {
+            }, {
+                /* ENS160 Characteristic - notifiable to client */
+                .uuid = BLE_UUID16_DECLARE(ENS160_CHAR_UUID),
+                .access_cb = gatt_svr_chr_access,
+                .val_handle = &ens160_char_handle,
+                .flags = BLE_GATT_CHR_F_NOTIFY,
+            }, {
                 /* Gyro Characteristic - notifiable to client */
                 .uuid = BLE_UUID16_DECLARE(GYRO_CHAR_UUID),
                 .access_cb = gatt_svr_chr_access,
@@ -126,6 +133,12 @@ static int gatt_svr_chr_access(uint16_t conn_handle, uint16_t attr_handle,
             return rc == 0 ? 0 : BLE_ATT_ERR_UNLIKELY;
         }
     } 
+    else if (uuid == GYRO_CHAR_UUID) {
+        if (ctxt->op == BLE_GATT_ACCESS_OP_READ_CHR) {
+            rc = os_mbuf_append(ctxt->om, &current_gyro_value, sizeof(ens160_data_t));
+            return rc == 0 ? 0 : BLE_ATT_ERR_UNLIKELY;
+        }
+    }
     else if (uuid == GYRO_CHAR_UUID) {
         if (ctxt->op == BLE_GATT_ACCESS_OP_READ_CHR) {
             rc = os_mbuf_append(ctxt->om, &current_gyro_value, sizeof(Gyro_Axis_t));
@@ -460,6 +473,30 @@ int ble_manager_notify_irrawbuffer(uint16_t conn_handle, uint16_t char_handle, c
     return 0;
 }
 
+/* Send notification with ens160 data */
+int ble_manager_notify_ens160(uint16_t conn_handle, const ens160_data_t *ens160_data)
+{
+    struct os_mbuf *om;
+    int rc;
+
+    /* Update current value for read operations */
+    memcpy(&current_ens160_value, ens160_data, sizeof(ens160_data_t));
+
+    om = ble_hs_mbuf_from_flat(ens160_data, sizeof(ens160_data_t));
+    if (om == NULL) {
+        ESP_LOGE(TAG, "Error allocating mbuf for ens160");
+        return -1;
+    }
+
+    rc = ble_gatts_notify_custom(conn_handle, ens160_char_handle, om);
+    if (rc != 0) {
+        ESP_LOGE(TAG, "Error sending ens160 notification; rc=%d", rc);
+        return rc;
+    }
+
+    return 0;
+}
+
 /* Send notification with Gyro_Axis_t data */
 int ble_manager_notify_gyro(uint16_t conn_handle, const Gyro_Axis_final_t *gyro_data)
 {
@@ -542,6 +579,12 @@ uint16_t ble_manager_get_bpm_char_handle(void)
 uint16_t ble_manager_get_avgbpm_char_handle(void)
 {
     return avgbpm_char_handle;
+}
+
+/* Get ens160 characteristic handle */
+uint16_t ble_manager_get_ens160_char_handle(void)
+{
+    return ens160_char_handle;
 }
 
 /* Get gyro characteristic handle */

@@ -153,9 +153,19 @@ static void c02_check_task(void *pvParameter)
     ens160_data_t data;
     while(1)
     {
-        if(ens160_read_data(&data))
+        if (notify_enabled && ble_manager_is_connected())
         {
-            ESP_LOGI(TAG, "eCO2: %d ppm, TVOC: %d ppb, AQI: %d", data.eco2, data.tvoc, data.aqi);
+            if(ens160_read_data(&data))
+            {
+                ESP_LOGI(TAG, "eCO2: %d ppm, TVOC: %d ppb, AQI: %d", data.eco2, data.tvoc, data.aqi);
+                ble_manager_notify_ens160(
+                    ble_manager_get_conn_handle(),
+                    &data);
+            }
+            else
+            {
+                ESP_LOGE(TAG, "Failed to read ENS160 data");
+            }
         }
         vTaskDelay(pdMS_TO_TICKS(2000));
     }
@@ -502,6 +512,7 @@ void app_main()
     /* Start RTC clock display task */
     // xTaskCreate(rtc_clock_task, "rtc_clock", 4096, NULL, 5, NULL);
 
+    /* Start CO2 check task */
     xTaskCreate(c02_check_task, "c02_check", 4096, NULL, 5, NULL);
 
     ESP_LOGI(TAG, "Service initialized successfully");

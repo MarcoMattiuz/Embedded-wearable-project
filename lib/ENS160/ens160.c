@@ -91,7 +91,7 @@ esp_err_t ens160_init(i2c_master_bus_handle_t bus_handle) {
         return ret;
     }
 
-    // Wait for initial measurement (datasheet specifies first data after 1s in STD mode)
+    // Wait for initial measurement
     vTaskDelay(pdMS_TO_TICKS(1000));
     
     ESP_LOGI(TAG, "ENS160 initialized successfully");
@@ -117,7 +117,7 @@ esp_err_t ens160_read_data(ens160_data_t *data) {
     }
 
     if (!(status & ENS160_STATUS_NEWDAT)) {
-        ESP_LOGD(TAG, "Data not ready");  // Changed to DEBUG level
+        ESP_LOGE(TAG, "Data not ready");
         return ESP_ERR_NOT_FINISHED;
     }
 
