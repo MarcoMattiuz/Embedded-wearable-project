@@ -6,6 +6,7 @@ const BPM_CHAR_UUID = 0x0016;
 const AVGBPM_CHAR_UUID = 0x0017;
 const IRRAWBUFFER_CHAR_UUID = 0x0018;
 const WEATHER_CHAR_UUID = 0x0019;
+const ENS160_CHAR_UUID = 0x0029;
 
 const DEVICE_NAME = "ESP32_BLE";
 
@@ -28,6 +29,7 @@ const WeatherType = {
   SNOWY: 4,
   THUNDERSTORM: 5,
 };
+let ens160Characteristic = null;
 
 const statusDiv = document.getElementById("status");
 const connectBtn = document.getElementById("connectBtn");
@@ -84,6 +86,7 @@ async function toggleConnection() {
     irrawbufferCharacteristic = await service.getCharacteristic(
       IRRAWBUFFER_CHAR_UUID,
     );
+    ens160Characteristic = await service.getCharacteristic(ENS160_CHAR_UUID);
     gyroCharacteristic = await service.getCharacteristic(GYRO_CHAR_UUID);
     bpmCharateristic = await service.getCharacteristic(BPM_CHAR_UUID);
     avgbpmCharateristic = await service.getCharacteristic(AVGBPM_CHAR_UUID);
@@ -99,6 +102,12 @@ async function toggleConnection() {
     irrawbufferCharacteristic.addEventListener(
       "characteristicvaluechanged",
       handleIRRAWbuffer,
+    );
+
+    await ens160Characteristic.startNotifications();
+    ens160Characteristic.addEventListener(
+      "characteristicvaluechanged",
+      handleEns160Notification,
     );
 
     await gyroCharacteristic.startNotifications();
@@ -134,6 +143,18 @@ function onDisconnected() {
   timeCharacteristic = null;
   iracbufferCharacteristic = null;
   gyroCharacteristic = null;
+  ens160Characteristic = null;
+}
+
+function handleEns160Notification(event) {
+  const value = event.target.value;
+
+  if (value.byteLength >= 5) {
+    const eco2 = value.getUint16(0, true);
+    const tvoc = value.getUint16(2, true);
+    const aqi = value.getUint8(4);
+    log(`eCO2: ${eco2} ppm, TVOC: ${tvoc} ppb, AQI: ${aqi}`);
+  }
 }
 
 function handleGyroNotification(event) {
