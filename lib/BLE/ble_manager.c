@@ -26,10 +26,10 @@ static ble_time_write_cb_t time_write_callback = NULL;
 /* Current float32 values for read operations */
 static float current_iracbuffer_value = 0.0f;
 static float current_irrawbuffer_value = 0.0f;
-static Gyro_Axis_final_t current_gyro_value = {0};
 static ens160_data_t current_ens160_value = {0};
+static Gyro_Axis_final_t current_gyro_value = {0};
 static int16_t current_bpm_value = 0;
-static uint32_t current_avgbpm_value = 0;
+static int16_t current_avgbpm_value = 0;
 
 static float current_temperature = 0.0f;
 static uint8_t current_weather_type = 0;
@@ -155,12 +155,6 @@ static int gatt_svr_chr_access(uint16_t conn_handle, uint16_t attr_handle,
             rc = os_mbuf_append(ctxt->om, &current_ens160_value, sizeof(ens160_data_t));
             return rc == 0 ? 0 : BLE_ATT_ERR_UNLIKELY;
         }
-    }
-    else if (uuid == GYRO_CHAR_UUID) {
-        if (ctxt->op == BLE_GATT_ACCESS_OP_READ_CHR) {
-            rc = os_mbuf_append(ctxt->om, &current_gyro_value, sizeof(Gyro_Axis_t));
-            return rc == 0 ? 0 : BLE_ATT_ERR_UNLIKELY;
-        }
     } else if (uuid == BPM_CHAR_UUID) {
         if (ctxt->op == BLE_GATT_ACCESS_OP_READ_CHR) {
             rc = os_mbuf_append(ctxt->om, &current_bpm_value, sizeof(int16_t));
@@ -168,7 +162,7 @@ static int gatt_svr_chr_access(uint16_t conn_handle, uint16_t attr_handle,
         }
     } else if (uuid == AVGBPM_CHAR_UUID) {
         if (ctxt->op == BLE_GATT_ACCESS_OP_READ_CHR) {
-            rc = os_mbuf_append(ctxt->om, &current_avgbpm_value, sizeof(int16_t));
+            rc = os_mbuf_append(ctxt->om, &current_avgbpm_value, sizeof(current_avgbpm_value));
             return rc == 0 ? 0 : BLE_ATT_ERR_UNLIKELY;
         }
     }
@@ -342,39 +336,12 @@ static int ble_gap_event(struct ble_gap_event *event, void *arg)
         ESP_LOGI(TAG, "Subscribe event; cur_notify=%d, attr_handle=%d",
                  event->subscribe.cur_notify, event->subscribe.attr_handle);
         
-        if (event->subscribe.attr_handle == iracbuffer_char_handle) {
-            bool notify_enabled = event->subscribe.cur_notify;
-            
-            if (notify_state_callback) {
-                notify_state_callback(notify_enabled);
-            }
-        }
-
-        if (event->subscribe.attr_handle == irrawbuffer_char_handle) {
-            bool notify_enabled = event->subscribe.cur_notify;
-            
-            if (notify_state_callback) {
-                notify_state_callback(notify_enabled);
-            }
-        }
-
-        if (event->subscribe.attr_handle == bpm_char_handle) {
-            bool notify_enabled = event->subscribe.cur_notify;
-            
-            if (notify_state_callback) {
-                notify_state_callback(notify_enabled);
-            }
-        }
-
-        if (event->subscribe.attr_handle == avgbpm_char_handle) {
-            bool notify_enabled = event->subscribe.cur_notify;
-            
-            if (notify_state_callback) {
-                notify_state_callback(notify_enabled);
-            }
-        }
-
-        if (event->subscribe.attr_handle == gyro_char_handle) {
+        if (event->subscribe.attr_handle == iracbuffer_char_handle ||
+            event->subscribe.attr_handle == irrawbuffer_char_handle ||
+            event->subscribe.attr_handle == bpm_char_handle ||
+            event->subscribe.attr_handle == avgbpm_char_handle ||
+            event->subscribe.attr_handle == gyro_char_handle ||
+            event->subscribe.attr_handle == ens160_char_handle) {
             bool notify_enabled = event->subscribe.cur_notify;
             
             if (notify_state_callback) {
@@ -607,7 +574,7 @@ int ble_manager_notify_avgbpm(uint16_t conn_handle, int16_t value)
 
     rc = ble_gatts_notify_custom(conn_handle, avgbpm_char_handle, om);
     if (rc != 0) {
-        ESP_LOGE(TAG, "Error sending uint32 notification; rc=%d", rc);
+        ESP_LOGE(TAG, "Error sending avgbpm notification; rc=%d", rc);
         return rc;
     }
 

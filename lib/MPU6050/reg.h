@@ -139,7 +139,7 @@
         2         8      0x10
         3        16      0x18
 */
-#define MPU6050_ACC_G_RANGE  0x08
+#define MPU6050_ACC_G_RANGE  0x00
 #define MPU6050_ACCEL_XOUT_H 0x3B
 #define MPU6050_ACCEL_XOUT_L 0x3C
 #define MPU6050_ACCEL_YOUT_H 0x3D
