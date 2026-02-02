@@ -166,22 +166,21 @@ static void c02_check_task(void *pvParameter)
 
     while(1)
     {
-        ESP_LOGI(TAG, "eCO2: %d ppm, TVOC: %d ppb, AQI: %d", data.eco2, data.tvoc, data.aqi);
-        // global_parameters.CO2 = data.eco2;
-        if (notify_enabled && ble_manager_is_connected())
+        esp_err_t ret = ens160_read_data(&data);
+        if(ret == ESP_OK)
         {
-            esp_err_t ret = ens160_read_data(&data);
-            if(ret == ESP_OK)
-            {
-                ESP_LOGI(TAG, "eCO2: %d ppm, TVOC: %d ppb, AQI: %d", data.eco2, data.tvoc, data.aqi);
+            ESP_LOGI(TAG, "eCO2: %d ppm, TVOC: %d ppb, AQI: %d", data.eco2, data.tvoc, data.aqi);
+            // global_parameters.CO2 = data.eco2;
+            
+            if (notify_enabled && ble_manager_is_connected()) {
                 ble_manager_notify_ens160(
                     ble_manager_get_conn_handle(),
                     &data);
-            }
-            else
-            {
-                ESP_LOGE(TAG, "Failed to read ENS160 data: %s", esp_err_to_name(ret));
-            }
+                }
+        }
+        else
+        {
+            ESP_LOGE(TAG, "Failed to read ENS160 data: %s", esp_err_to_name(ret));
         }
         vTaskDelay(pdMS_TO_TICKS(2000));
     }
@@ -227,6 +226,18 @@ void add_device_MPU6050(struct i2c_device *device)
     {
         DBG_PRINTF("Failed to add MPU6050 device to I2C bus: %d\n", esp_ret);
         abort();
+    }
+}
+
+void add_device_ENS160()
+{
+    esp_err_t esp_ret;
+
+    // initialize ENS160 on the bus
+    esp_ret = ens160_init(i2c_bus_0);
+    if (esp_ret != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to initialize ENS160: %s", esp_err_to_name(esp_ret));
     }
 }
 
@@ -484,15 +495,8 @@ void app_main()
 
     // add_device_MAX30102(&max30102_device);
     // add_device_MPU6050(&mpu6050_device);
-    // add_device_SH1106(&panel_handle);  
-    
-    esp_err_t ens_ret = ens160_init(i2c_bus_0);
-    if (ens_ret != ESP_OK)
-    {
-        ESP_LOGE(TAG, "Failed to initialize ENS160: %s", esp_err_to_name(ens_ret));
-    }
-
-  
+    // add_device_SH1106(&panel_handle);
+    add_device_ENS160();
 
     // parameters init
     parameters_ppg_max30102.bus = i2c_bus_0;
@@ -557,9 +561,9 @@ void app_main()
     // xTaskCreate(touch_sensor_task, "touch_sensor", 4096, NULL, 10, NULL);
 
     /* Start RTC clock display task */
-    xTaskCreate(rtc_clock_task, "rtc_clock", 4096, NULL, 5, NULL);
+    // xTaskCreate(rtc_clock_task, "rtc_clock", 4096, NULL, 5, NULL);
 
-    /* Start CO2 check task */
+    /* Start CO2 check task only if ENS160 initialized successfully */
     xTaskCreate(c02_check_task, "c02_check", 4096, NULL, 5, NULL);
 
     ESP_LOGI(TAG, "Service initialized successfully");
