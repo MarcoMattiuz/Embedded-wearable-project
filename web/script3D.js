@@ -1,6 +1,5 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { STLLoader } from "three/addons/loaders/STLLoader.js";
 
 let container;
 let scene;
@@ -57,39 +56,15 @@ function init3DObject() {
   const gridHelper = new THREE.GridHelper(10, 10, 0x444444, 0x888888);
   scene.add(gridHelper);
 
-  const loader = new STLLoader();
-
-  loader.load(
-    "models/object.stl",
-    (geometry) => {
-      const material = new THREE.MeshStandardMaterial({
-        color: 0xfffdd0,
-        roughness: 0.4,
-        metalness: 0.3,
-      });
-
-      model = new THREE.Mesh(geometry, material);
-
-      model.scale.set(0.01, 0.01, 0.01);
-      model.rotation.x = -Math.PI / 2;
-      model.position.set(0, 0, 0.8);
-
-      scene.add(model);
-    },
-    undefined,
-    (error) => {
-      console.error("Error uploading STL:", error);
-      const geometry = new THREE.BoxGeometry(2, 2, 2);
-      const material = new THREE.MeshStandardMaterial({
-        color: 0xfffdd0,
-        roughness: 0.4,
-        metalness: 0.3,
-      });
-      model = new THREE.Mesh(geometry, material);
-      model.position.set(0, 0, 0);
-      scene.add(model);
-    },
-  );
+  const geometry = new THREE.BoxGeometry(1.5, 1.5, 1.5);
+  const material = new THREE.MeshStandardMaterial({
+    color: 0xfffdd0,
+    roughness: 0.4,
+    metalness: 0.3,
+  });
+  model = new THREE.Mesh(geometry, material);
+  model.position.set(0, 0, 0);
+  scene.add(model);
 
   animate();
 
