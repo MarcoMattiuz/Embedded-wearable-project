@@ -18,11 +18,10 @@ let avgbpmCharateristic = null;
 let float32Characteristic = null;
 let weatherCharacteristic = null;
 
-
 let latitude = 0.0;
 let longitude = 0.0;
-const WeatherType= {
-    SUNNY : 0,
+const WeatherType = {
+  SUNNY: 0,
   CLOUDY: 1,
   RAINY: 2,
   FOGGY: 3,
@@ -43,7 +42,6 @@ window.AVGBPMsampleArr = [];
 let MAX_SIZE_IRAC_BUFFER = 960;
 let MAX_SIZE_BPM_BUFFER = 200;
 let MAX_SIZE_IRRAW_BUFFER = 960;
-
 
 function log(message, type = "info") {
   const entry = document.createElement("div");
@@ -81,8 +79,11 @@ async function toggleConnection() {
 
     const service = await server.getPrimaryService(SERVICE_UUID);
     timeCharacteristic = await service.getCharacteristic(TIME_CHAR_UUID);
-    iracbufferCharacteristic = await service.getCharacteristic(IRACBUFFER_CHAR_UUID);
-    irrawbufferCharacteristic = await service.getCharacteristic(IRRAWBUFFER_CHAR_UUID);
+    iracbufferCharacteristic =
+      await service.getCharacteristic(IRACBUFFER_CHAR_UUID);
+    irrawbufferCharacteristic = await service.getCharacteristic(
+      IRRAWBUFFER_CHAR_UUID,
+    );
     gyroCharacteristic = await service.getCharacteristic(GYRO_CHAR_UUID);
     bpmCharateristic = await service.getCharacteristic(BPM_CHAR_UUID);
     avgbpmCharateristic = await service.getCharacteristic(AVGBPM_CHAR_UUID);
@@ -91,31 +92,28 @@ async function toggleConnection() {
     await iracbufferCharacteristic.startNotifications();
     iracbufferCharacteristic.addEventListener(
       "characteristicvaluechanged",
-      handleIRACbuffer
+      handleIRACbuffer,
     );
 
     await irrawbufferCharacteristic.startNotifications();
     irrawbufferCharacteristic.addEventListener(
       "characteristicvaluechanged",
-      handleIRRAWbuffer
+      handleIRRAWbuffer,
     );
 
     await gyroCharacteristic.startNotifications();
     gyroCharacteristic.addEventListener(
       "characteristicvaluechanged",
-      handleGyroNotification
+      handleGyroNotification,
     );
 
     await bpmCharateristic.startNotifications();
-    bpmCharateristic.addEventListener(
-      "characteristicvaluechanged",
-      handleBPM
-    );
+    bpmCharateristic.addEventListener("characteristicvaluechanged", handleBPM);
 
     await avgbpmCharateristic.startNotifications();
     avgbpmCharateristic.addEventListener(
       "characteristicvaluechanged",
-      handleAVGBPM
+      handleAVGBPM,
     );
 
     await sendTimeValue(Date.now());
@@ -139,7 +137,6 @@ function onDisconnected() {
 }
 
 function handleGyroNotification(event) {
-
   const value = event.target.value;
 
   if (value.byteLength >= 12) {
@@ -147,7 +144,12 @@ function handleGyroNotification(event) {
     const gy = value.getFloat32(4, true);
     const gz = value.getFloat32(8, true);
 
-    update3DObject(gx, gy, gz);
+    if (typeof window.update3DObject === "function") {
+      window.update3DObject(gx, gy, gz);
+    }
+    console.log(
+      `Gyro - X: ${gx.toFixed(2)}, Y: ${gy.toFixed(2)}, Z: ${gz.toFixed(2)}`,
+    );
   }
 }
 
@@ -183,21 +185,24 @@ async function sendTimeValue(timestamp) {
 }
 
 function updateDropdown(bpm, avg) {
-    document.getElementById("dropdown-bpm").textContent = `BPM: ${bpm}`;
-    document.getElementById("dropdown-avg").textContent = `AVG(4) BPM: ${avg}`;
-    document.getElementById("dropdown-total-avg").textContent = `TOTAL AVG BPM: ${Math.round(window.AVGBPMsampleArr.reduce((a, b) => a + b.value, 0) / window.AVGBPMsampleArr.length)}`;
+  document.getElementById("dropdown-bpm").textContent = `BPM: ${bpm}`;
+  document.getElementById("dropdown-avg").textContent = `AVG(4) BPM: ${avg}`;
+  document.getElementById("dropdown-total-avg").textContent =
+    `TOTAL AVG BPM: ${Math.round(window.AVGBPMsampleArr.reduce((a, b) => a + b.value, 0) / window.AVGBPMsampleArr.length)}`;
 }
 
 function handleBPM(event) {
   const value = event.target.value;
   const now = new Date();
-  const timestamp = now.getHours().toString().padStart(2, '0') + ':' + 
-                    now.getMinutes().toString().padStart(2, '0');
+  const timestamp =
+    now.getHours().toString().padStart(2, "0") +
+    ":" +
+    now.getMinutes().toString().padStart(2, "0");
   window.BPMsampleArr.push({
     value: value.getInt16(0, true),
-    timestamp: timestamp
+    timestamp: timestamp,
   });
-  log("BPM: " + window.BPMsampleArr.map(s => s.value).join(', '));
+  log("BPM: " + window.BPMsampleArr.map((s) => s.value).join(", "));
   if (window.BPMsampleArr.length >= MAX_SIZE_BPM_BUFFER) {
     window.BPMsampleArr = [];
   }
@@ -208,13 +213,15 @@ function handleBPM(event) {
 function handleAVGBPM(event) {
   const value = event.target.value;
   const now = new Date();
-  const timestamp = now.getHours().toString().padStart(2, '0') + ':' + 
-                    now.getMinutes().toString().padStart(2, '0');
+  const timestamp =
+    now.getHours().toString().padStart(2, "0") +
+    ":" +
+    now.getMinutes().toString().padStart(2, "0");
   window.AVGBPMsampleArr.push({
     value: value.getInt16(0, true),
-    timestamp: timestamp
+    timestamp: timestamp,
   });
-  log("AVG_BPM: " + window.AVGBPMsampleArr.map(s => s.value).join(', '));
+  log("AVG_BPM: " + window.AVGBPMsampleArr.map((s) => s.value).join(", "));
   if (window.AVGBPMsampleArr.length >= MAX_SIZE_BPM_BUFFER) {
     window.AVGBPMsampleArr = [];
   }
@@ -233,7 +240,10 @@ function handleIRACbuffer(event) {
   }
 
   updateIRACGraphs();
-  console.log(`Array IR AC int16: [${window.IRACsampleArr.join(', ')}]`, 'success');
+  console.log(
+    `Array IR AC int16: [${window.IRACsampleArr.join(", ")}]`,
+    "success",
+  );
 }
 
 function handleIRRAWbuffer(event) {
@@ -249,13 +259,15 @@ function handleIRRAWbuffer(event) {
   }
 
   updateIRRAWGraphs();
-  console.log(`Array IR RAW Uint32: [${window.IRRAWsampleArr.join(', ')}]`, 'success');
+  console.log(
+    `Array IR RAW Uint32: [${window.IRRAWsampleArr.join(", ")}]`,
+    "success",
+  );
 }
 
 //convert weather code from api to a WeatherType
 function mapWeatherCode(code) {
   switch (code) {
-
     // CLEAR
     case 0:
       return WeatherType.SUNNY;
@@ -316,8 +328,8 @@ async function sendWeatherData(temp, weatherType) {
   try {
     const buffer = new ArrayBuffer(5);
     const view = new DataView(buffer);
-    view.setFloat32(0, temp, true);    // float temperature
-    view.setUint8(4, weatherType);     // int weather type
+    view.setFloat32(0, temp, true); // float temperature
+    view.setUint8(4, weatherType); // int weather type
 
     await weatherCharacteristic.writeValue(buffer);
     log(`Weather sent: temp=${temp}, type=${weatherType}`, "success");
@@ -325,8 +337,6 @@ async function sendWeatherData(temp, weatherType) {
     log(`Error sending weather: ${error}`, "error");
   }
 }
-
-
 
 function getGeolocation() {
   return new Promise((resolve, reject) => {
@@ -342,7 +352,7 @@ function getGeolocation() {
           longitude: position.coords.longitude,
         });
       },
-      () => log("Sorry, no position available.")
+      () => log("Sorry, no position available."),
     );
   });
 }
@@ -373,8 +383,6 @@ async function getWeather() {
     log(error, "error");
   }
 }
-
-
 
 connectBtn.addEventListener("click", toggleConnection);
 

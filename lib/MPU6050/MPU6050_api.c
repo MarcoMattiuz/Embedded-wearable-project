@@ -86,6 +86,7 @@ void read_sample_GYRO(Gyro_Axis_t *gyro, Gyro_Axis_final_t *f_gyro, uint8_t *r_b
 
     if (ble_manager_is_connected())
     {
+        // printf("size: %d", sizeof(*f_gyro));
         ble_manager_notify_gyro(
             ble_manager_get_conn_handle(),
             f_gyro);
@@ -399,16 +400,16 @@ void motion_analysis(const Three_Axis_t *ax, const Gyro_Axis_final_t *gyro)
     }
 }
 
-void send_gyro_data_debug(void *pvParameters)
-{
+// void send_gyro_data_debug(void *pvParameters)
+// {
 
-    Gyro_Axis_final_t *data = (Gyro_Axis_final_t *)pvParameters;
+//     Gyro_Axis_final_t *data = (Gyro_Axis_final_t *)pvParameters;
 
-    // send gyro data via BLE
-    ble_manager_notify_gyro(
-        ble_manager_get_conn_handle(),
-        data);
-}
+//     // send gyro data via BLE
+//     ble_manager_notify_gyro(
+//         ble_manager_get_conn_handle(),
+//         data);
+// }
 
 void task_acc(void *pvParameters)
 {
