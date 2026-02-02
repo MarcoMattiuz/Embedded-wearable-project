@@ -436,6 +436,7 @@ static void bettery_level_task(void *pvParameter)
     adc1_config_channel_atten(ADC1_CHANNEL_4, ADC_ATTEN_DB_11);
     while (1)
     {
+        printf("Checking battery level...\n");
         int val = adc1_get_raw(ADC1_CHANNEL_4);
         DBG_PRINTF("ADC1 CHANNEL 4 VALUE: %d\n", val);
         // Vout = Dout * Vmax(3.3V) / Dmax
@@ -444,7 +445,7 @@ static void bettery_level_task(void *pvParameter)
         // R1 = 10kohm, R2 = 10kohm Vin = 4.2V => Vout = 4.2 * 10k / (10k + 10k) = 2.1V
         float voltage = val * 3.3 / 4095;
         DBG_PRINTF("Voltage: %.2f V\n", voltage);
-
+        global_parameters.battery_voltage = voltage; // reverse voltage divider
         // 4.2V=2.1V -> 100%
         // 3.95V= 1.97V -> 75%
         // 3.7V= 1.85V -> 50%
@@ -475,10 +476,10 @@ void app_main()
     init_I2C_bus_PORT0(&i2c_bus_0);
     init_I2C_bus_PORT1(&i2c_bus_1);
 
-    // add_device_MAX30102(&max30102_device);
+    add_device_MAX30102(&max30102_device);
     // add_device_MPU6050(&mpu6050_device);
-    // add_device_SH1106(&panel_handle);
-    ens160_init(i2c_bus_0);
+    add_device_SH1106(&panel_handle);
+    // ens160_init(i2c_bus_0);
 
   
 
@@ -511,14 +512,14 @@ void app_main()
         1,
         NULL);
 
-    retF = xTaskCreatePinnedToCore(
-        task_acc,
-        "task_acc_debug",
-        4096,
-        &mpu6050_device,
-        2,
-        NULL,
-        1);
+    // retF = xTaskCreatePinnedToCore(
+    //     task_acc,
+    //     "task_acc_debug",
+    //     4096,
+    //     &mpu6050_device,
+    //     2,
+    //     NULL,
+    //     1);
 
     xTaskCreatePinnedToCore(
         PPG_sensor_task,
@@ -530,13 +531,13 @@ void app_main()
         0);
 
     //* Start battery level monitoring task */
-    // xTaskCreate(
-    //     bettery_level_task,
-    //     "battery_level_task",
-    //     2048,
-    //     NULL,
-    //     1,
-    //     NULL);
+    xTaskCreate(
+        bettery_level_task,
+        "battery_level_task",
+        2048,
+        NULL,
+        1,
+        NULL);
 
     //* Start Gyro BLE notification task */
     // xTaskCreatePinnedToCore(gyro_ble_task, "gyro_ble_task", 4096, &mpu6050_device, 1, NULL, 0);
@@ -545,10 +546,10 @@ void app_main()
     // xTaskCreate(touch_sensor_task, "touch_sensor", 4096, NULL, 10, NULL);
 
     /* Start RTC clock display task */
-    // xTaskCreate(rtc_clock_task, "rtc_clock", 4096, NULL, 5, NULL);
+    xTaskCreate(rtc_clock_task, "rtc_clock", 4096, NULL, 5, NULL);
 
     /* Start CO2 check task */
-    xTaskCreate(c02_check_task, "c02_check", 4096, NULL, 5, NULL);
+    // xTaskCreate(c02_check_task, "c02_check", 4096, NULL, 5, NULL);
 
     ESP_LOGI(TAG, "Service initialized successfully");
 }

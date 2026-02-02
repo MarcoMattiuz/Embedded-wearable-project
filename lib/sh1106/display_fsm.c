@@ -123,30 +123,35 @@ void fn_BATTERY(esp_lcd_panel_handle_t *panel_handle, struct global_param *param
     {
     case BATTERY_EMPTY:
     {
-        drawBitmapToBuffer(emptyBatteryBitmap, buffer_data, 32, 0, 64, 64);
+        drawBitmapToBuffer(emptyBatteryBitmap, buffer_data, 0, 0, 64, 64);
         break;
     }
     case BATTERY_LOW:
     {
-        drawBitmapToBuffer(lowBatteryBitmap, buffer_data, 32, 0, 64, 64);
+        drawBitmapToBuffer(lowBatteryBitmap, buffer_data, 0, 0, 64, 64);
         break;
     }
     case BATTERY_MEDIUM:
     {
-        drawBitmapToBuffer(mediumBatteryBitmap, buffer_data, 32, 0, 64, 64);
+        drawBitmapToBuffer(mediumBatteryBitmap, buffer_data, 0, 0, 64, 64);
         break;
     }
     case BATTERY_HIGH:
     {
-        drawBitmapToBuffer(highBatteryBitmap, buffer_data, 32, 0, 64, 64);
+        drawBitmapToBuffer(highBatteryBitmap, buffer_data, 0, 0, 64, 64);
         break;
     }
     default:
     {
-        drawBitmapToBuffer(fullBatteryBitmap, buffer_data, 32, 0, 64, 64);
+        drawBitmapToBuffer(fullBatteryBitmap, buffer_data, 0, 0, 64, 64);
         break;
     }
     }
+
+    char buff[15];
+    sprintf(buff, "%.2f V", param->battery_voltage);
+
+    drawStringToBuffer(buff, buffer_data, 64 + 5, 28);
 
     drawBufferToLcd(buffer_data, *panel_handle);
 }

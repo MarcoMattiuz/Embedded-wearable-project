@@ -57,6 +57,7 @@ struct global_param
     char date[9];
     char time_str[6];
     int CO2;
+    float battery_voltage;
 };
 
 extern struct global_param global_parameters;

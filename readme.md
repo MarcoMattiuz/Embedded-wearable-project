@@ -17,8 +17,9 @@ We focused on features that are essential for modern wearables, such as:
 - Weather data (using API) 
 - An OLED display to show real-time information  
 - Data plots in the web-app
-- TODO: implementing C02/temperature/umidity sensor
-- TODO: 3D model that follows device rotation (in the web-app)
+- CO2 measurement
+- TODO: implementing temperature/umidity sensor
+- TODO: 3D model that follows device rotation (in the web-app) **quaternion implementation is needed**
 
 To ensure maintainability and accessibility for anyone interested in experimenting or extending the system, we built the device on the **ESP32 platform** using **ESP-IDF**, chosen for its conectivity (BLE/wifi), flexibility, performance, and strong community support.
 

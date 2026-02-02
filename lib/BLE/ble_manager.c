@@ -89,6 +89,12 @@ static const struct ble_gatt_svc_def gatt_svr_svcs[] = {
                 .val_handle = &avgbpm_char_handle,
                 .flags = BLE_GATT_CHR_F_NOTIFY,
             }, {
+                /* Weather Characteristic - writable by client */
+                .uuid = BLE_UUID16_DECLARE(WEATHER_CHAR_UUID),
+                .access_cb = gatt_svr_chr_access,
+                .val_handle = &weather_char_handle,
+                .flags = BLE_GATT_CHR_F_WRITE,
+            }, {
                 0, /* No more characteristics */
             },
         }

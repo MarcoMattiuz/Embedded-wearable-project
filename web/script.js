@@ -130,7 +130,7 @@ async function toggleConnection() {
     log("Connected successfully!", "success");
     updateUI(true);
 
-    getWeather();
+    await getWeather();
   } catch (error) {
     log(`Error: ${error}`, "error");
     console.error(error);
