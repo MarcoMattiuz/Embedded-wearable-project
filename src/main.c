@@ -320,6 +320,7 @@ void LCD_task(void *parameters)
                 {
                     xTimerStop(frame_timer_handle, 0);
                 }
+                ESP_LOGE(TAG,"LCD OFF GYRO");
                 TurnLcdOff(panel_handle);
                 break;
             }
@@ -333,10 +334,11 @@ void LCD_task(void *parameters)
                 }
                 else // released
                 {
+                    
                     xTimerStop(long_press_timer_handle, 0);
                     if (!long_press_triggered && LCD_ON) // short press
                     {
-
+                        ESP_LOGE(TAG, "LCD NEXT STATE");
                         (*fsm[next_state].state_function)(&panel_handle, &global_parameters);
 
                         current_state = next_state;
@@ -358,6 +360,11 @@ void LCD_task(void *parameters)
 
             case EVT_LONG_PRESS:
             {
+                if (gpio_get_level(PUSH_BUTTON_GPIO) != 0)
+                {
+                    // Ignore stale long-press event if the button was already released.
+                    break;
+                }
                 long_press_triggered = true;
                 LCD_ON = !LCD_ON;
 
@@ -365,7 +372,7 @@ void LCD_task(void *parameters)
                 {
                     xTimerStart(refresh_timer_handle, 0);
                     TurnLcdOn(panel_handle);
-
+                    ESP_LOGE(TAG, "LCD ON LONG PRESS");
                     current_state = STATE_BPM;
                     next_state = get_next_state(current_state);
 
@@ -377,6 +384,7 @@ void LCD_task(void *parameters)
                 else
                 {
                     TurnLcdOff(panel_handle);
+                    ESP_LOGE(TAG, "LCD OFF LONG PRESS");
                     xTimerStop(refresh_timer_handle, 0);
                     xTimerStop(frame_timer_handle, 0); // stop animation
                 }
@@ -385,6 +393,7 @@ void LCD_task(void *parameters)
 
             case EVT_REFRESH:
                 (*fsm[current_state].state_function)(&panel_handle, &global_parameters);
+                    ESP_LOGE(TAG, "LCD REFRESH");
                 break;
 
             default:
@@ -440,7 +449,7 @@ void app_main()
     init_I2C_bus_PORT0(&i2c_bus_0);
     init_I2C_bus_PORT1(&i2c_bus_1);
 
-    // add_device_MAX30102(&max30102_device);
+    add_device_MAX30102(&max30102_device);
     add_device_MPU6050(&mpu6050_device);
     add_device_SH1106(&panel_handle);
 
@@ -482,14 +491,14 @@ void app_main()
         NULL,
         1);
 
-    // xTaskCreatePinnedToCore(
-    //     PPG_sensor_task,
-    //     "PPG_sensor_task_debug",
-    //     4096,
-    //     &parameters_ppg_max30102,
-    //     1,
-    //     &ppg_task_handle,
-    //     0);
+    xTaskCreatePinnedToCore(
+        PPG_sensor_task,
+        "PPG_sensor_task_debug",
+        4096,
+        &parameters_ppg_max30102,
+        1,
+        &ppg_task_handle,
+        0);
 
     //* Start battery level monitoring task */
     /* xTaskCreate(
