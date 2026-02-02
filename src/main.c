@@ -23,6 +23,8 @@
 #include "esp_task_wdt.h"
 #include "driver/adc.h"
 #include "esp_adc_cal.h"
+#include "ens160.h"
+
 struct ppg_task_params
 {
     struct i2c_device *device;
@@ -143,6 +145,19 @@ static void rtc_clock_task(void *pvParameter)
         ESP_LOGI(TAG, "Current time: %s", strftime_buf);
 
         vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+}
+
+static void c02_check_task(void *pvParameter)
+{
+    ens160_data_t data;
+    while(1)
+    {
+        if(ens160_read_data(&data))
+        {
+            ESP_LOGI(TAG, "eCO2: %d ppm, TVOC: %d ppb, AQI: %d", data.eco2, data.tvoc, data.aqi);
+        }
+        vTaskDelay(pdMS_TO_TICKS(2000));
     }
 }
 
@@ -416,6 +431,8 @@ void app_main()
     init_I2C_bus_PORT0(&i2c_bus_0);
     init_I2C_bus_PORT1(&i2c_bus_1);
 
+    ens160_init(i2c_bus_0);
+
     // add_device_MAX30102(&max30102_device);
     // add_device_MPU6050(&mpu6050_device);
     // add_device_SH1106 (&panel_handle);
@@ -468,13 +485,13 @@ void app_main()
     //     0);
 
     //* Start battery level monitoring task */
-    xTaskCreate(
-        bettery_level_task,
-        "battery_level_task",
-        2048,
-        NULL,
-        1,
-        NULL);
+    // xTaskCreate(
+    //     bettery_level_task,
+    //     "battery_level_task",
+    //     2048,
+    //     NULL,
+    //     1,
+    //     NULL);
 
     //* Start Gyro BLE notification task */
     // xTaskCreatePinnedToCore(gyro_ble_task, "gyro_ble_task", 4096, &mpu6050_device, 1, NULL, 0);
@@ -483,7 +500,9 @@ void app_main()
     // xTaskCreate(touch_sensor_task, "touch_sensor", 4096, NULL, 10, NULL);
 
     /* Start RTC clock display task */
-    xTaskCreate(rtc_clock_task, "rtc_clock", 4096, NULL, 5, NULL);
+    // xTaskCreate(rtc_clock_task, "rtc_clock", 4096, NULL, 5, NULL);
+
+    xTaskCreate(c02_check_task, "c02_check", 4096, NULL, 5, NULL);
 
     ESP_LOGI(TAG, "Service initialized successfully");
 }
