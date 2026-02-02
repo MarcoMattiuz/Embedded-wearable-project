@@ -13,7 +13,7 @@
 #include "services/gatt/ble_svc_gatt.h"
 #include <string.h>
 #include "reg.h"
-#include "ens160.h"
+#include "../ENS160/ens160.h"
 
 /* Device Custom Service UUID */
 #define DEVICE_CUSTOM_SERVICE_UUID 0x1847
