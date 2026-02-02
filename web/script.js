@@ -45,7 +45,7 @@ window.ECO2sampleArr = [];
 let MAX_SIZE_IRAC_BUFFER = 960;
 let MAX_SIZE_BPM_BUFFER = 200;
 let MAX_SIZE_IRRAW_BUFFER = 960;
-let MAX_SIZE_ECO2_BUFFER = 200;
+let MAX_SIZE_ECO2_BUFFER = 10;
 
 function log(message, type = "info") {
   const entry = document.createElement("div");

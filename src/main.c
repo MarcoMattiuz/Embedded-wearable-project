@@ -535,7 +535,7 @@ void app_main()
         "LCD_task_debug",
         4096,
         &panel_handle,
-        1,
+        2,
         NULL);
     vTaskDelay(pdMS_TO_TICKS(1000));
 
@@ -544,7 +544,7 @@ void app_main()
         "task_acc_debug",
         4096,
         &mpu6050_device,
-        2,
+        1,
         NULL,
         1);
     vTaskDelay(pdMS_TO_TICKS(1000));
@@ -554,7 +554,7 @@ void app_main()
         "PPG_sensor_task_debug",
         4096,
         &parameters_ppg_max30102,
-        1,
+        3,
         &ppg_task_handle,
         0);
     vTaskDelay(pdMS_TO_TICKS(1000));
@@ -575,7 +575,7 @@ void app_main()
     //xTaskCreate(touch_sensor_task, "touch_sensor", 4096, NULL, 10, NULL);
 
     /* Start RTC clock display task */
-    xTaskCreate(rtc_clock_task, "rtc_clock", 4096, NULL, 5, NULL);
+    xTaskCreate(rtc_clock_task, "rtc_clock", 4096, NULL, 4, NULL);
     vTaskDelay(pdMS_TO_TICKS(1000));
 
     /* Start CO2 check task */
