@@ -23,7 +23,7 @@
 #include "esp_task_wdt.h"
 #include "driver/adc.h"
 #include "esp_adc_cal.h"
-#include "ens160.h"
+#include "../ENS160/ens160.h"
 
 struct ppg_task_params
 {
@@ -494,10 +494,12 @@ void app_main()
     init_I2C_bus_PORT0(&i2c_bus_0);
     init_I2C_bus_PORT1(&i2c_bus_1);
 
-    // add_device_MAX30102(&max30102_device);
-    // add_device_MPU6050(&mpu6050_device);
-    // add_device_SH1106(&panel_handle);
+    add_device_MAX30102(&max30102_device);
+    add_device_MPU6050(&mpu6050_device);
+    //add_device_SH1106(&panel_handle);
     esp_err_t ens160_ret = add_device_ENS160();
+
+  
 
     // parameters init
     parameters_ppg_max30102.bus = i2c_bus_0;
@@ -565,7 +567,7 @@ void app_main()
     // xTaskCreate(rtc_clock_task, "rtc_clock", 4096, NULL, 5, NULL);
 
     /* Start CO2 check task */
-    xTaskCreate(c02_check_task, "c02_check", 4096, NULL, 5, NULL);
+    // xTaskCreate(c02_check_task, "c02_check", 4096, NULL, 5, NULL);
 
     ESP_LOGI(TAG, "Service initialized successfully");
 }
