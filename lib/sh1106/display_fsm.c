@@ -1,6 +1,6 @@
 #include "display_fsm.h"
 #include "string.h"
-
+#include "ble_manager.h"
 StateMachine_t fsm[] = {
     {STATE_BPM, fn_BPM},
     {STATE_CLOCK, fn_CLOCK},
@@ -28,9 +28,13 @@ void fn_CLOCK(esp_lcd_panel_handle_t *panel_handle, struct global_param *param)
 {
     memset(buffer_data, 0, sizeof(buffer_data));
 
+
     drawStringToBuffer(param->date, buffer_data, 64 + 5, 28);
     drawStringToBuffer(param->time_str, buffer_data, 64 + 5, 28 + 8);
 
+    if(ble_manager_is_connected()){
+        drawBitmapToBuffer(bluetoothBitmap, buffer_data, 112, 0,16,16);
+    }
     drawBitmapToBuffer(clockBitmap, buffer_data, 0, 0, 64, 64);
     
     drawBufferToLcd(buffer_data, *panel_handle);
@@ -112,6 +116,11 @@ void fn_WEATHER(esp_lcd_panel_handle_t *panel_handle, struct global_param *param
         break;
     }
     }
+    if (ble_manager_is_connected())
+    {
+        drawBitmapToBuffer(bluetoothBitmap, buffer_data, 112, 0, 16, 16);
+    }
+
     drawBufferToLcd(buffer_data, *panel_handle);
 }
 
