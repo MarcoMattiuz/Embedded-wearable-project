@@ -169,7 +169,7 @@ static void c02_check_task(void *pvParameter)
         esp_err_t ret = ens160_read_data(&data);
         if(ret == ESP_OK)
         {
-            ESP_LOGI(TAG, "eCO2: %d ppm, TVOC: %d ppb, AQI: %d", data.eco2, data.tvoc, data.aqi);
+            // ESP_LOGI(TAG, "eCO2: %d ppm, TVOC: %d ppb, AQI: %d", data.eco2, data.tvoc, data.aqi);
             global_parameters.CO2 = data.eco2;
             
             if (notify_enabled && ble_manager_is_connected()) {
@@ -530,14 +530,14 @@ void app_main()
     //     1,
     //     NULL);
 
-    // retF = xTaskCreatePinnedToCore(
-    //     task_acc,
-    //     "task_acc_debug",
-    //     4096,
-    //     &mpu6050_device,
-    //     2,
-    //     NULL,
-    //     1);
+    retF = xTaskCreatePinnedToCore(
+        task_acc,
+        "task_acc_debug",
+        4096,
+        &mpu6050_device,
+        2,
+        NULL,
+        1);
 
     // xTaskCreatePinnedToCore(
     //     PPG_sensor_task,
@@ -567,7 +567,7 @@ void app_main()
     // xTaskCreate(rtc_clock_task, "rtc_clock", 4096, NULL, 5, NULL);
 
     /* Start CO2 check task */
-    // xTaskCreate(c02_check_task, "c02_check", 4096, NULL, 5, NULL);
+    xTaskCreate(c02_check_task, "c02_check", 4096, NULL, 5, NULL);
 
     ESP_LOGI(TAG, "Service initialized successfully");
 }
