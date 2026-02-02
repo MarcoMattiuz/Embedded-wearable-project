@@ -496,7 +496,6 @@ void app_main()
     init_I2C_bus_PORT1(&i2c_bus_1);
 
     add_device_MAX30102(&max30102_device);
-    // add_device_MPU6050(&mpu6050_device);
     add_device_SH1106(&panel_handle);
     // ens160_init(i2c_bus_0);
     add_device_MPU6050(&mpu6050_device);
@@ -543,35 +542,35 @@ void app_main()
         NULL,
         1);
 
-    xTaskCreatePinnedToCore(
+    /* xTaskCreatePinnedToCore(
         PPG_sensor_task,
         "PPG_sensor_task_debug",
         4096,
         &parameters_ppg_max30102,
         1,
         &ppg_task_handle,
-        0);
+        0); */
 
     //* Start battery level monitoring task */
-    xTaskCreate(
+    /* xTaskCreate(
         bettery_level_task,
         "battery_level_task",
         2048,
         NULL,
         1,
         NULL);
-
+ */
     //* Start Gyro BLE notification task */
-    // xTaskCreatePinnedToCore(gyro_ble_task, "gyro_ble_task", 4096, &mpu6050_device, 1, NULL, 0);
+    //xTaskCreatePinnedToCore(gyro_ble_task, "gyro_ble_task", 4096, &mpu6050_device, 1, NULL, 0);
 
     /* Start touch sensor task */
-    // xTaskCreate(touch_sensor_task, "touch_sensor", 4096, NULL, 10, NULL);
+    //xTaskCreate(touch_sensor_task, "touch_sensor", 4096, NULL, 10, NULL);
 
     /* Start RTC clock display task */
-    // xTaskCreate(rtc_clock_task, "rtc_clock", 4096, NULL, 5, NULL);
+    xTaskCreate(rtc_clock_task, "rtc_clock", 4096, NULL, 5, NULL);
 
     /* Start CO2 check task */
-    // xTaskCreate(c02_check_task, "c02_check", 4096, NULL, 5, NULL);
+    /* xTaskCreate(c02_check_task, "c02_check", 4096, NULL, 5, NULL); */
 
     ESP_LOGI(TAG, "Service initialized successfully");
 }
