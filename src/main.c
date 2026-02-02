@@ -493,11 +493,16 @@ void app_main()
 
     // I2C busses init
     init_I2C_bus_PORT0(&i2c_bus_0);
+    vTaskDelay(pdMS_TO_TICKS(1000));
     init_I2C_bus_PORT1(&i2c_bus_1);
+    vTaskDelay(pdMS_TO_TICKS(1000));
 
     add_device_MAX30102(&max30102_device);
+    vTaskDelay(pdMS_TO_TICKS(1000));
+
     add_device_SH1106(&panel_handle);
-    // ens160_init(i2c_bus_0);
+    vTaskDelay(pdMS_TO_TICKS(1000));
+
     add_device_MPU6050(&mpu6050_device);
 
     esp_err_t ens160_ret = add_device_ENS160();
@@ -532,6 +537,7 @@ void app_main()
         &panel_handle,
         1,
         NULL);
+    vTaskDelay(pdMS_TO_TICKS(1000));
 
     retF = xTaskCreatePinnedToCore(
         task_acc,
@@ -541,15 +547,17 @@ void app_main()
         2,
         NULL,
         1);
+    vTaskDelay(pdMS_TO_TICKS(1000));
 
-    /* xTaskCreatePinnedToCore(
+    xTaskCreatePinnedToCore(
         PPG_sensor_task,
         "PPG_sensor_task_debug",
         4096,
         &parameters_ppg_max30102,
         1,
         &ppg_task_handle,
-        0); */
+        0);
+    vTaskDelay(pdMS_TO_TICKS(1000));
 
     //* Start battery level monitoring task */
     /* xTaskCreate(
@@ -568,9 +576,10 @@ void app_main()
 
     /* Start RTC clock display task */
     xTaskCreate(rtc_clock_task, "rtc_clock", 4096, NULL, 5, NULL);
+    vTaskDelay(pdMS_TO_TICKS(1000));
 
     /* Start CO2 check task */
-    /* xTaskCreate(c02_check_task, "c02_check", 4096, NULL, 5, NULL); */
-
+    xTaskCreate(c02_check_task, "c02_check", 4096, NULL, 5, NULL);
+        
     ESP_LOGI(TAG, "Service initialized successfully");
 }

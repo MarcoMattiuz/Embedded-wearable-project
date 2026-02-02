@@ -433,7 +433,7 @@ void task_acc(void *pvParameters)
         abort();
     }
         
-    vTaskDelay(DELAY_10);
+    vTaskDelay(pdMS_TO_TICKS(60));
 
     Three_Axis_t axis;
     Gyro_Axis_t gyro;
@@ -458,6 +458,6 @@ void task_acc(void *pvParameters)
             printf("TOO MUCH data!\n");
         }
 
-        vTaskDelay(DELAY_10);
+        vTaskDelay(pdMS_TO_TICKS(60));
     }
 }
