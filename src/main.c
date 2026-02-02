@@ -300,7 +300,6 @@ void PPG_sensor_task(void *parameters)
 
 void LCD_task(void *parameters)
 {
-    global_parameters.show_heart = true;
     esp_lcd_panel_handle_t panel_handle = *(esp_lcd_panel_handle_t *)parameters;
 
     GPIO_init();
@@ -313,9 +312,17 @@ void LCD_task(void *parameters)
     {
         if (xQueueReceive(event_queue, &evt, portMAX_DELAY))
         {
-
             switch (evt)
             {
+            case EVT_GYRO:{
+                LCD_ON = false;
+                if (current_state == STATE_BPM)
+                {
+                    xTimerStop(frame_timer_handle, 0);
+                }
+                TurnLcdOff(panel_handle);
+                break;
+            }
             case EVT_BUTTON_EDGE:
             {
                 int level = gpio_get_level(PUSH_BUTTON_GPIO);
@@ -362,8 +369,9 @@ void LCD_task(void *parameters)
                     current_state = STATE_BPM;
                     next_state = get_next_state(current_state);
 
-                    (*fsm[current_state].state_function)(&panel_handle, &global_parameters);
                     global_parameters.show_heart = true;
+                    (*fsm[current_state].state_function)(&panel_handle, &global_parameters);
+                    
                     xTimerStart(frame_timer_handle, 0); // start animation
                 }
                 else

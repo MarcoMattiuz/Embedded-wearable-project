@@ -42,7 +42,7 @@ typedef enum
     EVT_BUTTON_EDGE,
     EVT_LONG_PRESS,
     EVT_REFRESH,
-    EVT_TURN_ON_DISPLAY
+    EVT_GYRO
 } EventType;
 
 struct global_param

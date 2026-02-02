@@ -70,7 +70,7 @@ void fn_WEATHER(esp_lcd_panel_handle_t *panel_handle, struct global_param *param
 {
     memset(buffer_data, 0, sizeof(buffer_data));
     char buff[10];
-    sprintf(buff, "%.1f", param->temperature);
+    sprintf(buff, "%.1f C", param->temperature);
 
     drawStringToBuffer(buff, buffer_data, 64 + 5, 28);
     switch (param->weather)
@@ -156,7 +156,7 @@ void fn_CO2(esp_lcd_panel_handle_t *panel_handle, struct global_param *param)
     memset(buffer_data, 0, sizeof(buffer_data));
 
     char buff[10];
-    sprintf(buff, "%d", param->CO2);
+    sprintf(buff, "%d ppm", param->CO2);
 
     drawStringToBuffer(buff, buffer_data, 64 + 5, 28);
 

@@ -328,47 +328,52 @@ async function sendWeatherData(temp, weatherType) {
 
 
 
-function getGeolocation(){
+function getGeolocation() {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) {
+      log("Geolocation is not supported by this browser");
+      return;
+    }
 
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(success, error);
-  } else {
-    alert("Geolocation is not supported by this browser");
-  }
-
-  function success(position) {
-    latitude = position.coords.latitude;
-    longitude = position.coords.longitude;
-  }
-
-  function error() {
-    alert("Sorry, no position available.");
-  }
-  
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        resolve({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        });
+      },
+      () => log("Sorry, no position available.")
+    );
+  });
 }
 
-function getWeather() {
+async function getWeather() {
+  try {
+    const { latitude, longitude } = await getGeolocation();
 
-  getGeolocation();
+    const URL =
+      `https://api.open-meteo.com/v1/forecast` +
+      `?latitude=${latitude}&longitude=${longitude}` +
+      `&current=weather_code,temperature_2m`;
 
-  const URL = "https://api.open-meteo.com/v1/forecast?latitude=" + latitude + "&longitude=" + longitude + "&current=weather_code,temperature_2m";
-  fetch(URL)
-    .then((r) => json = r.json())
-    .then(data => {    
-      console.log("URL:", URL);
+    console.log("URL:", URL);
 
-      const weatherCode = data.current.weather_code;
-      const code = mapWeatherCode(weatherCode);
-      const temp = data.current.temperature_2m;
+    const r = await fetch(URL);
+    const data = await r.json();
 
-      console.log("code:", code, "temp:", temp);
+    const weatherCode = data.current.weather_code;
+    const code = mapWeatherCode(weatherCode);
+    const temp = data.current.temperature_2m;
 
-      sendWeatherData(temp, code);
-    })
-    .catch((e) => console.error(e));
+    console.log("code:", code, "temp:", temp);
 
-
+    sendWeatherData(temp, code);
+  } catch (error) {
+    console.error(error);
+    log(error, "error");
+  }
 }
+
 
 
 connectBtn.addEventListener("click", toggleConnection);
