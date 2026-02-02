@@ -1,6 +1,8 @@
 #include "MPU6050_api.h"
 
+static bool fifo_initialized = false;
 Rotation_t rotation = {0.0f, 0};
+static Orientation_t orient = {0};
 
 esp_err_t mpu6050_write_reg(struct i2c_device *device, uint8_t reg_to_write, uint8_t val_to_write)
 {
@@ -52,7 +54,7 @@ void print_gyro(const Gyro_Axis_final_t *gyro)
 void read_sample_ACC(Three_Axis_t *ax, Three_Axis_final_t *f_ax, uint8_t *r_buff, const int i)
 {
 
-    if (ax == NULL || r_buff == NULL)
+    if (ax == NULL || r_buff == NULL || f_ax == NULL)
     {
         return;
     }
@@ -61,16 +63,16 @@ void read_sample_ACC(Three_Axis_t *ax, Three_Axis_final_t *f_ax, uint8_t *r_buff
     ax->a_y = (int16_t)(r_buff[i + 2] << 8) | r_buff[i + 3];
     ax->a_z = (int16_t)(r_buff[i + 4] << 8) | r_buff[i + 5];
 
-    //"normalization"
-    f_ax->a_x = ax->a_x / M_REST;
-    f_ax->a_y = ax->a_y / M_REST;
-    f_ax->a_z = ax->a_z / M_REST;
+    // normalization from row (LSB) to g
+    f_ax->a_x = (float)ax->a_x / M_REST;
+    f_ax->a_y = (float)ax->a_y / M_REST;
+    f_ax->a_z = (float)ax->a_z / M_REST;
 }
 
 void read_sample_GYRO(Gyro_Axis_t *gyro, Gyro_Axis_final_t *f_gyro, uint8_t *r_buff, int i)
 {
 
-    if (gyro == NULL || r_buff == NULL)
+    if (gyro == NULL || r_buff == NULL || f_gyro == NULL)
     {
         return;
     }
@@ -79,19 +81,32 @@ void read_sample_GYRO(Gyro_Axis_t *gyro, Gyro_Axis_final_t *f_gyro, uint8_t *r_b
     gyro->g_y = (int16_t)(r_buff[i + 2] << 8) | r_buff[i + 3];
     gyro->g_z = (int16_t)(r_buff[i + 4] << 8) | r_buff[i + 5];
 
-    //"normalization"
-    f_gyro->g_x = gyro->g_x / SENS_GYRO_RANGE;
-    f_gyro->g_y = gyro->g_y / SENS_GYRO_RANGE;
-    f_gyro->g_z = gyro->g_z / SENS_GYRO_RANGE;
+    //normalization to °/s
+    f_gyro->g_x = (float)(gyro->g_x / SENS_GYRO_RANGE);
+    f_gyro->g_y = (float)(gyro->g_y / SENS_GYRO_RANGE);
+    f_gyro->g_z = (float)(gyro->g_z / SENS_GYRO_RANGE);
+
+    // orient is degrees
+    orient.pitch += f_gyro->g_y * DT;
+    orient.yaw   += f_gyro->g_z * DT;
+
+    // from ° to rad
+    float pitch = orient.pitch * DEG_TO_RAD;
+    float yaw   = orient.yaw   * DEG_TO_RAD;
+
+    Vec3_t v;
+    v.x = cosf(pitch) * cosf(yaw);
+    v.y = cosf(pitch) * sinf(yaw);
+    v.z = sinf(pitch);
+
+    Gyro_Axis_final_t tmp = {v.x, v.y, v.z};
 
     if (ble_manager_is_connected())
     {
-        // printf("size: %d", sizeof(*f_gyro));
         ble_manager_notify_gyro(
             ble_manager_get_conn_handle(),
-            f_gyro);
+            &tmp);
     }
-
 }
 
 esp_err_t empty_FIFO(struct i2c_device *device, Three_Axis_t *axis, Three_Axis_final_t *f_ax, Gyro_Axis_t *gyro, Gyro_Axis_final_t *f_gyro, uint8_t *reading_buffer, int fs)
@@ -122,17 +137,22 @@ esp_err_t mpu6050_read_FIFO(struct i2c_device *device, Three_Axis_t *axis, Gyro_
         return ERR;
     }
 
-    uint8_t fifo_h;
-    uint8_t fifo_l;
-    uint16_t fifo_size;
-    uint8_t reg_int_status;
+    uint8_t fifo_h = 0;
+    uint8_t fifo_l = 0;
+    uint16_t fifo_size = 0;
+    uint8_t reg_int_status = 0;
 
-    // before read or write on FIFO reset it to clear it up from old data
+    // // before read or write on FIFO reset it to clear it up from old data
     if (set_USR_CTRL(device) != ESP_OK)
     {
         return ERR;
     }
 
+    // reset at the beginning
+    if (!fifo_initialized) {
+        if (set_USR_CTRL(device) != ESP_OK) return ERR;
+        fifo_initialized = true;
+    }
     // time to fill the FIFO up
     vTaskDelay(DELAY_20);
 
@@ -342,34 +362,27 @@ bool verify_step(const Three_Axis_t *ax)
 
 bool verify_wrist_rotation(const Gyro_Axis_final_t *g)
 {
-
-    // this logic avoid triggers when the arm/wrist continues the rotation
     uint32_t now = xTaskGetTickCount() * portTICK_PERIOD_MS;
-    if (now - rotation.last_trigger < REFRACT_MS)
-    {
+
+    // refractory window
+    // avoid double triggers
+    if ((now - rotation.last_trigger) < REFRACT_MS) {
         return false;
     }
 
-    // omega
-    float w = sqrtf((g->g_x * g->g_x) +
-                    (g->g_y * g->g_y) +
-                    (g->g_z * g->g_z));
+    // angular velocity °/s
+    float w = fabsf(g->g_z);   // wrist rotation axis
 
-    // this is about sensor sensibility
-    // ignore basso rumors to avoiding false rotations
-    if (w < MIN_ROT_ANGLE)
-    {
+    // noise threshold
+    if (w < MIN_ROT_ANGLE) {
+        // leaky integrator to forget noise
         rotation.integrated_angle *= 0.95f;
         return false;
     }
 
-    // integration
-    rotation.integrated_angle += w * DT;
+    rotation.integrated_angle += w * DT;   // °/s * s -> °
 
-    // when the angle surpass the threshhold min to consider
-    // the movement a wrist rotation return true
-    if (rotation.integrated_angle >= WRIST_ROT_THRESHOLD)
-    {
+    if (rotation.integrated_angle >= WRIST_ROT_THRESHOLD) {
         rotation.integrated_angle = 0.0f;
         rotation.last_trigger = now;
         return true;
@@ -386,7 +399,7 @@ void motion_analysis(const Three_Axis_t *ax, const Gyro_Axis_final_t *gyro)
 
     if (step && !wrist)
     {
-        global_parameters.step_cntr++;
+        global_parameters.step_cntr ++;
         printf("STEPS: %d\n", global_parameters.step_cntr);
         fflush(stdout);
     }
@@ -395,21 +408,10 @@ void motion_analysis(const Three_Axis_t *ax, const Gyro_Axis_final_t *gyro)
         printf("WRIST ROTATION DETECT\n");
         fflush(stdout);
 
-        EventType evt = EVT_GYRO;
-        xQueueSend(event_queue, &evt, 0);
+        //EventType evt = EVT_GYRO;
+        //xQueueSend(event_queue, &evt, 0);
     }
 }
-
-// void send_gyro_data_debug(void *pvParameters)
-// {
-
-//     Gyro_Axis_final_t *data = (Gyro_Axis_final_t *)pvParameters;
-
-//     // send gyro data via BLE
-//     ble_manager_notify_gyro(
-//         ble_manager_get_conn_handle(),
-//         data);
-// }
 
 void task_acc(void *pvParameters)
 {
@@ -430,11 +432,15 @@ void task_acc(void *pvParameters)
         printf("Configuration error!\n");
         abort();
     }
+        
+    vTaskDelay(DELAY_10);
 
     Three_Axis_t axis;
     Gyro_Axis_t gyro;
     Three_Axis_final_t f_axis;
     Gyro_Axis_final_t f_gyro;
+
+    fifo_initialized = true;
 
     for (;;)
     {
@@ -452,6 +458,6 @@ void task_acc(void *pvParameters)
             printf("TOO MUCH data!\n");
         }
 
-        vTaskDelay(100 / portTICK_PERIOD_MS);
+        vTaskDelay(DELAY_10);
     }
 }
