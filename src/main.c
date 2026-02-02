@@ -163,16 +163,17 @@ static void rtc_clock_task(void *pvParameter)
 static void c02_check_task(void *pvParameter)
 {
     ens160_data_t data;
+
     while(1)
     {
         ESP_LOGI(TAG, "eCO2: %d ppm, TVOC: %d ppb, AQI: %d", data.eco2, data.tvoc, data.aqi);
-        global_parameters.CO2 = data.eco2;
-
+        // global_parameters.CO2 = data.eco2;
         if (notify_enabled && ble_manager_is_connected())
         {
             esp_err_t ret = ens160_read_data(&data);
             if(ret == ESP_OK)
             {
+                ESP_LOGI(TAG, "eCO2: %d ppm, TVOC: %d ppb, AQI: %d", data.eco2, data.tvoc, data.aqi);
                 ble_manager_notify_ens160(
                     ble_manager_get_conn_handle(),
                     &data);
@@ -481,10 +482,15 @@ void app_main()
     init_I2C_bus_PORT0(&i2c_bus_0);
     init_I2C_bus_PORT1(&i2c_bus_1);
 
-    add_device_MAX30102(&max30102_device);
-    add_device_MPU6050(&mpu6050_device);
-    add_device_SH1106(&panel_handle);
-    ens160_init(i2c_bus_0);
+    // add_device_MAX30102(&max30102_device);
+    // add_device_MPU6050(&mpu6050_device);
+    // add_device_SH1106(&panel_handle);  
+    
+    esp_err_t ens_ret = ens160_init(i2c_bus_0);
+    if (ens_ret != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to initialize ENS160: %s", esp_err_to_name(ens_ret));
+    }
 
   
 
@@ -509,22 +515,22 @@ void app_main()
     TaskHandle_t ppg_task_handle = NULL;
 
     // tasks
-    xTaskCreate(
-        LCD_task,
-        "LCD_task_debug",
-        4096,
-        &panel_handle,
-        1,
-        NULL);
+    // xTaskCreate(
+    //     LCD_task,
+    //     "LCD_task_debug",
+    //     4096,
+    //     &panel_handle,
+    //     1,
+    //     NULL);
 
-    retF = xTaskCreatePinnedToCore(
-        task_acc,
-        "task_acc_debug",
-        4096,
-        &mpu6050_device,
-        2,
-        NULL,
-        1);
+    // retF = xTaskCreatePinnedToCore(
+    //     task_acc,
+    //     "task_acc_debug",
+    //     4096,
+    //     &mpu6050_device,
+    //     2,
+    //     NULL,
+    //     1);
 
     // xTaskCreatePinnedToCore(
     //     PPG_sensor_task,
