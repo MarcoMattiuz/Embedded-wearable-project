@@ -155,7 +155,8 @@ static void c02_check_task(void *pvParameter)
     {
         if (notify_enabled && ble_manager_is_connected())
         {
-            if(ens160_read_data(&data))
+            esp_err_t ret = ens160_read_data(&data);
+            if(ret == ESP_OK)
             {
                 ESP_LOGI(TAG, "eCO2: %d ppm, TVOC: %d ppb, AQI: %d", data.eco2, data.tvoc, data.aqi);
                 ble_manager_notify_ens160(
@@ -164,7 +165,7 @@ static void c02_check_task(void *pvParameter)
             }
             else
             {
-                ESP_LOGE(TAG, "Failed to read ENS160 data");
+                ESP_LOGE(TAG, "Failed to read ENS160 data: %s", esp_err_to_name(ret));
             }
         }
         vTaskDelay(pdMS_TO_TICKS(2000));

@@ -92,7 +92,7 @@ async function toggleConnection() {
     await ens160Characteristic.startNotifications();
     ens160Characteristic.addEventListener(
       "characteristicvaluechanged",
-      handleENS160buffer,
+      handleEns160Notification,
     );
 
     await gyroCharacteristic.startNotifications();
