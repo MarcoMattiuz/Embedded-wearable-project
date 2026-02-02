@@ -131,6 +131,7 @@ async function toggleConnection() {
     updateUI(true);
 
     await getWeather();
+    log("Weather data sent to device", "success");
   } catch (error) {
     log(`Error: ${error}`, "error");
     console.error(error);
@@ -144,6 +145,7 @@ function onDisconnected() {
   iracbufferCharacteristic = null;
   gyroCharacteristic = null;
   ens160Characteristic = null;
+  weatherCharacteristic = null;
 }
 
 function handleEns160Notification(event) {
@@ -363,6 +365,7 @@ function getGeolocation() {
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) {
       log("Geolocation is not supported by this browser");
+      reject(new Error("Geolocation unsupported"));
       return;
     }
 
@@ -373,7 +376,10 @@ function getGeolocation() {
           longitude: position.coords.longitude,
         });
       },
-      () => log("Sorry, no position available."),
+      (error) => {
+        log("Sorry, no position available.");
+        reject(error);
+      },
     );
   });
 }
