@@ -204,14 +204,19 @@ input[type="text"]:focus {
   padding: 20px;
 
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: auto auto;
+  grid-template-rows: auto auto auto;
   grid-template-areas:
     "graphBPM object"
-    "graphRAW graphFILTERED";
+    "graphRAW graphFILTERED"
+    "graphECO2 graphECO2";
 }
 
 #graphBPM {
   grid-area: graphBPM;
+}
+
+#graphECO2 {
+  grid-area: graphECO2;
 }
 
 #object {
@@ -240,7 +245,8 @@ input[type="text"]:focus {
       "object"
       "graphBPM"
       "graphRAW"
-      "graphFILTERED";
+      "graphFILTERED"
+      "graphECO2";
   }
 }
 
@@ -348,45 +354,43 @@ button:disabled {
   color: white;
 }
 
-
-
 /* Dropdown container */
 .dropdown {
-    position: relative;
-    display: inline-block;
-    margin-left: 15px;
+  position: relative;
+  display: inline-block;
+  margin-left: 15px;
 }
 
 /* Button dropdown */
 .dropdown-btn {
-    background-color: #0a5f7f;
-    color: white;
-    padding: 8px 12px;
-    border: none;
-    cursor: pointer;
-    border-radius: 5px;
-    font-size: 14px;
+  background-color: #0a5f7f;
+  color: white;
+  padding: 8px 12px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 14px;
 }
 
 .dropdown-btn:hover {
-    background-color: #ff9a56;
+  background-color: #ff9a56;
 }
 
 /* Content nascosto */
 .dropdown-content {
-    display: none;
-    position: absolute;
-    background-color: #0a3d62;
-    min-width: 160px;
-    padding: 10px;
-    border-radius: 6px;
-    box-shadow: 0px 8px 16px rgba(0,0,0,0.3);
-    z-index: 1000;
-    color: white;
-    font-size: 14px;
+  display: none;
+  position: absolute;
+  background-color: #0a3d62;
+  min-width: 160px;
+  padding: 10px;
+  border-radius: 6px;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  color: white;
+  font-size: 14px;
 }
 
 /* Mostra dropdown */
 .dropdown:hover .dropdown-content {
-    display: block;
+  display: block;
 }

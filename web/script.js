@@ -41,9 +41,11 @@ window.IRACsampleArr = [];
 window.IRRAWsampleArr = [];
 window.BPMsampleArr = [];
 window.AVGBPMsampleArr = [];
+window.ECO2sampleArr = [];
 let MAX_SIZE_IRAC_BUFFER = 960;
 let MAX_SIZE_BPM_BUFFER = 200;
 let MAX_SIZE_IRRAW_BUFFER = 960;
+let MAX_SIZE_ECO2_BUFFER = 200;
 
 function log(message, type = "info") {
   const entry = document.createElement("div");
@@ -155,7 +157,26 @@ function handleEns160Notification(event) {
     const eco2 = value.getUint16(0, true);
     const tvoc = value.getUint16(2, true);
     const aqi = value.getUint8(4);
-    log(`eCO2: ${eco2} ppm, TVOC: ${tvoc} ppb, AQI: ${aqi}`);
+
+    const now = new Date();
+    const timestamp =
+      now.getHours().toString().padStart(2, "0") +
+      ":" +
+      now.getMinutes().toString().padStart(2, "0") +
+      ":" +
+      now.getSeconds().toString().padStart(2, "0");
+
+    window.ECO2sampleArr.push({
+      value: eco2,
+      timestamp: timestamp,
+    });
+
+    if (window.ECO2sampleArr.length >= MAX_SIZE_ECO2_BUFFER) {
+      window.ECO2sampleArr = [];
+    }
+
+    updateECO2Graph();
+    // log(`eCO2: ${eco2} ppm, TVOC: ${tvoc} ppb, AQI: ${aqi}`);
   }
 }
 

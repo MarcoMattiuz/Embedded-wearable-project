@@ -50,39 +50,53 @@ esp_err_t ens160_init(i2c_master_bus_handle_t bus_handle) {
         return ESP_ERR_INVALID_ARG;
     }
 
-    i2c_device_config_t ens160_dev_cfg = {
-        .dev_addr_length = I2C_ADDR_BIT_LEN_7,
-        .device_address = ENS160_ADDR_H,
-        .scl_speed_hz = 100000,
-    };
+    // Try both possible I2C addresses (ADDR pin LOW = 0x52, HIGH = 0x53)
+    const uint8_t addresses[] = {ENS160_ADDR_L, ENS160_ADDR_H};
+    esp_err_t ret = ESP_ERR_NOT_FOUND;
     
-    esp_err_t ret = i2c_master_bus_add_device(bus_handle, &ens160_dev_cfg, &ens160_dev_handle);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to add device to I2C bus: %s", esp_err_to_name(ret));
-        return ret;
+    for (int i = 0; i < sizeof(addresses); i++) {
+        i2c_device_config_t ens160_dev_cfg = {
+            .dev_addr_length = I2C_ADDR_BIT_LEN_7,
+            .device_address = addresses[i],
+            .scl_speed_hz = 100000,
+        };
+        
+        ret = i2c_master_bus_add_device(bus_handle, &ens160_dev_cfg, &ens160_dev_handle);
+        if (ret != ESP_OK) {
+            ESP_LOGW(TAG, "Failed to add device at address 0x%02X: %s", 
+                     addresses[i], esp_err_to_name(ret));
+            continue;
+        }
+
+        // Wait for sensor startup (datasheet specifies 100ms)
+        vTaskDelay(pdMS_TO_TICKS(100));
+
+        // Try to read Part ID to verify device presence
+        uint8_t buf[2];
+        ret = ens160_read_reg(ENS160_REG_PART_ID, buf, 2);
+        if (ret == ESP_OK) {
+            uint16_t part_id = (buf[1] << 8) | buf[0];
+            if (part_id == ENS160_PART_ID_VAL) {
+                ESP_LOGI(TAG, "ENS160 found at address 0x%02X, Part ID: 0x%04X", 
+                         addresses[i], part_id);
+                break;  // Device found successfully
+            }
+            ESP_LOGW(TAG, "Part ID mismatch at 0x%02X. Expected 0x%04X, got 0x%04X", 
+                     addresses[i], ENS160_PART_ID_VAL, part_id);
+        } else {
+            ESP_LOGW(TAG, "No response at address 0x%02X", addresses[i]);
+        }
+        
+        // Remove device and try next address
+        i2c_master_bus_rm_device(ens160_dev_handle);
+        ens160_dev_handle = NULL;
+        ret = ESP_ERR_NOT_FOUND;
     }
 
-    // Wait for sensor startup (datasheet specifies 100ms)
-    vTaskDelay(pdMS_TO_TICKS(100));
-
-    // Read and verify Part ID
-    uint8_t buf[2];
-    ret = ens160_read_reg(ENS160_REG_PART_ID, buf, 2);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to read Part ID");
-        ens160_deinit();
-        return ret;
-    }
-
-    uint16_t part_id = (buf[1] << 8) | buf[0];
-    if (part_id != ENS160_PART_ID_VAL) {
-        ESP_LOGE(TAG, "Part ID mismatch. Expected 0x%04X, got 0x%04X", 
-                 ENS160_PART_ID_VAL, part_id);
-        ens160_deinit();
+    if (ret != ESP_OK || ens160_dev_handle == NULL) {
+        ESP_LOGE(TAG, "ENS160 not found at any address. Check wiring and ADDR pin.");
         return ESP_ERR_NOT_FOUND;
     }
-    
-    ESP_LOGI(TAG, "ENS160 Part ID verified: 0x%04X", part_id);
 
     // Set operating mode to standard
     ret = ens160_set_opmode(ENS160_OPMODE_STD);
