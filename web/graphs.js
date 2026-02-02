@@ -27,6 +27,16 @@ var traceAVGBPM = {
   customdata: [],
 };
 
+var traceECO2 = {
+  type: "scatter",
+  mode: "lines+markers",
+  name: "eCO2",
+  line: { width: 2, color: "#95e1d3" },
+  marker: { size: 6, color: "#95e1d3" },
+  hovertemplate: "eCO2: %{y} ppm<br>Time: %{customdata}<extra></extra>",
+  customdata: [],
+};
+
 var layoutFILTERED = {
   autosize: true,
   height: 300,
@@ -112,6 +122,30 @@ var layoutBPM = {
   },
 };
 
+var layoutECO2 = {
+  autosize: true,
+  height: 300,
+  title: { text: "eCO2 (ENS160)", font: { color: "white" } },
+  margin: { l: 60, r: 20, t: 40, b: 60 },
+  paper_bgcolor: "rgba(0,0,0,0)",
+  plot_bgcolor: "rgba(0,0,0,0)",
+  xaxis: {
+    title: "Sample",
+    titlefont: { color: "white" },
+    tickfont: { color: "white" },
+    showgrid: false,
+    zeroline: true,
+  },
+  yaxis: {
+    title: "eCO2 (ppm)",
+    titlefont: { color: "white" },
+    tickfont: { color: "white" },
+    showgrid: true,
+    gridcolor: "rgba(255,255,255,0.1)",
+    zeroline: true,
+  },
+};
+
 var config = {
   staticPlot: true,
   displayModeBar: false,
@@ -126,6 +160,21 @@ var config2 = {
 Plotly.newPlot("graphFILTERED", [traceFILTERED], layoutFILTERED, config);
 Plotly.newPlot("graphRAW", [traceRAW], layoutRAW, config);
 Plotly.newPlot("graphBPM", [traceBPM, traceAVGBPM], layoutBPM, config2);
+Plotly.newPlot("graphECO2", [traceECO2], layoutECO2, config2);
+
+function updateECO2Graph() {
+  if (!window.ECO2sampleArr || window.ECO2sampleArr.length === 0) return;
+
+  const ECO2arr = window.ECO2sampleArr.map((item) => item.value);
+  const ECO2samples = ECO2arr.map((_, i) => i);
+  const ECO2timestamps = window.ECO2sampleArr.map((item) => item.timestamp);
+
+  Plotly.update("graphECO2", {
+    x: [ECO2samples],
+    y: [ECO2arr],
+    customdata: [ECO2timestamps],
+  });
+}
 
 function updateBPMGraph() {
   if (
@@ -136,15 +185,15 @@ function updateBPMGraph() {
   )
     return;
 
-  const BPMarr = window.BPMsampleArr.map(item => item.value);
+  const BPMarr = window.BPMsampleArr.map((item) => item.value);
   const BPMsamples = BPMarr.map((_, i) => i);
   const BPMtime = BPMsamples.map((s) => s * 2.5);
-  const BPMtimestamps = window.BPMsampleArr.map(item => item.timestamp);
+  const BPMtimestamps = window.BPMsampleArr.map((item) => item.timestamp);
 
-  const AVGBPMarr = window.AVGBPMsampleArr.map(item => item.value);
+  const AVGBPMarr = window.AVGBPMsampleArr.map((item) => item.value);
   const AVGBPMsamples = AVGBPMarr.map((_, i) => i);
   const AVGBPMtime = AVGBPMsamples.map((s) => s * 2.5);
-  const AVGBPMtimestamps = window.AVGBPMsampleArr.map(item => item.timestamp);
+  const AVGBPMtimestamps = window.AVGBPMsampleArr.map((item) => item.timestamp);
 
   Plotly.update("graphBPM", {
     x: [BPMtime, AVGBPMtime],
@@ -179,7 +228,7 @@ function updateIRACGraphs() {
       yaxis: {
         range: [arr[arr_max], arr[arr_min]],
       },
-    }
+    },
   );
 }
 
@@ -195,12 +244,8 @@ function updateIRRAWGraphs() {
   const arr_max = Math.max(arr);
   const arr_min = Math.min(arr);
 
-  
-  Plotly.update(
-    "graphRAW",
-    {
-      x: [time],
-      y: [arr],
-    }
-  );
+  Plotly.update("graphRAW", {
+    x: [time],
+    y: [arr],
+  });
 }
