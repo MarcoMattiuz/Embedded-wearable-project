@@ -1,8 +1,13 @@
-import * as THREE from 'three';
-import { STLLoader } from 'three/addons/loaders/STLLoader.js';
+import * as THREE        from 'three';
+import { STLLoader }     from 'three/addons/loaders/STLLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-let container, scene, camera, renderer, model, controls;
+let container; 
+let scene;
+let camera;
+let renderer;
+let model; 
+let controls;
 
 function init3DObject() {
 
@@ -74,7 +79,7 @@ function init3DObject() {
         },
         undefined,
         (error) => {
-            console.error('Errore caricamento STL:', error);
+            console.error('Error uploading STL:', error);
             const geometry = new THREE.BoxGeometry(2, 2, 2);
             const material = new THREE.MeshStandardMaterial({
                 color: 0xfffdd0,
@@ -103,23 +108,24 @@ function animate() {
 
     requestAnimationFrame(animate);
 
-    if (model) {
-        update3DObject(
-            model.rotation.x + 0.005,
-            model.rotation.y + 0.01,
-            model.rotation.z + 0.003
-        );
-    }
+    // if (model) {
+    //     update3DObject(
+    //         model.rotation.x + 0.005,
+    //         model.rotation.y + 0.01,
+    //         model.rotation.z + 0.003
+    //     );
+    // }
 
     renderer.render(scene, camera);
 }
 
-function update3DObject(gx, gy, gz) {
+export function update3DObject(gx, gy, gz) {
 
     if (!model) return;
 
     model.rotation.set(gx, gy, gz);
 }
 
+window.update3DObject = update3DObject;
 
 init3DObject();
