@@ -22,7 +22,7 @@
 #include <stdbool.h>
 #include "esp_err.h"
 #include "esp_lcd_panel_dev.h"
-
+#include "I2C_api.h"
 #ifdef __cplusplus
 extern "C" {
 #endif

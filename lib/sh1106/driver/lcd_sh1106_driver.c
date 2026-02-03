@@ -213,12 +213,14 @@ static esp_err_t panel_sh1106_draw_bitmap(esp_lcd_panel_t *panel, int x_start, i
     esp_lcd_panel_io_handle_t io = sh1106->io;
 
     // For each line, shift at the line and send the bitmap line data
+    I2C_LOCK_0();
     for (int y = 0; y < 8; y++) {
         ESP_RETURN_ON_ERROR(esp_lcd_panel_io_tx_param(io, SH1106_CMD_SET_COLUMN_ADDR_LOW | 0x02, NULL, 0), TAG, "io tx param SH1106_CMD_SET_COLUMN_ADDR_LOW failed");
         ESP_RETURN_ON_ERROR(esp_lcd_panel_io_tx_param(io, SH1106_CMD_SET_COLUMN_ADDR_HIGH | 0x00, NULL, 0), TAG, "io tx param SH1106_CMD_SET_COLUMN_ADDR_HIGH failed");
         ESP_RETURN_ON_ERROR(esp_lcd_panel_io_tx_param(io, SH1106_CMD_SET_PAGE_ADDR | y, NULL, 0), TAG, "io tx param SH1106_CMD_SET_PAGE_ADDR failed");
         ESP_RETURN_ON_ERROR(esp_lcd_panel_io_tx_color(io, -1, color_data + y * SH1106_WIDTH, SH1106_WIDTH), TAG, "io tx color failed");
     }
+    I2C_UNLOCK_0();
 
     return ESP_OK;
 }

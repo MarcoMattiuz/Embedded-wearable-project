@@ -171,7 +171,8 @@ static void c02_check_task(void *pvParameter)
         esp_err_t ret = ens160_read_data(&data);
         if (ret == ESP_OK)
         {
-            // ESP_LOGI(TAG, "eCO2: %d ppm, TVOC: %d ppb, AQI: %d", data.eco2, data.tvoc, data.aqi);
+            ESP_LOGI(TAG, "eCO2: %d ppm, TVOC: %d ppb, AQI: %d", data.eco2, data.tvoc, data.aqi);
+            ESP_LOGI(TAG, "global param CO2: %d", global_parameters.CO2);
             global_parameters.CO2 = data.eco2;
 
             if (notify_enabled && ble_manager_is_connected())
@@ -185,7 +186,7 @@ static void c02_check_task(void *pvParameter)
         {
             ESP_LOGE(TAG, "Failed to read ENS160 data: %s", esp_err_to_name(ret));
         }
-        vTaskDelay(pdMS_TO_TICKS(2000));
+        vTaskDelay(pdMS_TO_TICKS(3000));
     }
 }
 
@@ -509,6 +510,59 @@ void print_task_stats(void) {
     printf("%s\n", buffer);
 }
 
+void task_acc(void *pvParameters)
+{
+
+    struct i2c_device *device = (struct i2c_device *)pvParameters;
+
+    global_parameters.step_cntr = 0;
+
+    if (device == NULL)
+    {
+        printf("task_acc: invalid device\n");
+        vTaskDelete(NULL);
+        abort();
+    }
+
+    if (acc_config(device) != ESP_OK)
+    {
+        printf("Configuration error!\n");
+        abort();
+    }
+        
+    vTaskDelay(pdMS_TO_TICKS(60));
+
+    Three_Axis_t axis;
+    Gyro_Axis_t gyro;
+    Three_Axis_final_t f_axis;
+    Gyro_Axis_final_t f_gyro;
+
+    fifo_initialized = true;
+
+    for (;;)
+    {   
+        static uint32_t acc_hb = 0;
+        if ((acc_hb++ % 5) == 0) printf("ACC heartbeat %lu\n", (unsigned long)acc_hb);
+        fflush(stdout);
+        esp_err_t err = mpu6050_read_FIFO(device, &axis, &gyro, &f_axis, &f_gyro);
+        if (err == ERR)
+        {
+            printf("Error reading!\n");
+        }
+        else if (err == FIFO_EMPTY)
+        {
+            printf("FIFO empty!\n");
+        }
+        else if (err == RESET_FIFO)
+        {
+            printf("TOO MUCH data!\n");
+        }
+
+        // vTaskDelay(pdMS_TO_TICKS(60));
+        vTaskDelay(pdMS_TO_TICKS(20));
+    }
+}
+
 void app_main()
 {
     esp_err_t ret = nvs_flash_init();
@@ -519,17 +573,16 @@ void app_main()
     ESP_ERROR_CHECK(ret);
     esp_task_wdt_deinit();
 
-    // TODO: remove
     // Suppress NimBLE INFO logs (GATT procedure initiated, att_handle, etc.)
-    // esp_log_level_set("NimBLE", ESP_LOG_WARN);
+    esp_log_level_set("NimBLE", ESP_LOG_WARN);
 
     // I2C busses init
     init_I2C_bus_PORT0(&i2c_bus_0);
     init_I2C_bus_PORT1(&i2c_bus_1);
     vTaskDelay(pdMS_TO_TICKS(500));
-    add_device_MAX30102(&max30102_device);
+    // add_device_MAX30102(&max30102_device);
     vTaskDelay(pdMS_TO_TICKS(500));
-    add_device_SH1106(&panel_handle);
+    // add_device_SH1106(&panel_handle);
     vTaskDelay(pdMS_TO_TICKS(500));
     add_device_MPU6050(&mpu6050_device);
     vTaskDelay(pdMS_TO_TICKS(500));
@@ -557,13 +610,13 @@ void app_main()
     TaskHandle_t ppg_task_handle = NULL;
 
     // tasks
-    xTaskCreate(
-        LCD_task,
-        "LCD_task_debug",
-        4096,
-        &panel_handle,
-        2,
-        NULL);
+    // xTaskCreate(
+    //     LCD_task,
+    //     "LCD_task_debug",
+    //     4096,
+    //     &panel_handle,
+    //     2,
+    //     NULL);
     vTaskDelay(pdMS_TO_TICKS(500));
 
     retF = xTaskCreatePinnedToCore(
@@ -576,24 +629,24 @@ void app_main()
         1);
     vTaskDelay(pdMS_TO_TICKS(500));
 
-    xTaskCreatePinnedToCore(
-        PPG_sensor_task,
-        "PPG_sensor_task_debug",
-        4096,
-        &parameters_ppg_max30102,
-        3,
-        &ppg_task_handle,
-        0);
+    // xTaskCreatePinnedToCore(
+    //     PPG_sensor_task,
+    //     "PPG_sensor_task_debug",
+    //     4096,
+    //     &parameters_ppg_max30102,
+    //     3,
+    //     &ppg_task_handle,
+    //     0);
     vTaskDelay(pdMS_TO_TICKS(500));
 
     //* Start battery level monitoring task */
-    // xTaskCreate(
-    //     bettery_level_task,
-    //     "battery_level_task",
-    //     2048,
-    //     NULL,
-    //     6,
-    //     NULL);
+    xTaskCreate(
+        bettery_level_task,
+        "battery_level_task",
+        2048,
+        NULL,
+        6,
+        NULL);
     vTaskDelay(pdMS_TO_TICKS(500));
     /* Start RTC clock display task */
     xTaskCreate(rtc_clock_task, "rtc_clock", 4096, NULL, 4, NULL);

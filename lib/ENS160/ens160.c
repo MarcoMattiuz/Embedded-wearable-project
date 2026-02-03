@@ -9,7 +9,7 @@ static i2c_master_dev_handle_t ens160_dev_handle = NULL;
 static esp_err_t ens160_write_reg(uint8_t reg, uint8_t value) {
     uint8_t cmd[] = {reg, value};
     esp_err_t ret = i2c_master_transmit(ens160_dev_handle, cmd, sizeof(cmd), 
-                                        ENS160_I2C_TIMEOUT_MS / portTICK_PERIOD_MS);
+                                        ENS160_I2C_TIMEOUT_MS);
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "Failed to write register 0x%02X: %s", reg, esp_err_to_name(ret));
     }
@@ -18,7 +18,7 @@ static esp_err_t ens160_write_reg(uint8_t reg, uint8_t value) {
 
 static esp_err_t ens160_read_reg(uint8_t reg, uint8_t *data, size_t len) {
     esp_err_t ret = i2c_master_transmit_receive(ens160_dev_handle, &reg, 1, data, len, 
-                                                 ENS160_I2C_TIMEOUT_MS / portTICK_PERIOD_MS);
+                                                 ENS160_I2C_TIMEOUT_MS);
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "Failed to read register 0x%02X: %s", reg, esp_err_to_name(ret));
     }
@@ -54,7 +54,7 @@ esp_err_t ens160_init(i2c_master_bus_handle_t bus_handle) {
     const uint8_t addresses[] = {ENS160_ADDR_L, ENS160_ADDR_H};
     esp_err_t ret = ESP_ERR_NOT_FOUND;
     
-    for (int i = 0; i < sizeof(addresses); i++) {
+    for (int i = 0; i < 2; i++) {
         i2c_device_config_t ens160_dev_cfg = {
             .dev_addr_length = I2C_ADDR_BIT_LEN_7,
             .device_address = addresses[i],
@@ -130,6 +130,8 @@ esp_err_t ens160_read_data(ens160_data_t *data) {
         return ret;
     }
 
+    ESP_LOGI(TAG, "Status register: 0x%02X (NEWDAT=%d, NEWGPR=%d, VALIDITY=%d)", 
+             status, (status >> 1) & 1, status & 1, (status >> 2) & 3);
     if (!(status & ENS160_STATUS_NEWDAT)) {
         ESP_LOGE(TAG, "Data not ready");
         return ESP_ERR_NOT_FINISHED;

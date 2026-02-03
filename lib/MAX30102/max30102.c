@@ -15,7 +15,9 @@ esp_err_t max30102_set_register(struct i2c_device *device, uint8_t reg,uint8_t m
     uint8_t txbuf[2];
     txbuf[0] = reg;
     txbuf[1] = mode;
+    I2C_LOCK_0();
     esp_err_t esp_ret = i2c_master_transmit(device->i2c_dev_handle, txbuf, sizeof(txbuf), 1000);
+    I2C_UNLOCK_0();
     return esp_ret;
 }
 
@@ -119,122 +121,7 @@ static bool update_ir_buffers(uint32_t value) {
     
 }
 
-bool max30102_i2c_read_hr_data_burst(struct i2c_device *device) {
-    
-    uint8_t wr_ptr_addr = MAX30102_FIFO_WR_PTR_ADDR;
-    uint8_t rd_ptr_addr = MAX30102_FIFO_RD_PTR_ADDR;
-    uint8_t wr_ptr, rd_ptr;
 
-    i2c_master_transmit_receive(device->i2c_dev_handle, &wr_ptr_addr, 1, &wr_ptr, 1, 1000);
-    i2c_master_transmit_receive(device->i2c_dev_handle, &rd_ptr_addr, 1, &rd_ptr, 1, 1000);
-
-    int num_samples = wr_ptr - rd_ptr;
-    if (num_samples < 0)
-        num_samples += 32; // FIFO è profonda 32 campioni (5 bit)
-    
-    DBG_PRINTF("Running... WR_PTR: %d, RD_PTR: %d, Samples: %d\n", wr_ptr, rd_ptr, num_samples);
-    
-    if (num_samples > 0) {
-        
-        // DBG_PRINTF("Reading %d samples from FIFO...\n", num_samples);
-        for (int i = 0; i < num_samples; i++) {
-            // In modalità MULTILED con 2 LED, ogni campione è di 6 bytes (3 per LED)
-            uint8_t fifo_data_addr = MAX30102_FIFO_DATA_ADDR;
-            uint8_t sample_data[3]; // 3 bytes per LED1 + 3 bytes per LED2
-            
-            // Leggi 6 bytes dal registro FIFO_DATA
-            esp_err_t read_result = i2c_master_transmit_receive(device->i2c_dev_handle, 
-                                                                &fifo_data_addr, 
-                                                                1, 
-                                                                sample_data, 
-                                                                3, 
-                                                                1000);
-            
-            if (read_result == ESP_OK) {
-                
-                // Ricostruisci i valori a 18 bit per ciascun LED
-                uint32_t led1_value = ((uint32_t)sample_data[0] << 16) | 
-                                        ((uint32_t)sample_data[1] << 8) | 
-                                        sample_data[2];
-                led1_value &= 0x3FFFF; // Maschera per 18 bit
-                // update_ir_buffers(led1_value);
-                if(update_ir_buffers(led1_value)){
-                    return true;
-                }
-                // DBG_PRINTF("IR_RAW: %lu - IR_AC: %d\n",IR_buffer[IR_buffer_index-1],IR_ac_buffer[IR_buffer_index-1]);
-                
-            } else {
-                DBG_PRINTF("Failed to read FIFO data: %d\n", read_result);
-                break;
-            }
-        }
-    }
-
-    return false;
-}
-
-//!!! use the other function
-bool max30102_i2c_read_multiled_data_burst_test(struct i2c_device *device) {
-    
-    uint8_t wr_ptr_addr = MAX30102_FIFO_WR_PTR_ADDR;
-    uint8_t rd_ptr_addr = MAX30102_FIFO_RD_PTR_ADDR;
-    uint8_t wr_ptr, rd_ptr;
-
-    i2c_master_transmit_receive(device->i2c_dev_handle, &wr_ptr_addr, 1, &wr_ptr, 1, 1000);
-    i2c_master_transmit_receive(device->i2c_dev_handle, &rd_ptr_addr, 1, &rd_ptr, 1, 1000);
-
-    uint8_t num_samples = (wr_ptr - rd_ptr) & 0x1F;  // FIFO è profonda 32 campioni (5 bit)
-    
-    // DBG_PRINTF("Running... WR_PTR: %d, RD_PTR: %d, Samples: %d\n", wr_ptr, rd_ptr, num_samples);
-    
-    if (num_samples > 0) {
-        
-        // DBG_PRINTF("Reading %d samples from FIFO...\n", num_samples);
-        for (int i = 0; i < num_samples; i++) {
-            // In modalità MULTILED con 2 LED, ogni campione è di 6 bytes (3 per LED)
-            uint8_t fifo_data_addr = MAX30102_FIFO_DATA_ADDR;
-            uint8_t sample_data[6]; // 3 bytes per LED1 + 3 bytes per LED2
-            
-            // read 6 bytes from FIFO_DATA register
-            esp_err_t read_result = i2c_master_transmit_receive(device->i2c_dev_handle, 
-                                                                &fifo_data_addr, 1, 
-                                                                sample_data, 6, 1000);
-            
-            if (read_result == ESP_OK) {
-                
-                // Ricostruisci i valori a 18 bit per ciascun LED
-                uint32_t led1_value = ((uint32_t)sample_data[0] << 16) | 
-                                        ((uint32_t)sample_data[1] << 8) | 
-                                        sample_data[2];
-                led1_value &= 0x3FFFF; // Maschera per 18 bit
-                
-                uint32_t led2_value = ((uint32_t)sample_data[3] << 16) | 
-                                        ((uint32_t)sample_data[4] << 8) | 
-                                        sample_data[5];
-                led2_value &= 0x3FFFF; // Maschera per 18 bit
-                
-
-                // if(update_ir_buffers(led2_value)){
-                //     return true;
-                // }
-                // DBG_PRINTF("IR_RAW: %lu\n",led2_value);
-            
-            } else {
-                DBG_PRINTF("Failed to read FIFO data: %d\n", read_result);
-                break;
-            }
-            // vTaskDelay(1);
-        }
-
-        
-    
-    }
-    // reset_fifo_registers(device);
-
-    
-
-    return false;
-}
 
 /*** READ THE FIFO ***/
 bool max30102_i2c_read_multiled_data_burst(struct i2c_device *device)
@@ -244,11 +131,14 @@ bool max30102_i2c_read_multiled_data_burst(struct i2c_device *device)
     uint8_t wr_ptr, rd_ptr;
 
     // Read write pointer
+    I2C_LOCK_0();
     i2c_master_transmit_receive(device->i2c_dev_handle, &wr_ptr_addr, 1, &wr_ptr, 1, 1000);
-
+    I2C_UNLOCK_0();
     // Read read pointer
+    I2C_LOCK_0();
     i2c_master_transmit_receive(device->i2c_dev_handle, &rd_ptr_addr, 1, &rd_ptr, 1, 1000);
-
+    I2C_UNLOCK_0();
+    
     int num_samples = (wr_ptr - rd_ptr) & 0x1F; 
 
     if (num_samples == 0)
@@ -266,7 +156,9 @@ bool max30102_i2c_read_multiled_data_burst(struct i2c_device *device)
 
     //trasmit to the fifo address to initialize transmission
     uint8_t fifo_data_addr = MAX30102_FIFO_DATA_ADDR;
+    I2C_LOCK_0();
     esp_err_t err = i2c_master_transmit(device->i2c_dev_handle, &fifo_data_addr, 1, 1000);
+    I2C_UNLOCK_0();
 
     if (err != ESP_OK) {
         DBG_PRINTF("Failed to set FIFO_DATA register\n");
@@ -274,7 +166,9 @@ bool max30102_i2c_read_multiled_data_burst(struct i2c_device *device)
     }
 
     //read all the fifo data into a buffer
+    I2C_LOCK_0();
     err = i2c_master_receive(device->i2c_dev_handle, fifo_buffer, bytes_to_read, 1000);
+    I2C_UNLOCK_0();
     if (err != ESP_OK) {
         DBG_PRINTF("Burst read failed: %d\n", err);
         return false;
@@ -299,7 +193,7 @@ bool max30102_i2c_read_multiled_data_burst(struct i2c_device *device)
         // DBG_PRINTF("RED_RAW: %lu IR_RAW: %lu\n", red, ir);
 
         update_red_buffers(red);
-        if (update_ir_buffers(ir)) {
+        if (update_ir_buffers(ir)) { //used to calculate bpm
             return true; 
         }
 

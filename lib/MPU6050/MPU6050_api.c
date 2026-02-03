@@ -1,6 +1,6 @@
 #include "MPU6050_api.h"
 
-static bool fifo_initialized = false;
+// static bool fifo_initialized = false;
 Rotation_t rotation = {0.0f, 0};
 static Orientation_t orient = {0};
 
@@ -9,22 +9,45 @@ esp_err_t mpu6050_write_reg(struct i2c_device *device, uint8_t reg_to_write, uin
 
     uint8_t buf[2] = {reg_to_write, val_to_write};
 
-    return i2c_master_transmit(device->i2c_dev_handle,
-                               buf,
-                               sizeof(buf),
-                               1000);
+    // return i2c_master_transmit(device->i2c_dev_handle,
+    //                            buf,
+    //                            sizeof(buf),
+    //                            1000);
+
+    esp_err_t ret = i2c_master_transmit(device->i2c_dev_handle,
+                                        buf,
+                                        sizeof(buf),
+                                        1000);
+    if (ret != ESP_OK) {
+        printf("MPU6050 WRITE ERROR: reg=0x%02X val=0x%02X err=%s (0x%X)\n",
+               reg_to_write, val_to_write, esp_err_to_name(ret), ret);
+    }
+    return ret;
 }
+
 
 esp_err_t mpu6050_read_reg(struct i2c_device *device, uint8_t reg_to_read, uint8_t *val_to_read, size_t val_size)
 {
 
     uint8_t reg = reg_to_read;
-    return i2c_master_transmit_receive(device->i2c_dev_handle,
-                                       &reg,
-                                       1,
-                                       val_to_read,
-                                       val_size,
-                                       1000);
+    // return i2c_master_transmit_receive(device->i2c_dev_handle,
+    //                                    &reg,
+    //                                    1,
+    //                                    val_to_read,
+    //                                    val_size,
+    //                                    1000);
+
+    esp_err_t ret = i2c_master_transmit_receive(device->i2c_dev_handle,
+                                                &reg,
+                                                1,
+                                                val_to_read,
+                                                val_size,
+                                                1000);
+    if (ret != ESP_OK) {
+        printf("MPU6050 READ ERROR: reg=0x%02X size=%d err=%s (0x%X)\n",
+               reg_to_read, val_size, esp_err_to_name(ret), ret);
+    }
+    return ret;
 }
 
 void print_acc(const Three_Axis_final_t *ax)
@@ -120,6 +143,7 @@ esp_err_t empty_FIFO(struct i2c_device *device, Three_Axis_t *axis, Three_Axis_f
 
     for (uint16_t i = 0; i + 11 < fs; i += 12)
     {
+
         read_sample_ACC(axis, f_ax, reading_buffer, i);
         read_sample_GYRO(gyro, f_gyro, reading_buffer, i + 6);
 
@@ -143,10 +167,10 @@ esp_err_t mpu6050_read_FIFO(struct i2c_device *device, Three_Axis_t *axis, Gyro_
     uint8_t reg_int_status = 0;
 
     // // before read or write on FIFO reset it to clear it up from old data
-    if (set_USR_CTRL(device) != ESP_OK)
-    {
-        return ERR;
-    }
+    // if (set_USR_CTRL(device) != ESP_OK)
+    // {
+    //     return ERR;
+    // }
 
     // reset at the beginning
     if (!fifo_initialized) {
@@ -167,6 +191,8 @@ esp_err_t mpu6050_read_FIFO(struct i2c_device *device, Three_Axis_t *axis, Gyro_
     }
 
     fifo_size = ((uint16_t)fifo_h << 8) | fifo_l;
+
+    ESP_LOGI("MPU6050_FIFO", "FIFO SIZE: %d", fifo_size);
     // if not enough OR nothing to read I consider the FIFO as EMPTY
     if (fifo_size < 12 || fifo_size == 0)
     {
@@ -175,7 +201,7 @@ esp_err_t mpu6050_read_FIFO(struct i2c_device *device, Three_Axis_t *axis, Gyro_
 
     // FIRST ALTERNATIVE
     // 1024 is the FIFO MAX_SIZE so if greater than 1024 set it to MAX_SIZE
-    // BUT in this way i can lost some data or having incomplete data
+    // BUT in this way i can lose some data or having incomplete data
     // if(fifo_size > 1024) {
     //     fifo_size = 1024;
     // }
@@ -196,10 +222,10 @@ esp_err_t mpu6050_read_FIFO(struct i2c_device *device, Three_Axis_t *axis, Gyro_
     if (FIFO_OVERFLOW(reg_int_status))
     {
         // ! if OVERFLOW read all data in FIFO and analyze them
-        if (empty_FIFO(device, axis, f_ax, gyro, f_gyro, reading_buffer, fifo_size) != ESP_OK)
-        {
-            return ERR;
-        }
+        // if (empty_FIFO(device, axis, f_ax, gyro, f_gyro, reading_buffer, fifo_size) != ESP_OK)
+        // {
+        //     return ERR;
+        // }
         if (set_USR_CTRL(device) != ESP_OK)
         {
             return ERR;
@@ -211,6 +237,8 @@ esp_err_t mpu6050_read_FIFO(struct i2c_device *device, Three_Axis_t *axis, Gyro_
         return ERR;
     }
 
+    
+    
     return ESP_OK;
 }
 
@@ -413,55 +441,3 @@ void motion_analysis(const Three_Axis_t *ax, const Gyro_Axis_final_t *gyro)
     }
 }
 
-void task_acc(void *pvParameters)
-{
-
-    struct i2c_device *device = (struct i2c_device *)pvParameters;
-
-    global_parameters.step_cntr = 0;
-
-    if (device == NULL)
-    {
-        printf("task_acc: invalid device\n");
-        vTaskDelete(NULL);
-        abort();
-    }
-
-    if (acc_config(device) != ESP_OK)
-    {
-        printf("Configuration error!\n");
-        abort();
-    }
-        
-    vTaskDelay(pdMS_TO_TICKS(60));
-
-    Three_Axis_t axis;
-    Gyro_Axis_t gyro;
-    Three_Axis_final_t f_axis;
-    Gyro_Axis_final_t f_gyro;
-
-    fifo_initialized = true;
-
-    for (;;)
-    {   
-        static uint32_t acc_hb = 0;
-        if ((acc_hb++ % 5) == 0) printf("ACC heartbeat %lu\n", (unsigned long)acc_hb);
-        fflush(stdout);
-        esp_err_t err = mpu6050_read_FIFO(device, &axis, &gyro, &f_axis, &f_gyro);
-        if (err == ERR)
-        {
-            printf("Error reading!\n");
-        }
-        else if (err == FIFO_EMPTY)
-        {
-            printf("FIFO empty!\n");
-        }
-        else if (err == RESET_FIFO)
-        {
-            printf("TOO MUCH data!\n");
-        }
-
-        // vTaskDelay(pdMS_TO_TICKS(60));
-        vTaskDelay(pdMS_TO_TICKS(20));
-    }
-}

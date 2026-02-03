@@ -8,6 +8,9 @@
 #include "freertos/FreeRTOS.h" 
 #include "freertos/task.h"     
 #include "macros.h"
+#include <stdlib.h>
+#include <string.h>
+#include "freertos/semphr.h"
 
 /*
     ! i2c_device structure
@@ -20,5 +23,13 @@ struct i2c_device {
 
 void init_I2C_bus_PORT0 (i2c_master_bus_handle_t* i2c_bus);
 void init_I2C_bus_PORT1 (i2c_master_bus_handle_t* i2c_bus);
+
+SemaphoreHandle_t i2c_get_mutex_port0(void);
+SemaphoreHandle_t i2c_get_mutex_port1(void);
+
+#define I2C_LOCK_0()   xSemaphoreTake(i2c_get_mutex_port0(), portMAX_DELAY)
+#define I2C_UNLOCK_0() xSemaphoreGive(i2c_get_mutex_port0())
+#define I2C_LOCK_1()   xSemaphoreTake(i2c_get_mutex_port1(), portMAX_DELAY)
+#define I2C_UNLOCK_1() xSemaphoreGive(i2c_get_mutex_port1())
 
 #endif
