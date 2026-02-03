@@ -127,6 +127,7 @@ esp_err_t ens160_read_data(ens160_data_t *data) {
     uint8_t status;
     esp_err_t ret = ens160_read_reg(ENS160_REG_DATA_STATUS, &status, 1);
     if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "[ENS160] Failed to read status register");
         return ret;
     }
 
