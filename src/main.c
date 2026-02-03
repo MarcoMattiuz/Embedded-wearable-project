@@ -349,6 +349,13 @@ void LCD_task(void *parameters)
     bool LCD_ON = false;
     EventType evt;
 
+    gpio_intr_disable(PUSH_BUTTON_GPIO);
+
+    show_loading_screen(panel_handle);
+
+    xQueueReset(event_queue);
+    gpio_intr_enable(PUSH_BUTTON_GPIO);
+
     while (1)
     {
         if (xQueueReceive(event_queue, &evt, portMAX_DELAY))
