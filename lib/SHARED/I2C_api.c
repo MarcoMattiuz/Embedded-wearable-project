@@ -9,7 +9,7 @@ void init_I2C_bus_PORT0(i2c_master_bus_handle_t* i2c_bus){
         .scl_io_num = MAX30102_I2C_SCL_PIN,
         .clk_source = I2C_CLK_SRC_DEFAULT,
         .glitch_ignore_cnt = I2C_GLITCH_IGNORE_CNT,
-        .flags.enable_internal_pullup = 1
+        .flags.enable_internal_pullup = 0
     };
 
     // Initialize I2C bus
@@ -29,7 +29,7 @@ void init_I2C_bus_PORT1(i2c_master_bus_handle_t* i2c_bus){
         .scl_io_num = MPU6050_I2C_SCL_PIN,
         .clk_source = I2C_CLK_SRC_DEFAULT,
         .glitch_ignore_cnt = I2C_GLITCH_IGNORE_CNT,
-        .flags.enable_internal_pullup = 1
+        .flags.enable_internal_pullup = 0
     };
 
     // Initialize I2C bus

@@ -94,3 +94,18 @@ python3 graph.py
 ```
 ⚠️ the python script has **sps** hard coded in, so if you change it in the MAX30102 configuration keep in mind that you will have to change it also there.
 - later in the project we added graphs in the web application, so now you can see there the raw and filtered data of the ppg sensor
+
+## Modify firmware
+
+```bash
+pio run -t menuconfig
+```
+
+TODO: 
+-pullup forse sono da abbassare perchè quelli interni sono troppo alti
+-stampato le task, la task_acc non sembra crashare for rimane bloccata al suo interno e basta. perchè l'heartbeat di debug scompare
+-modifica impostazioni in menuconfig, anche cose di i2c e watchdog
+-ho aumentato il baud rate
+-il fatto che funziona a volte mi da pensare che possa essere il pullup per quando da NACK i2c, un quanlcosa di bloccante per la task_acc
+-chatgpt ha detto anche che si potrebbe provare a mettere le letture i2c in mutex fra di loro
+-la task_acc smette di inviare i dati al bluetooth, si blocca da qualche parte al suo interno mi sa

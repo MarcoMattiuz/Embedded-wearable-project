@@ -191,9 +191,9 @@ function handleGyroNotification(event) {
     if (typeof window.update3DObject === "function") {
       window.update3DObject(gx, gy, gz);
     }
-    // console.log(
-    //   `Gyro - X: ${gx.toFixed(2)}, Y: ${gy.toFixed(2)}, Z: ${gz.toFixed(2)}`,
-    // );
+    console.log(
+      `Gyro - X: ${gx.toFixed(2)}, Y: ${gy.toFixed(2)}, Z: ${gz.toFixed(2)}`,
+    );
   }
 }
 
@@ -246,7 +246,7 @@ function handleBPM(event) {
     value: value.getInt16(0, true),
     timestamp: timestamp,
   });
-  log("BPM: " + window.BPMsampleArr.map((s) => s.value).join(", "));
+  // log("BPM: " + window.BPMsampleArr.map((s) => s.value).join(", "));
   if (window.BPMsampleArr.length >= MAX_SIZE_BPM_BUFFER) {
     window.BPMsampleArr = [];
   }
@@ -265,7 +265,7 @@ function handleAVGBPM(event) {
     value: value.getInt16(0, true),
     timestamp: timestamp,
   });
-  log("AVG_BPM: " + window.AVGBPMsampleArr.map((s) => s.value).join(", "));
+  // log("AVG_BPM: " + window.AVGBPMsampleArr.map((s) => s.value).join(", "));
   if (window.AVGBPMsampleArr.length >= MAX_SIZE_BPM_BUFFER) {
     window.AVGBPMsampleArr = [];
   }
@@ -284,10 +284,10 @@ function handleIRACbuffer(event) {
   }
 
   updateIRACGraphs();
-  console.log(
-    `Array IR AC int16: [${window.IRACsampleArr.join(", ")}]`,
-    "success",
-  );
+  // console.log(
+  //   `Array IR AC int16: [${window.IRACsampleArr.join(", ")}]`,
+  //   "success",
+  // );
 }
 
 function handleIRRAWbuffer(event) {
@@ -303,10 +303,10 @@ function handleIRRAWbuffer(event) {
   }
 
   updateIRRAWGraphs();
-  console.log(
-    `Array IR RAW Uint32: [${window.IRRAWsampleArr.join(", ")}]`,
-    "success",
-  );
+  // console.log(
+  //   `Array IR RAW Uint32: [${window.IRRAWsampleArr.join(", ")}]`,
+  //   "success",
+  // );
 }
 
 //convert weather code from api to a WeatherType

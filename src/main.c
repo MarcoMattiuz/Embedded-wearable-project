@@ -16,6 +16,7 @@
 #include "display_fsm.h"
 #include "global_param.h"
 #include "esp_log.h"
+#include "nvs_flash.h"
 #include "ble_manager.h"
 #include "driver/touch_pad.h"
 #include <sys/time.h>
@@ -24,6 +25,7 @@
 #include "driver/adc.h"
 #include "esp_adc_cal.h"
 #include "../ENS160/ens160.h"
+#include "esp_timer.h"
 
 struct ppg_task_params
 {
@@ -155,7 +157,7 @@ static void rtc_clock_task(void *pvParameter)
                  month,
                  year % 100);
         snprintf(global_parameters.time_str, sizeof(global_parameters.time_str), "%02d:%02d", hour, minute);
-        
+
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }
@@ -164,19 +166,20 @@ static void c02_check_task(void *pvParameter)
 {
     ens160_data_t data;
 
-    while(1)
+    while (1)
     {
         esp_err_t ret = ens160_read_data(&data);
-        if(ret == ESP_OK)
+        if (ret == ESP_OK)
         {
             // ESP_LOGI(TAG, "eCO2: %d ppm, TVOC: %d ppb, AQI: %d", data.eco2, data.tvoc, data.aqi);
             global_parameters.CO2 = data.eco2;
-            
-            if (notify_enabled && ble_manager_is_connected()) {
+
+            if (notify_enabled && ble_manager_is_connected())
+            {
                 ble_manager_notify_ens160(
                     ble_manager_get_conn_handle(),
                     &data);
-                }
+            }
         }
         else
         {
@@ -234,7 +237,7 @@ esp_err_t add_device_ENS160()
     esp_err_t esp_ret;
 
     // initialize ENS160 on the bus
-    esp_ret = ens160_init(i2c_bus_0);
+    esp_ret = ens160_init(i2c_bus_1);
     if (esp_ret != ESP_OK)
     {
         ESP_LOGE(TAG, "Failed to initialize ENS160: %s", esp_err_to_name(esp_ret));
@@ -355,13 +358,14 @@ void LCD_task(void *parameters)
         {
             switch (evt)
             {
-            case EVT_GYRO:{
+            case EVT_GYRO:
+            {
                 LCD_ON = false;
                 if (current_state == STATE_BPM)
                 {
                     xTimerStop(frame_timer_handle, 0);
                 }
-                ESP_LOGE(TAG,"LCD OFF GYRO");
+                ESP_LOGE(TAG, "LCD OFF GYRO");
                 TurnLcdOff(panel_handle);
                 break;
             }
@@ -375,7 +379,7 @@ void LCD_task(void *parameters)
                 }
                 else // released
                 {
-                    
+
                     xTimerStop(long_press_timer_handle, 0);
                     if (!long_press_triggered && LCD_ON) // short press
                     {
@@ -419,7 +423,7 @@ void LCD_task(void *parameters)
 
                     global_parameters.show_heart = true;
                     (*fsm[current_state].state_function)(&panel_handle, &global_parameters);
-                    
+
                     xTimerStart(frame_timer_handle, 0); // start animation
                 }
                 else
@@ -434,7 +438,7 @@ void LCD_task(void *parameters)
 
             case EVT_REFRESH:
                 (*fsm[current_state].state_function)(&panel_handle, &global_parameters);
-                    ESP_LOGE(TAG, "LCD REFRESH");
+                ESP_LOGE(TAG, "LCD REFRESH");
                 break;
 
             default:
@@ -483,33 +487,56 @@ static void bettery_level_task(void *pvParameter)
     }
 }
 
+static uint64_t start_time;
+
+void vConfigureTimerForRunTimeStats(void) {
+    start_time = esp_timer_get_time();
+}
+
+unsigned long ulGetRunTimeCounterValue(void) {
+    return (unsigned long)(esp_timer_get_time() - start_time);
+}
+
+void print_task_stats(void) {
+    char buffer[2048];
+
+    printf("\n\n===== TASK LIST =====\n");
+    vTaskList(buffer);
+    printf("%s\n", buffer);
+
+    printf("\n===== RUNTIME STATS =====\n");
+    vTaskGetRunTimeStats(buffer);
+    printf("%s\n", buffer);
+}
+
 void app_main()
 {
+    esp_err_t ret = nvs_flash_init();
+    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+        ESP_ERROR_CHECK(nvs_flash_erase());
+        ret = nvs_flash_init();
+    }
+    ESP_ERROR_CHECK(ret);
     esp_task_wdt_deinit();
 
     // TODO: remove
     // Suppress NimBLE INFO logs (GATT procedure initiated, att_handle, etc.)
-    esp_log_level_set("NimBLE", ESP_LOG_WARN);
+    // esp_log_level_set("NimBLE", ESP_LOG_WARN);
 
     // I2C busses init
     init_I2C_bus_PORT0(&i2c_bus_0);
-    vTaskDelay(pdMS_TO_TICKS(1000));
     init_I2C_bus_PORT1(&i2c_bus_1);
-    vTaskDelay(pdMS_TO_TICKS(1000));
-
+    vTaskDelay(pdMS_TO_TICKS(500));
     add_device_MAX30102(&max30102_device);
-    vTaskDelay(pdMS_TO_TICKS(1000));
-
+    vTaskDelay(pdMS_TO_TICKS(500));
     add_device_SH1106(&panel_handle);
-    vTaskDelay(pdMS_TO_TICKS(1000));
-
+    vTaskDelay(pdMS_TO_TICKS(500));
     add_device_MPU6050(&mpu6050_device);
+    vTaskDelay(pdMS_TO_TICKS(500));
+    // esp_err_t ens160_ret = add_device_ENS160();
+    vTaskDelay(pdMS_TO_TICKS(500));
 
-    esp_err_t ens160_ret = add_device_ENS160();
-
-  
-
-    // parameters init
+    // ppg parameters init
     parameters_ppg_max30102.bus = i2c_bus_0;
     parameters_ppg_max30102.device = &max30102_device;
 
@@ -537,7 +564,7 @@ void app_main()
         &panel_handle,
         2,
         NULL);
-    vTaskDelay(pdMS_TO_TICKS(1000));
+    vTaskDelay(pdMS_TO_TICKS(500));
 
     retF = xTaskCreatePinnedToCore(
         task_acc,
@@ -547,7 +574,7 @@ void app_main()
         1,
         NULL,
         1);
-    vTaskDelay(pdMS_TO_TICKS(1000));
+    vTaskDelay(pdMS_TO_TICKS(500));
 
     xTaskCreatePinnedToCore(
         PPG_sensor_task,
@@ -557,29 +584,33 @@ void app_main()
         3,
         &ppg_task_handle,
         0);
-    vTaskDelay(pdMS_TO_TICKS(1000));
+    vTaskDelay(pdMS_TO_TICKS(500));
 
     //* Start battery level monitoring task */
-    /* xTaskCreate(
-        bettery_level_task,
-        "battery_level_task",
-        2048,
-        NULL,
-        1,
-        NULL);
- */
-    //* Start Gyro BLE notification task */
-    //xTaskCreatePinnedToCore(gyro_ble_task, "gyro_ble_task", 4096, &mpu6050_device, 1, NULL, 0);
-
-    /* Start touch sensor task */
-    //xTaskCreate(touch_sensor_task, "touch_sensor", 4096, NULL, 10, NULL);
-
+    // xTaskCreate(
+    //     bettery_level_task,
+    //     "battery_level_task",
+    //     2048,
+    //     NULL,
+    //     6,
+    //     NULL);
+    vTaskDelay(pdMS_TO_TICKS(500));
     /* Start RTC clock display task */
     xTaskCreate(rtc_clock_task, "rtc_clock", 4096, NULL, 4, NULL);
-    vTaskDelay(pdMS_TO_TICKS(1000));
+    vTaskDelay(pdMS_TO_TICKS(500));
 
     /* Start CO2 check task */
-    xTaskCreate(c02_check_task, "c02_check", 4096, NULL, 5, NULL);
-        
+    // xTaskCreate(c02_check_task, "c02_check", 4096, NULL, 5, NULL);
+    
     ESP_LOGI(TAG, "Service initialized successfully");
+    
+    /* Start touch sensor task */
+    // xTaskCreate(touch_sensor_task, "touch_sensor", 4096, NULL, 10, NULL);
+    while (1) {
+        print_task_stats();
+        vTaskDelay(pdMS_TO_TICKS(2000));
+    }
+    
+
+    
 }

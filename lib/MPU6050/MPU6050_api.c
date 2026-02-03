@@ -443,7 +443,10 @@ void task_acc(void *pvParameters)
     fifo_initialized = true;
 
     for (;;)
-    {
+    {   
+        static uint32_t acc_hb = 0;
+        if ((acc_hb++ % 5) == 0) printf("ACC heartbeat %lu\n", (unsigned long)acc_hb);
+        fflush(stdout);
         esp_err_t err = mpu6050_read_FIFO(device, &axis, &gyro, &f_axis, &f_gyro);
         if (err == ERR)
         {
@@ -458,6 +461,7 @@ void task_acc(void *pvParameters)
             printf("TOO MUCH data!\n");
         }
 
-        vTaskDelay(pdMS_TO_TICKS(60));
+        // vTaskDelay(pdMS_TO_TICKS(60));
+        vTaskDelay(pdMS_TO_TICKS(20));
     }
 }

@@ -25,8 +25,8 @@
 #define MPU6050_I2C_SCL_PIN   GPIO_NUM_23 // I2C SCL pin
 #define I2C_MPU6050_ADDR      0x68        //I2C address of MPU6050
 //I2C
-#define I2C_GLITCH_IGNORE_CNT 7           // Glitch filter
-#define I2C_FREQ_HZ           400000      // I2C master frequency
+#define I2C_GLITCH_IGNORE_CNT 15           // Glitch filter 7 or 15
+#define I2C_FREQ_HZ           100000      // I2C master frequency before: 400000
 //BUTTON
 //#define PUSH_BUTTON_GPIO GPIO_NUM_27
 #define PUSH_BUTTON_GPIO GPIO_NUM_18
