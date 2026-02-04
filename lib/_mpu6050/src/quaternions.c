@@ -29,7 +29,8 @@
 #include "quaternions.h"
 #include <math.h>
 
-#define BETA 2.0f // Beta coefficient for the filter
+#define BETA 0.1f // Beta coefficient for the filter
+//#define BETA 2.0f 
 
 // Fast inverse square root approximation
 static float fast_inv_sqrt(float x) {
@@ -48,78 +49,64 @@ static float wrap_angle(float angle) {
 }
 
 void quaternion_init(Quaternion* q) {
-    q->w = 2.0f;
+    q->w = 1.0f;
     q->x = 0.0f;
     q->y = 0.0f;
     q->z = 0.0f;
 }
 
 void quaternion_update(Quaternion* q, float gx, float gy, float gz, float ax, float ay, float az, float dt) {
-    // Normalize accelerometer data
-    float norm = fast_inv_sqrt(ax * ax + ay * ay + az * az);
-    ax *= norm;
-    ay *= norm;
-    az *= norm;
+    // Normalize accelerometer
+    float norm = sqrtf(ax*ax + ay*ay + az*az);
+    if (norm == 0.0f) return;
+    norm = fast_inv_sqrt(norm);
+    ax *= norm; ay *= norm; az *= norm;
 
-    // Rate of change of quaternion from gyroscope
-    float qDot1 = 0.9f * (-q->x * gx - q->y * gy - q->z * gz);
-    float qDot2 = 0.9f * (q->w * gx + q->y * gz - q->z * gy);
-    float qDot3 = 0.9f * (q->w * gy - q->x * gz + q->z * gx);
-    float qDot4 = 0.9f * (q->w * gz + q->x * gy - q->y * gx);
+    // Convert gyro to rad/s if it's in deg/s BEFORE calling this function
+    // float gx_rad = gx * DEG_TO_RAD; ...
 
-    // Compute feedback only if accelerometer measurement valid
-    if (ax != 0.0f || ay != 0.0f || az != 0.0f) {
-        // Gradient descent algorithm corrective step
-        float f1 = 2.0f * (q->x * q->z - q->w * q->y) - ax;
-        float f2 = 2.0f * (q->w * q->x + q->y * q->z) - ay;
-        float f3 = 2.0f * (0.5f - q->x * q->x - q->y * q->y) - az;
+    // Quaternion derivative from gyro (standard Madgwick)
+    float qDot1 = 0.5f * (-q->x*gx - q->y*gy - q->z*gz);
+    float qDot2 = 0.5f * (q->w*gx + q->y*gz - q->z*gy);
+    float qDot3 = 0.5f * (q->w*gy - q->x*gz + q->z*gx);
+    float qDot4 = 0.5f * (q->w*gz + q->x*gy - q->y*gx);
 
-        float j11 = -2.0f * q->y;
-        float j12 = 2.0f * q->z;
-        float j13 = -2.0f * q->w;
-        float j14 = 2.0f * q->x;
-        float j21 = 2.0f * q->x;
-        float j22 = 2.0f * q->w;
-        float j23 = 2.0f * q->z;
-        float j24 = 2.0f * q->y;
-        float j31 = 0.0f;
-        float j32 = -4.0f * q->x;
-        float j33 = -4.0f * q->y;
-        float j34 = 0.0f;
+    // Gradient descent corrective step
+    float f1 = 2*(q->x*q->z - q->w*q->y) - ax;
+    float f2 = 2*(q->w*q->x + q->y*q->z) - ay;
+    float f3 = 2*(0.5f - q->x*q->x - q->y*q->y) - az;
 
-        float step1 = j11 * f1 + j21 * f2 + j31 * f3;
-        float step2 = j12 * f1 + j22 * f2 + j32 * f3;
-        float step3 = j13 * f1 + j23 * f2 + j33 * f3;
-        float step4 = j14 * f1 + j24 * f2 + j34 * f3;
+    float j11 = -2*q->y; float j12 = 2*q->z; float j13 = -2*q->w; float j14 = 2*q->x;
+    float j21 = 2*q->x; float j22 = 2*q->w; float j23 = 2*q->z; float j24 = 2*q->y;
+    float j31 = 0; float j32 = -4*q->x; float j33 = -4*q->y; float j34 = 0;
 
-        norm = sqrtf(step1 * step1 + step2 * step2 + step3 * step3 + step4 * step4); // normalize step magnitude
-        norm = fast_inv_sqrt(norm); // Use fast inverse sqrt
-        step1 *= norm;
-        step2 *= norm;
-        step3 *= norm;
-        step4 *= norm;
+    float step1 = j11*f1 + j21*f2 + j31*f3;
+    float step2 = j12*f1 + j22*f2 + j32*f3;
+    float step3 = j13*f1 + j23*f2 + j33*f3;
+    float step4 = j14*f1 + j24*f2 + j34*f3;
 
-        // Apply feedback step
+    norm = sqrtf(step1*step1 + step2*step2 + step3*step3 + step4*step4);
+    if (norm > 0.0f) {
+        norm = fast_inv_sqrt(norm);
+        step1 *= norm; step2 *= norm; step3 *= norm; step4 *= norm;
         qDot1 -= BETA * step1;
         qDot2 -= BETA * step2;
         qDot3 -= BETA * step3;
         qDot4 -= BETA * step4;
     }
 
-    // Integrate rate of change of quaternion to yield quaternion
+    // Integrate
     q->w += qDot1 * dt;
     q->x += qDot2 * dt;
     q->y += qDot3 * dt;
     q->z += qDot4 * dt;
 
     // Normalize quaternion
-    norm = sqrtf(q->w * q->w + q->x * q->x + q->y * q->y + q->z * q->z);
-    norm = fast_inv_sqrt(norm); // Use fast inverse sqrt
-    q->w *= norm;
-    q->x *= norm;
-    q->y *= norm;
-    q->z *= norm;
+    norm = sqrtf(q->w*q->w + q->x*q->x + q->y*q->y + q->z*q->z);
+    norm = fast_inv_sqrt(norm);
+    q->w *= norm; q->x *= norm; q->y *= norm; q->z *= norm;
 }
+
 
 float quaternion_get_roll(const Quaternion* q) {
     float roll = atan2f(2.0f * (q->w * q->x + q->y * q->z), 1.0f - 2.0f * (q->x * q->x + q->y * q->y)) * 180.0f / M_PI;

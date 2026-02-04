@@ -50,10 +50,10 @@ esp_err_t ens160_init(i2c_master_bus_handle_t bus_handle) {
         return ESP_ERR_INVALID_ARG;
     }
 
-    // Configure device with default address (ADDR pin LOW = 0x52)
+    // Configure device with address (ADDR pin HIGH = 0x53)
     i2c_device_config_t ens160_dev_cfg = {
         .dev_addr_length = I2C_ADDR_BIT_LEN_7,
-        .device_address = ENS160_ADDR_L,
+        .device_address = ENS160_ADDR_H,
         .scl_speed_hz = 100000,
     };
     
@@ -68,36 +68,47 @@ esp_err_t ens160_init(i2c_master_bus_handle_t bus_handle) {
     vTaskDelay(pdMS_TO_TICKS(500));
 
     // Read Part ID to verify device presence
-    // uint8_t buf[2];
-    // ret = ens160_read_reg(ENS160_REG_PART_ID, buf, 2);
-    // if (ret != ESP_OK) {
-    //     ESP_LOGE(TAG, "Failed to read Part ID");
-    //     i2c_master_bus_rm_device(ens160_dev_handle);
-    //     ens160_dev_handle = NULL;
-    //     return ret;
-    // }
+    uint8_t buf[2];
+    ret = ens160_read_reg(ENS160_REG_PART_ID, buf, 2);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to read Part ID");
+        i2c_master_bus_rm_device(ens160_dev_handle);
+        ens160_dev_handle = NULL;
+        return ret;
+    }
     
-    // uint16_t part_id = (buf[1] << 8) | buf[0];
-    // if (part_id != ENS160_PART_ID_VAL) {
-    //     ESP_LOGE(TAG, "Part ID mismatch. Expected 0x%04X, got 0x%04X", 
-    //              ENS160_PART_ID_VAL, part_id);
-    //     i2c_master_bus_rm_device(ens160_dev_handle);
-    //     ens160_dev_handle = NULL;
-    //     return ESP_ERR_NOT_FOUND;
-    // }
+    uint16_t part_id = (buf[1] << 8) | buf[0];
+    if (part_id != ENS160_PART_ID_VAL) {
+        ESP_LOGE(TAG, "Part ID mismatch. Expected 0x%04X, got 0x%04X", 
+                 ENS160_PART_ID_VAL, part_id);
+        i2c_master_bus_rm_device(ens160_dev_handle);
+        ens160_dev_handle = NULL;
+        return ESP_ERR_NOT_FOUND;
+    }
     
-    // ESP_LOGI(TAG, "ENS160 found at address 0x%02X, Part ID: 0x%04X", 
-    //          ENS160_ADDR_L, part_id);
+    ESP_LOGI(TAG, "ENS160 found at address 0x%02X, Part ID: 0x%04X", 
+             ENS160_ADDR_H, part_id);
+
+    // Perform software reset first
+    ESP_LOGI(TAG, "Performing software reset...");
+    ret = ens160_write_reg(ENS160_REG_OPMODE, ENS160_OPMODE_RESET);
+    if (ret != ESP_OK) {
+        ens160_deinit();
+        return ret;
+    }
+    vTaskDelay(pdMS_TO_TICKS(100));
 
     // Set operating mode to standard
+    ESP_LOGI(TAG, "Setting operating mode to STANDARD...");
     ret = ens160_set_opmode(ENS160_OPMODE_STD);
     if (ret != ESP_OK) {
         ens160_deinit();
         return ret;
     }
 
-    // Wait for initial measurement
-    vTaskDelay(pdMS_TO_TICKS(1000));
+    // Wait for initial measurement (first valid data can take up to 3 seconds)
+    ESP_LOGI(TAG, "Waiting for first measurement...");
+    vTaskDelay(pdMS_TO_TICKS(3000));
     
     ESP_LOGI(TAG, "ENS160 initialized successfully");
     return ESP_OK;
@@ -110,9 +121,11 @@ esp_err_t ens160_read_data(ens160_data_t *data) {
     }
 
     if (ens160_dev_handle == NULL) {
-        ESP_LOGE(TAG, "ENS160 not initialized");
+        ESP_LOGE(TAG, "ENS160 not initialized - handle is NULL");
         return ESP_ERR_INVALID_STATE;
     }
+
+    ESP_LOGD(TAG, "ENS160 handle valid: %p", (void*)ens160_dev_handle);
 
     // Check data status
     uint8_t status;
@@ -132,9 +145,13 @@ esp_err_t ens160_read_data(ens160_data_t *data) {
     }
     
     // Check data validity (0 = Normal operation, 1 = Warm-up, 2 = Initial start-up, 3 = Invalid)
-    if (validity != 0) {
-        ESP_LOGW(TAG, "Data not valid yet (validity=%d)", validity);
-        return ESP_ERR_NOT_FINISHED;
+    if (validity == 3) {
+        ESP_LOGE(TAG, "Sensor output invalid (validity=3)");
+        return ESP_ERR_INVALID_RESPONSE;
+    } else if (validity == 1) {
+        ESP_LOGW(TAG, "Sensor in warm-up phase - data may be inaccurate");
+    } else if (validity == 2) {
+        ESP_LOGW(TAG, "Sensor in initial start-up phase - data may be inaccurate");
     }
 
     // Read eCO2 (2 bytes, little-endian)
@@ -168,4 +185,8 @@ esp_err_t ens160_deinit(void) {
         return ret;
     }
     return ESP_OK;
+}
+
+i2c_master_dev_handle_t ens160_get_dev_handle(void) {
+    return ens160_dev_handle;
 }

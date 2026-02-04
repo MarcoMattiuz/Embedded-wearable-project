@@ -99,4 +99,7 @@ esp_err_t ens160_read_data(ens160_data_t *data);
 /* Deinitialize the ENS160 sensor */
 esp_err_t ens160_deinit(void);
 
+/* Get the ENS160 device handle */
+i2c_master_dev_handle_t ens160_get_dev_handle(void);
+
 #endif

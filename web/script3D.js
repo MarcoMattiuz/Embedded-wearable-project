@@ -91,16 +91,41 @@ function animate() {
 
   renderer.render(scene, camera);
 }
+const targetQ = new THREE.Quaternion();
+const filteredEuler = new THREE.Euler(); // store smoothed angles
 
-function update3DObject(gx, gy, gz) {
-  if (!model) {
-    console.warn("3D model not loaded yet.");
-    return;
-  }
+function update3DObject(roll,pitch) {
+  /* if (!model) return;
 
-  model.rotation.set(gx, gy, gz);
+  targetQ.set(x, y, z, w);
+
+  // Convert quaternion to Euler
+  const euler = new THREE.Euler();
+  euler.setFromQuaternion(targetQ, "XYZ");
+
+  // Keep yaw fixed
+  euler.z = 0;
+
+  // Low-pass filter smoothing
+  const alpha = 0.1; // 0.05–0.2 works well
+  filteredEuler.x = filteredEuler.x + alpha * (euler.x - filteredEuler.x);
+  filteredEuler.y = filteredEuler.y + alpha * (euler.y - filteredEuler.y);
+  filteredEuler.z = 0; // keep yaw locked
+
+  // Apply to model
+  model.rotation.x = filteredEuler.x;
+  model.rotation.y = filteredEuler.y;
+  model.rotation.z = filteredEuler.z; */
+  if (!model) return;
+
+
+  // Apply directly to cube (ignore yaw)
+  model.rotation.x = THREE.MathUtils.degToRad(roll); // note: x = pitch
+  model.rotation.y = THREE.MathUtils.degToRad(pitch);  // note: y = roll
+  model.rotation.z = 0;     // yaw locked
 }
 
 window.update3DObject = update3DObject;
+
 
 init3DObject();

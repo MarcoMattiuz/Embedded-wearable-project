@@ -183,16 +183,17 @@ function handleEns160Notification(event) {
 function handleGyroNotification(event) {
   const value = event.target.value;
 
-  if (value.byteLength >= 12) {
-    const gx = value.getFloat32(0, true);
-    const gy = value.getFloat32(4, true);
-    const gz = value.getFloat32(8, true);
+  if (value.byteLength >= 4) {
+    const roll = value.getFloat32(0, true);//roll
+    const pitch = value.getFloat32(4, true);//pitch
+    
 
     if (typeof window.update3DObject === "function") {
-      window.update3DObject(gx, gy, gz);
+      window.update3DObject(roll,pitch);
     }
+
     console.log(
-      `Gyro - X: ${gx.toFixed(2)}, Y: ${gy.toFixed(2)}, Z: ${gz.toFixed(2)}`,
+      `GYRO - roll: ${roll.toFixed(3)}, pitch: ${pitch.toFixed(3)}}`
     );
   }
 }
