@@ -110,26 +110,29 @@ void task_acc(void *parameters)
                 accel_x_g, accel_y_g, accel_z_g,
                 0.01f);
 
-            ESP_LOGI("ACC", "Accel: X=%.2f m/s^2, Y=%.2f m/s^2, Z=%.2f m/s^2",
-                     accel_x_g, accel_y_g, accel_z_g);
+            // ESP_LOGI("ACC", "Accel: X=%.2f m/s^2, Y=%.2f m/s^2, Z=%.2f m/s^2",
+            //          accel_x_g, accel_y_g, accel_z_g);
 
-            ESP_LOGI("ACC", "Gyro: X=%.2f deg/s, Y=%.2f deg/s, Z=%.2f deg/s",
-                     gyro_x_dps, gyro_y_dps, gyro_z_dps);
+            // ESP_LOGI("ACC", "Gyro: X=%.2f deg/s, Y=%.2f deg/s, Z=%.2f deg/s",
+            //          gyro_x_dps, gyro_y_dps, gyro_z_dps);
 
-            ESP_LOGI("ACC", "Roll: %.2f", roll_get());
-            ESP_LOGI("ACC", "Pitch: %.2f", pitch_get());
+            // ESP_LOGI("ACC", "Roll: %.2f", roll_get());
+            // ESP_LOGI("ACC", "Pitch: %.2f", pitch_get());
 
-            ESP_LOGI("ACC", "Quaternion Roll: %.2f", quaternion_get_roll(&q));
-            ESP_LOGI("ACC", "Quaternion Pitch: %.2f", quaternion_get_pitch(&q));
-            ESP_LOGI("ACC", "Quaternion Yaw: %.2f", quaternion_get_yaw(&q));
-            ESP_LOGI("ACC", "Quaternion x: %.2f", q.x);
-            ESP_LOGI("ACC", "Quaternion y: %.2f", q.y);
-            ESP_LOGI("ACC", "Quaternion z: %.2f", q.z);
+            // ESP_LOGI("ACC", "Quaternion Roll: %.2f", quaternion_get_roll(&q));
+            // ESP_LOGI("ACC", "Quaternion Pitch: %.2f", quaternion_get_pitch(&q));
+            // ESP_LOGI("ACC", "Quaternion Yaw: %.2f", quaternion_get_yaw(&q));
+            // ESP_LOGI("ACC", "Quaternion x: %.2f", q.x);
+            // ESP_LOGI("ACC", "Quaternion y: %.2f", q.y);
+            // ESP_LOGI("ACC", "Quaternion z: %.2f", q.z);
 
             GyroData_t q_data = {
                 .roll = roll_get(),
                 .pitch = pitch_get(),
             };
+            ESP_LOGI("ACC", "GyroData_t Roll: %.2f", q_data.roll);
+            ESP_LOGI("ACC", "GyroData_t Pitch: %.2f", q_data.pitch);
+
             if (ble_manager_is_connected())
             {
                 ble_manager_notify_gyro(
@@ -259,12 +262,8 @@ static void c02_check_task(void *pvParameter)
             {
                 ESP_LOGW(TAG, "Performing ENS160 full reset");
                 global_parameters.CO2 = 0;
-<<<<<<< HEAD
-
-=======
                 global_parameters.CO2_risk_level = 0;
                 
->>>>>>> 0fd10779254a03afab12a5aef600454e5dc85278
                 esp_err_t reset_ret = ens160_full_reset();
                 if (reset_ret != ESP_OK)
                 {
@@ -607,15 +606,15 @@ unsigned long ulGetRunTimeCounterValue(void)
 
 void print_task_stats(void)
 {
-    char buffer[2048];
+    // char buffer[2048];
 
-    printf("\n\n===== TASK LIST =====\n");
-    vTaskList(buffer);
-    printf("%s\n", buffer);
+    // printf("\n\n===== TASK LIST =====\n");
+    // vTaskList(buffer);
+    // printf("%s\n", buffer);
 
-    printf("\n===== RUNTIME STATS =====\n");
-    vTaskGetRunTimeStats(buffer);
-    printf("%s\n", buffer);
+    // printf("\n===== RUNTIME STATS =====\n");
+    // vTaskGetRunTimeStats(buffer);
+    // printf("%s\n", buffer);
 }
 
 void app_main()
@@ -689,7 +688,7 @@ void app_main()
     retF = xTaskCreatePinnedToCore(
         task_acc,
         "task_acc_debug",
-        4096,
+        8192,
         &mpu6050_device,
         1,
         NULL,

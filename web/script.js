@@ -45,7 +45,7 @@ window.ECO2sampleArr = [];
 let MAX_SIZE_IRAC_BUFFER = 960;
 let MAX_SIZE_BPM_BUFFER = 200;
 let MAX_SIZE_IRRAW_BUFFER = 960;
-let MAX_SIZE_ECO2_BUFFER = 10;
+let MAX_SIZE_ECO2_BUFFER = 200;
 
 function log(message, type = "info") {
   const entry = document.createElement("div");
@@ -251,7 +251,9 @@ function handleBPM(event) {
   if (window.BPMsampleArr.length >= MAX_SIZE_BPM_BUFFER) {
     window.BPMsampleArr = [];
   }
-  updateDropdown(BPMsampleArr.at(-1).value, AVGBPMsampleArr.at(-1).value);
+  if (BPMsampleArr.length > 0 && AVGBPMsampleArr.length > 0) {
+    updateDropdown(BPMsampleArr.at(-1).value, AVGBPMsampleArr.at(-1).value);
+  }
   updateBPMGraph();
 }
 
@@ -270,7 +272,9 @@ function handleAVGBPM(event) {
   if (window.AVGBPMsampleArr.length >= MAX_SIZE_BPM_BUFFER) {
     window.AVGBPMsampleArr = [];
   }
-  updateDropdown(BPMsampleArr.at(-1).value, AVGBPMsampleArr.at(-1).value);
+  if (BPMsampleArr.length > 0 && AVGBPMsampleArr.length > 0) {
+    updateDropdown(BPMsampleArr.at(-1).value, AVGBPMsampleArr.at(-1).value);
+  }
   updateBPMGraph();
 }
 
