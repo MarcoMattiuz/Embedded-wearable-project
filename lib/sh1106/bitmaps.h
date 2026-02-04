@@ -20,3 +20,4 @@ extern const uint8_t highBatteryBitmap[];
 extern const uint8_t fullBatteryBitmap[];
 
 extern const uint8_t bluetoothBitmap[];
+extern const uint8_t LoadingBitmap[];
