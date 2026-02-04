@@ -42,7 +42,7 @@ esp_err_t mpu6050_read_reg(struct i2c_device *device, uint8_t reg_to_read, uint8
                                                 1,
                                                 val_to_read,
                                                 val_size,
-                                                1000);
+                                                4000);
     if (ret != ESP_OK) {
         printf("MPU6050 READ ERROR: reg=0x%02X size=%d err=%s (0x%X)\n",
                reg_to_read, val_size, esp_err_to_name(ret), ret);
@@ -307,11 +307,11 @@ esp_err_t acc_config(struct i2c_device *device)
     }
 
     // sensor wake up
-    if (mpu6050_write_reg(device, PWR_MGMT_1, PWR_MGMT_1_CONFIG) != ESP_OK)
+    if (mpu6050_write_reg(device, PWR_MGMT_1, PWR_MGMT_1_CONFIG | PWR_MGMT_1_CLK) != ESP_OK)
     {
         return ESP_ERR_INVALID_ARG;
     }
-
+    vTaskDelay(DELAY_10);
     // Sample rate = 1kHz / (1 + 7) = 125 Hz
     if (mpu6050_write_reg(device, SMPLRT_DIV, 0x07) != ESP_OK)
     {
