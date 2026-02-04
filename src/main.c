@@ -166,16 +166,15 @@ static void c02_check_task(void *pvParameter)
 {
     ens160_data_t data;
     uint8_t consecutive_errors = 0;
-    const uint8_t MAX_CONSECUTIVE_ERRORS = 5;
+    const uint8_t MAX_CONSECUTIVE_ERRORS = 3;
 
     while (1)
     {
         esp_err_t ret = ens160_read_data(&data);
         if (ret == ESP_OK)
         {
-            consecutive_errors = 0;  // Reset error counter on success
+            consecutive_errors = 0;
             ESP_LOGI(TAG, "eCO2: %d ppm, TVOC: %d ppb, AQI: %d", data.eco2, data.tvoc, data.aqi);
-            ESP_LOGD(TAG, "global param CO2: %d", global_parameters.CO2);
             global_parameters.CO2 = data.eco2;
 
             if (notify_enabled && ble_manager_is_connected())
@@ -193,21 +192,20 @@ static void c02_check_task(void *pvParameter)
             
             if (consecutive_errors >= MAX_CONSECUTIVE_ERRORS)
             {
-                ESP_LOGW(TAG, "Performing full reset with baseline clear...");
+                ESP_LOGW(TAG, "Performing ENS160 full reset");
+                global_parameters.CO2 = 0;
                 
-                // Don't deinit - just do full reset
                 esp_err_t reset_ret = ens160_full_reset();
                 if (reset_ret != ESP_OK)
                 {
-                    ESP_LOGE(TAG, "Full reset failed: %s", esp_err_to_name(reset_ret));
-                    // Last resort: deinit and reinit
+                    ESP_LOGE(TAG, "ENS160 Full reset failed: %s", esp_err_to_name(reset_ret));
                     ens160_deinit();
                     vTaskDelay(pdMS_TO_TICKS(1000));
                     add_device_ENS160();
                 }
                 else
                 {
-                    ESP_LOGI(TAG, "Full reset completed successfully");
+                    ESP_LOGI(TAG, "ENS160 Full reset completed successfully");
                     consecutive_errors = 0;
                 }
             }
