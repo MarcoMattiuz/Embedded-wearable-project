@@ -184,7 +184,7 @@ static void c02_check_task(void *pvParameter)
         }
         else
         {
-            ESP_LOGE(TAG, "Failed to read ENS160 data: %s", esp_err_to_name(ret));
+            ESP_LOGE(TAG, "Failed to read ENS160 data: %s (ens160_dev_handle status = %p)", esp_err_to_name(ret), ens160_get_dev_handle());
         }
         vTaskDelay(pdMS_TO_TICKS(3000));
     }
@@ -565,8 +565,6 @@ void task_acc(void *pvParameters)
 
 void app_main()
 {
-    
-
     // Enable detailed I2C logging to catch NACK sources
     esp_log_level_set("i2c", ESP_LOG_VERBOSE);
     esp_log_level_set("i2c_master", ESP_LOG_VERBOSE);
@@ -595,9 +593,9 @@ void app_main()
     vTaskDelay(pdMS_TO_TICKS(500));
     // add_device_SH1106(&panel_handle);
     vTaskDelay(pdMS_TO_TICKS(500));
-    add_device_MPU6050(&mpu6050_device);
+    // add_device_MPU6050(&mpu6050_device);
     vTaskDelay(pdMS_TO_TICKS(500));
-    // esp_err_t ens160_ret = add_device_ENS160();
+    esp_err_t ens160_ret = add_device_ENS160();
     vTaskDelay(pdMS_TO_TICKS(500));
 
     // ppg parameters init
@@ -621,23 +619,23 @@ void app_main()
     TaskHandle_t ppg_task_handle = NULL;
 
     // tasks
-    xTaskCreate(
-        LCD_task,
-        "LCD_task_debug",
-        4096,
-        &panel_handle,
-        2,
-        NULL);
+    // xTaskCreate(
+    //     LCD_task,
+    //     "LCD_task_debug",
+    //     4096,
+    //     &panel_handle,
+    //     2,
+    //     NULL);
     vTaskDelay(pdMS_TO_TICKS(500));
 
-    retF = xTaskCreatePinnedToCore(
-        task_acc,
-        "task_acc_debug",
-        4096,
-        &mpu6050_device,
-        1,
-        NULL,
-        1);
+    // retF = xTaskCreatePinnedToCore(
+    //     task_acc,
+    //     "task_acc_debug",
+    //     4096,
+    //     &mpu6050_device,
+    //     1,
+    //     NULL,
+    //     1);
     vTaskDelay(pdMS_TO_TICKS(500));
 
     // xTaskCreatePinnedToCore(
@@ -651,20 +649,20 @@ void app_main()
     vTaskDelay(pdMS_TO_TICKS(500));
 
     //* Start battery level monitoring task */
-    xTaskCreate(
-        bettery_level_task,
-        "battery_level_task",
-        2048,
-        NULL,
-        6,
-        NULL);
+    // xTaskCreate(
+    //     bettery_level_task,
+    //     "battery_level_task",
+    //     2048,
+    //     NULL,
+    //     6,
+    //     NULL);
     vTaskDelay(pdMS_TO_TICKS(500));
     /* Start RTC clock display task */
-    xTaskCreate(rtc_clock_task, "rtc_clock", 4096, NULL, 4, NULL);
+    // xTaskCreate(rtc_clock_task, "rtc_clock", 4096, NULL, 4, NULL);
     vTaskDelay(pdMS_TO_TICKS(500));
 
     /* Start CO2 check task */
-    // xTaskCreate(c02_check_task, "c02_check", 4096, NULL, 5, NULL);
+    xTaskCreate(c02_check_task, "c02_check", 4096, NULL, 5, NULL);
     
     ESP_LOGI(TAG, "Service initialized successfully");
     
@@ -681,8 +679,8 @@ void app_main()
         printf("I2C probe results: MAX30102=%s, MPU6050=%s, ENS160=%s - %s\n",
                err0 == ESP_OK ? "OK" : "FAIL",
                err1 == ESP_OK ? "OK" : "FAIL",
-               err2 == ESP_OK ? "ENS160" : "NOT FOUND",
-               err3 == ESP_OK ? "ENS160" : "NOT FOUND");
+               err2 == ESP_OK ? "OK 0x53" : "FAIL 0x53",
+               err3 == ESP_OK ? "OK 0x52" : "FAIL 0x52");
     }
     
 
