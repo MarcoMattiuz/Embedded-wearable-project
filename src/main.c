@@ -176,6 +176,7 @@ static void c02_check_task(void *pvParameter)
             consecutive_errors = 0;
             ESP_LOGI(TAG, "eCO2: %d ppm, TVOC: %d ppb, AQI: %d", data.eco2, data.tvoc, data.aqi);
             global_parameters.CO2 = data.eco2;
+            global_parameters.CO2_risk_level = data.aqi;
 
             if (notify_enabled && ble_manager_is_connected())
             {
@@ -194,6 +195,7 @@ static void c02_check_task(void *pvParameter)
             {
                 ESP_LOGW(TAG, "Performing ENS160 full reset");
                 global_parameters.CO2 = 0;
+                global_parameters.CO2_risk_level = 0;
                 
                 esp_err_t reset_ret = ens160_full_reset();
                 if (reset_ret != ESP_OK)

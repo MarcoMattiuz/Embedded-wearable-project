@@ -10,5 +10,6 @@ struct global_param global_parameters = {
     .date = {},
     .time_str = {},
     .CO2 = 0,
+    .CO2_risk_level = 0,
     .temperature = 20.0,
 };
