@@ -591,7 +591,7 @@ void app_main()
     init_I2C_bus_PORT0(&i2c_bus_0);
     init_I2C_bus_PORT1(&i2c_bus_1);
     vTaskDelay(pdMS_TO_TICKS(500));
-    add_device_MAX30102(&max30102_device);
+    // add_device_MAX30102(&max30102_device);
     vTaskDelay(pdMS_TO_TICKS(500));
     add_device_SH1106(&panel_handle);
     vTaskDelay(pdMS_TO_TICKS(500));
@@ -640,14 +640,14 @@ void app_main()
     //     1);
     vTaskDelay(pdMS_TO_TICKS(500));
 
-    xTaskCreatePinnedToCore(
-        PPG_sensor_task,
-        "PPG_sensor_task_debug",
-        4096,
-        &parameters_ppg_max30102,
-        3,
-        &ppg_task_handle,
-        0);
+    // xTaskCreatePinnedToCore(
+    //     PPG_sensor_task,
+    //     "PPG_sensor_task_debug",
+    //     4096,
+    //     &parameters_ppg_max30102,
+    //     3,
+    //     &ppg_task_handle,
+    //     0);
     vTaskDelay(pdMS_TO_TICKS(500));
 
     //* Start battery level monitoring task */
@@ -675,8 +675,8 @@ void app_main()
         vTaskDelay(pdMS_TO_TICKS(2000));
         esp_err_t err0 = i2c_master_probe(i2c_bus_0, I2C_MAX30102_ADDR, 0x7F);
         esp_err_t err1 = i2c_master_probe(i2c_bus_1, I2C_MPU6050_ADDR, 0x7F);
-        esp_err_t err2 = i2c_master_probe(i2c_bus_1, 0x53, 0x7F);
-        esp_err_t err3 = i2c_master_probe(i2c_bus_1, 0x52, 0x7F);
+        esp_err_t err2 = i2c_master_probe(i2c_bus_0, 0x53, 0x7F);
+        esp_err_t err3 = i2c_master_probe(i2c_bus_0, 0x52, 0x7F);
 
         printf("I2C probe results: MAX30102=%s, MPU6050=%s, ENS160=%s - %s\n",
                err0 == ESP_OK ? "OK" : "FAIL",
