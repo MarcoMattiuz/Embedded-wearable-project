@@ -593,11 +593,11 @@ void app_main()
     vTaskDelay(pdMS_TO_TICKS(500));
     // add_device_MAX30102(&max30102_device);
     vTaskDelay(pdMS_TO_TICKS(500));
-    add_device_SH1106(&panel_handle);
+    // add_device_SH1106(&panel_handle);
     vTaskDelay(pdMS_TO_TICKS(500));
-    // add_device_MPU6050(&mpu6050_device);
+    add_device_MPU6050(&mpu6050_device);
     vTaskDelay(pdMS_TO_TICKS(500));
-    esp_err_t ens160_ret = add_device_ENS160();
+    // esp_err_t ens160_ret = add_device_ENS160();
     vTaskDelay(pdMS_TO_TICKS(500));
 
     // ppg parameters init
@@ -630,14 +630,14 @@ void app_main()
         NULL);
     vTaskDelay(pdMS_TO_TICKS(500));
 
-    // retF = xTaskCreatePinnedToCore(
-    //     task_acc,
-    //     "task_acc_debug",
-    //     4096,
-    //     &mpu6050_device,
-    //     1,
-    //     NULL,
-    //     1);
+    retF = xTaskCreatePinnedToCore(
+        task_acc,
+        "task_acc_debug",
+        4096,
+        &mpu6050_device,
+        1,
+        NULL,
+        1);
     vTaskDelay(pdMS_TO_TICKS(500));
 
     // xTaskCreatePinnedToCore(
@@ -664,7 +664,7 @@ void app_main()
     vTaskDelay(pdMS_TO_TICKS(500));
 
     /* Start CO2 check task */
-    xTaskCreate(c02_check_task, "c02_check", 4096, NULL, 5, NULL);
+    // xTaskCreate(c02_check_task, "c02_check", 4096, NULL, 5, NULL);
     
     ESP_LOGI(TAG, "Service initialized successfully");
     
