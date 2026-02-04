@@ -621,13 +621,13 @@ void app_main()
     TaskHandle_t ppg_task_handle = NULL;
 
     // tasks
-    xTaskCreate(
-        LCD_task,
-        "LCD_task_debug",
-        4096,
-        &panel_handle,
-        2,
-        NULL);
+    // xTaskCreate(
+    //     LCD_task,
+    //     "LCD_task_debug",
+    //     4096,
+    //     &panel_handle,
+    //     2,
+    //     NULL);
     vTaskDelay(pdMS_TO_TICKS(500));
 
     retF = xTaskCreatePinnedToCore(

@@ -307,7 +307,7 @@ esp_err_t acc_config(struct i2c_device *device)
     }
 
     // sensor wake up
-    if (mpu6050_write_reg(device, PWR_MGMT_1, PWR_MGMT_1_CONFIG | PWR_MGMT_1_CLK) != ESP_OK)
+    if (mpu6050_write_reg(device, PWR_MGMT_1, PWR_MGMT_1_CONFIG) != ESP_OK)
     {
         return ESP_ERR_INVALID_ARG;
     }
