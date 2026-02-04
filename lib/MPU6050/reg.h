@@ -41,6 +41,7 @@
     | DEVICE_RESET
 */
 #define PWR_MGMT_1_CONFIG 0x08
+#define PWR_MGMT_1_CLK    0x01
 #define SMPLRT_DIV        0x19
 #define CONFIG            0x1A
 #define GYRO_CONFIG       0x1B
