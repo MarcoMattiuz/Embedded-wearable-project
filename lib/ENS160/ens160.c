@@ -31,8 +31,10 @@ static esp_err_t ens160_set_opmode(uint8_t opmode) {
         return ret;
     }
     
+    // Wait for mode change to take effect
+    vTaskDelay(pdMS_TO_TICKS(50));
+    
     // Verify opmode was set
-    vTaskDelay(pdMS_TO_TICKS(20));
     uint8_t read_opmode;
     ret = ens160_read_reg(ENS160_REG_OPMODE, &read_opmode, 1);
     if (ret == ESP_OK && read_opmode != opmode) {
@@ -42,6 +44,98 @@ static esp_err_t ens160_set_opmode(uint8_t opmode) {
     }
     
     return ret;
+}
+
+// Clear GPR registers (including baseline data)
+static esp_err_t ens160_clear_gpr(void) {
+    esp_err_t ret;
+    
+    // Must be in IDLE mode to issue commands
+    ret = ens160_set_opmode(ENS160_OPMODE_IDLE);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to enter IDLE mode for GPR clear");
+        return ret;
+    }
+    
+    vTaskDelay(pdMS_TO_TICKS(50));
+    
+    // Issue clear GPR command
+    ret = ens160_write_reg(ENS160_REG_COMMAND, ENS160_COMMAND_CLRGPR);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to send CLRGPR command");
+        return ret;
+    }
+    
+    // Wait for command to complete
+    vTaskDelay(pdMS_TO_TICKS(100));
+    
+    ESP_LOGI(TAG, "GPR registers cleared successfully");
+    return ESP_OK;
+}
+
+// Full reset procedure
+esp_err_t ens160_full_reset(void) {
+    if (ens160_dev_handle == NULL) {
+        ESP_LOGE(TAG, "Device not initialized");
+        return ESP_ERR_INVALID_STATE;
+    }
+    
+    esp_err_t ret;
+    
+    ESP_LOGI(TAG, "Starting full reset sequence...");
+    
+    // Step 1: Go to DEEP SLEEP to fully disable sensor
+    ret = ens160_set_opmode(ENS160_OPMODE_DEEP_SLEEP);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to enter DEEP_SLEEP");
+        return ret;
+    }
+    vTaskDelay(pdMS_TO_TICKS(100));
+    
+    // Step 2: Go to IDLE mode
+    ret = ens160_set_opmode(ENS160_OPMODE_IDLE);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to enter IDLE");
+        return ret;
+    }
+    vTaskDelay(pdMS_TO_TICKS(100));
+    
+    // Step 3: Clear GPR (baseline data)
+    ret = ens160_clear_gpr();
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to clear GPR");
+        return ret;
+    }
+    
+    // Step 4: Software reset
+    ret = ens160_write_reg(ENS160_REG_OPMODE, ENS160_OPMODE_RESET);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to issue software reset");
+        return ret;
+    }
+    vTaskDelay(pdMS_TO_TICKS(200));
+    
+    // Step 5: Return to IDLE
+    ret = ens160_set_opmode(ENS160_OPMODE_IDLE);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to return to IDLE after reset");
+        return ret;
+    }
+    vTaskDelay(pdMS_TO_TICKS(100));
+    
+    // Step 6: Enter STANDARD mode
+    ret = ens160_set_opmode(ENS160_OPMODE_STD);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to enter STANDARD mode");
+        return ret;
+    }
+    
+    // Step 7: Wait for warm-up (3 minutes per datasheet)
+    ESP_LOGI(TAG, "Waiting for warm-up period (3 seconds)...");
+    vTaskDelay(pdMS_TO_TICKS(3000));
+    
+    ESP_LOGI(TAG, "Full reset sequence completed");
+    return ESP_OK;
 }
 
 esp_err_t ens160_init(i2c_master_bus_handle_t bus_handle) {
@@ -86,29 +180,15 @@ esp_err_t ens160_init(i2c_master_bus_handle_t bus_handle) {
         return ESP_ERR_NOT_FOUND;
     }
     
-    ESP_LOGI(TAG, "ENS160 found at address 0x%02X, Part ID: 0x%04X", 
-             ENS160_ADDR_H, part_id);
+    ESP_LOGI(TAG, "ENS160 found, Part ID: 0x%04X", part_id);
 
-    // Perform software reset first
-    ESP_LOGI(TAG, "Performing software reset...");
-    ret = ens160_write_reg(ENS160_REG_OPMODE, ENS160_OPMODE_RESET);
+    // Perform FULL reset (including baseline clear)
+    ret = ens160_full_reset();
     if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Full reset failed");
         ens160_deinit();
         return ret;
     }
-    vTaskDelay(pdMS_TO_TICKS(100));
-
-    // Set operating mode to standard
-    ESP_LOGI(TAG, "Setting operating mode to STANDARD...");
-    ret = ens160_set_opmode(ENS160_OPMODE_STD);
-    if (ret != ESP_OK) {
-        ens160_deinit();
-        return ret;
-    }
-
-    // Wait for initial measurement (first valid data can take up to 3 seconds)
-    ESP_LOGI(TAG, "Waiting for first measurement...");
-    vTaskDelay(pdMS_TO_TICKS(3000));
     
     ESP_LOGI(TAG, "ENS160 initialized successfully");
     return ESP_OK;
@@ -131,27 +211,24 @@ esp_err_t ens160_read_data(ens160_data_t *data) {
     uint8_t status;
     esp_err_t ret = ens160_read_reg(ENS160_REG_DATA_STATUS, &status, 1);
     if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "[ENS160] Failed to read status register");
         return ret;
     }
 
-    uint8_t validity = (status >> 2) & 0x03;
-    ESP_LOGI(TAG, "Status register: 0x%02X (NEWDAT=%d, NEWGPR=%d, VALIDITY=%d)", 
-             status, (status >> 1) & 1, status & 1, validity);
-    
+    // Check data ready flag
     if (!(status & ENS160_STATUS_NEWDAT)) {
-        ESP_LOGE(TAG, "Data not ready");
+        ESP_LOGD(TAG, "Data not ready");
         return ESP_ERR_NOT_FINISHED;
     }
     
-    // Check data validity (0 = Normal operation, 1 = Warm-up, 2 = Initial start-up, 3 = Invalid)
-    if (validity == 3) {
-        ESP_LOGE(TAG, "Sensor output invalid (validity=3)");
+    // Check validity
+    uint8_t validity = status & ENS160_STATUS_VALIDITY_MASK;
+    if (validity == ENS160_STATUS_VALIDITY_INVALID) {
+        ESP_LOGE(TAG, "Sensor output invalid");
         return ESP_ERR_INVALID_RESPONSE;
-    } else if (validity == 1) {
-        ESP_LOGW(TAG, "Sensor in warm-up phase - data may be inaccurate");
-    } else if (validity == 2) {
-        ESP_LOGW(TAG, "Sensor in initial start-up phase - data may be inaccurate");
+    } else if (validity == ENS160_STATUS_VALIDITY_WARMUP) {
+        ESP_LOGW(TAG, "Sensor in warm-up phase");
+    } else if (validity == ENS160_STATUS_VALIDITY_STARTUP) {
+        ESP_LOGW(TAG, "Sensor in initial start-up phase");
     }
 
     // Read eCO2 (2 bytes, little-endian)
@@ -169,17 +246,19 @@ esp_err_t ens160_read_data(ens160_data_t *data) {
     }
     data->tvoc = (buf[1] << 8) | buf[0];
 
-    // Read AQI (1 byte)
+    // Read AQI
     ret = ens160_read_reg(ENS160_REG_DATA_AQI, &data->aqi, 1);
-    if (ret != ESP_OK) {
-        return ret;
-    }
-
-    return ESP_OK;
+    data->aqi &= 0x07;  // Only lower 3 bits are valid
+    
+    return ret;
 }
 
 esp_err_t ens160_deinit(void) {
     if (ens160_dev_handle != NULL) {
+        // Put sensor in deep sleep before removing
+        ens160_set_opmode(ENS160_OPMODE_DEEP_SLEEP);
+        vTaskDelay(pdMS_TO_TICKS(50));
+        
         esp_err_t ret = i2c_master_bus_rm_device(ens160_dev_handle);
         ens160_dev_handle = NULL;
         return ret;
