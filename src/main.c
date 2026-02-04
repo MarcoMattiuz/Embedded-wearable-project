@@ -165,14 +165,17 @@ static void rtc_clock_task(void *pvParameter)
 static void c02_check_task(void *pvParameter)
 {
     ens160_data_t data;
+    uint8_t consecutive_errors = 0;
+    const uint8_t MAX_CONSECUTIVE_ERRORS = 5;
 
     while (1)
     {
         esp_err_t ret = ens160_read_data(&data);
         if (ret == ESP_OK)
         {
+            consecutive_errors = 0;  // Reset error counter on success
             ESP_LOGI(TAG, "eCO2: %d ppm, TVOC: %d ppb, AQI: %d", data.eco2, data.tvoc, data.aqi);
-            ESP_LOGI(TAG, "global param CO2: %d", global_parameters.CO2);
+            ESP_LOGD(TAG, "global param CO2: %d", global_parameters.CO2);
             global_parameters.CO2 = data.eco2;
 
             if (notify_enabled && ble_manager_is_connected())
@@ -184,7 +187,30 @@ static void c02_check_task(void *pvParameter)
         }
         else
         {
-            ESP_LOGE(TAG, "Failed to read ENS160 data: %s (ens160_dev_handle status = %p)", esp_err_to_name(ret), ens160_get_dev_handle());
+            consecutive_errors++;
+            ESP_LOGE(TAG, "Failed to read ENS160: %s (errors: %d/%d)", 
+                     esp_err_to_name(ret), consecutive_errors, MAX_CONSECUTIVE_ERRORS);
+            
+            if (consecutive_errors >= MAX_CONSECUTIVE_ERRORS)
+            {
+                ESP_LOGW(TAG, "Performing full reset with baseline clear...");
+                
+                // Don't deinit - just do full reset
+                esp_err_t reset_ret = ens160_full_reset();
+                if (reset_ret != ESP_OK)
+                {
+                    ESP_LOGE(TAG, "Full reset failed: %s", esp_err_to_name(reset_ret));
+                    // Last resort: deinit and reinit
+                    ens160_deinit();
+                    vTaskDelay(pdMS_TO_TICKS(1000));
+                    add_device_ENS160();
+                }
+                else
+                {
+                    ESP_LOGI(TAG, "Full reset completed successfully");
+                    consecutive_errors = 0;
+                }
+            }
         }
         vTaskDelay(pdMS_TO_TICKS(3000));
     }
@@ -499,15 +525,15 @@ unsigned long ulGetRunTimeCounterValue(void) {
 }
 
 void print_task_stats(void) {
-    char buffer[2048];
+    // char buffer[2048];
 
-    printf("\n\n===== TASK LIST =====\n");
-    vTaskList(buffer);
-    printf("%s\n", buffer);
+    // printf("\n\n===== TASK LIST =====\n");
+    // vTaskList(buffer);
+    // printf("%s\n", buffer);
 
-    printf("\n===== RUNTIME STATS =====\n");
-    vTaskGetRunTimeStats(buffer);
-    printf("%s\n", buffer);
+    // printf("\n===== RUNTIME STATS =====\n");
+    // vTaskGetRunTimeStats(buffer);
+    // printf("%s\n", buffer);
 }
 
 void task_acc(void *pvParameters)
@@ -589,13 +615,13 @@ void app_main()
     init_I2C_bus_PORT0(&i2c_bus_0);
     init_I2C_bus_PORT1(&i2c_bus_1);
     vTaskDelay(pdMS_TO_TICKS(500));
-    // add_device_MAX30102(&max30102_device);
+    add_device_MAX30102(&max30102_device);
     vTaskDelay(pdMS_TO_TICKS(500));
-    // add_device_SH1106(&panel_handle);
+    add_device_SH1106(&panel_handle);
     vTaskDelay(pdMS_TO_TICKS(500));
     // add_device_MPU6050(&mpu6050_device);
     vTaskDelay(pdMS_TO_TICKS(500));
-    esp_err_t ens160_ret = add_device_ENS160();
+    add_device_ENS160();
     vTaskDelay(pdMS_TO_TICKS(500));
 
     // ppg parameters init
@@ -619,13 +645,13 @@ void app_main()
     TaskHandle_t ppg_task_handle = NULL;
 
     // tasks
-    // xTaskCreate(
-    //     LCD_task,
-    //     "LCD_task_debug",
-    //     4096,
-    //     &panel_handle,
-    //     2,
-    //     NULL);
+    xTaskCreate(
+        LCD_task,
+        "LCD_task_debug",
+        4096,
+        &panel_handle,
+        2,
+        NULL);
     vTaskDelay(pdMS_TO_TICKS(500));
 
     // retF = xTaskCreatePinnedToCore(
@@ -638,14 +664,14 @@ void app_main()
     //     1);
     vTaskDelay(pdMS_TO_TICKS(500));
 
-    // xTaskCreatePinnedToCore(
-    //     PPG_sensor_task,
-    //     "PPG_sensor_task_debug",
-    //     4096,
-    //     &parameters_ppg_max30102,
-    //     3,
-    //     &ppg_task_handle,
-    //     0);
+    xTaskCreatePinnedToCore(
+        PPG_sensor_task,
+        "PPG_sensor_task_debug",
+        4096,
+        &parameters_ppg_max30102,
+        3,
+        &ppg_task_handle,
+        0);
     vTaskDelay(pdMS_TO_TICKS(500));
 
     //* Start battery level monitoring task */
@@ -658,7 +684,7 @@ void app_main()
     //     NULL);
     vTaskDelay(pdMS_TO_TICKS(500));
     /* Start RTC clock display task */
-    // xTaskCreate(rtc_clock_task, "rtc_clock", 4096, NULL, 4, NULL);
+    xTaskCreate(rtc_clock_task, "rtc_clock", 4096, NULL, 4, NULL);
     vTaskDelay(pdMS_TO_TICKS(500));
 
     /* Start CO2 check task */
