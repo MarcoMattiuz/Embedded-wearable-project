@@ -176,8 +176,6 @@ typedef struct {
     float g_z;
 } Gyro_Axis_final_t;
 
-
-
 typedef struct {
     float angle;    // angle of accumulation (°)
     bool  rotating; // current state: rotating or stand
@@ -205,9 +203,10 @@ typedef struct {
       high 
       low  
 */
-#define M_REST              16384.0 //resting acceleration
-#define THRESHOLD_H         4500
-#define THRESHOLD_L         4100
+#define GRAVITY             9.8f     // m/s²
+#define ACCEL_SCALE         16384.0f //resting acceleration
+#define THRESHOLD_H         1.2f
+#define THRESHOLD_L         0.8f
 #define DEG_TO_RAD          0.01745329252f  // π/180
 #define WRIST_ROT_THRESHOLD 60.0f //min wrist rotation
 #define MIN_ROT_ANGLE       20.0f //min accumulate ang for confirm rotation

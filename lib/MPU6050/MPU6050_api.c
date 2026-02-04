@@ -17,7 +17,7 @@ esp_err_t mpu6050_write_reg(struct i2c_device *device, uint8_t reg_to_write, uin
     esp_err_t ret = i2c_master_transmit(device->i2c_dev_handle,
                                         buf,
                                         sizeof(buf),
-                                        1000);
+                                        -1);
     if (ret != ESP_OK) {
         printf("MPU6050 WRITE ERROR: reg=0x%02X val=0x%02X err=%s (0x%X)\n",
                reg_to_write, val_to_write, esp_err_to_name(ret), ret);
@@ -25,24 +25,17 @@ esp_err_t mpu6050_write_reg(struct i2c_device *device, uint8_t reg_to_write, uin
     return ret;
 }
 
-
 esp_err_t mpu6050_read_reg(struct i2c_device *device, uint8_t reg_to_read, uint8_t *val_to_read, size_t val_size)
 {
 
     uint8_t reg = reg_to_read;
-    // return i2c_master_transmit_receive(device->i2c_dev_handle,
-    //                                    &reg,
-    //                                    1,
-    //                                    val_to_read,
-    //                                    val_size,
-    //                                    1000);
 
     esp_err_t ret = i2c_master_transmit_receive(device->i2c_dev_handle,
                                                 &reg,
                                                 1,
                                                 val_to_read,
                                                 val_size,
-                                                4000);
+                                                -1);
     if (ret != ESP_OK) {
         printf("MPU6050 READ ERROR: reg=0x%02X size=%d err=%s (0x%X)\n",
                reg_to_read, val_size, esp_err_to_name(ret), ret);
@@ -82,14 +75,15 @@ void read_sample_ACC(Three_Axis_t *ax, Three_Axis_final_t *f_ax, uint8_t *r_buff
         return;
     }
 
+    //reed row data from FIFO buffer
     ax->a_x = (int16_t)(r_buff[i + 0] << 8) | r_buff[i + 1];
     ax->a_y = (int16_t)(r_buff[i + 2] << 8) | r_buff[i + 3];
     ax->a_z = (int16_t)(r_buff[i + 4] << 8) | r_buff[i + 5];
 
-    // normalization from row (LSB) to g
-    f_ax->a_x = (float)ax->a_x / M_REST;
-    f_ax->a_y = (float)ax->a_y / M_REST;
-    f_ax->a_z = (float)ax->a_z / M_REST;
+    // conversion to m/s²
+    f_ax->a_x = ((float)ax->a_x / ACCEL_SCALE) * GRAVITY;
+    f_ax->a_y = ((float)ax->a_y / ACCEL_SCALE) * GRAVITY;
+    f_ax->a_z = ((float)ax->a_z / ACCEL_SCALE) * GRAVITY;
 }
 
 void read_sample_GYRO(Gyro_Axis_t *gyro, Gyro_Axis_final_t *f_gyro, uint8_t *r_buff, int i)
@@ -123,13 +117,12 @@ void read_sample_GYRO(Gyro_Axis_t *gyro, Gyro_Axis_final_t *f_gyro, uint8_t *r_b
     v.z = sinf(pitch);
 
     Gyro_Axis_final_t tmp = {v.x, v.y, v.z};
-
-    /* if (ble_manager_is_connected())
+    if (ble_manager_is_connected())
     {
         ble_manager_notify_gyro(
             ble_manager_get_conn_handle(),
             &tmp);
-    } */
+    }
 }
 
 esp_err_t empty_FIFO(struct i2c_device *device, Three_Axis_t *axis, Three_Axis_final_t *f_ax, Gyro_Axis_t *gyro, Gyro_Axis_final_t *f_gyro, uint8_t *reading_buffer, int fs)
@@ -147,7 +140,7 @@ esp_err_t empty_FIFO(struct i2c_device *device, Three_Axis_t *axis, Three_Axis_f
         read_sample_ACC(axis, f_ax, reading_buffer, i);
         read_sample_GYRO(gyro, f_gyro, reading_buffer, i + 6);
 
-        motion_analysis(axis, f_gyro);
+        motion_analysis(f_ax, f_gyro);
     }
 
     return ESP_OK;
@@ -165,12 +158,6 @@ esp_err_t mpu6050_read_FIFO(struct i2c_device *device, Three_Axis_t *axis, Gyro_
     uint8_t fifo_l = 0;
     uint16_t fifo_size = 0;
     uint8_t reg_int_status = 0;
-
-    // // before read or write on FIFO reset it to clear it up from old data
-    // if (set_USR_CTRL(device) != ESP_OK)
-    // {
-    //     return ERR;
-    // }
 
     // reset at the beginning
     if (!fifo_initialized) {
@@ -221,11 +208,6 @@ esp_err_t mpu6050_read_FIFO(struct i2c_device *device, Three_Axis_t *axis, Gyro_
 
     if (FIFO_OVERFLOW(reg_int_status))
     {
-        // ! if OVERFLOW read all data in FIFO and analyze them
-        // if (empty_FIFO(device, axis, f_ax, gyro, f_gyro, reading_buffer, fifo_size) != ESP_OK)
-        // {
-        //     return ERR;
-        // }
         if (set_USR_CTRL(device) != ESP_OK)
         {
             return ERR;
@@ -237,8 +219,6 @@ esp_err_t mpu6050_read_FIFO(struct i2c_device *device, Three_Axis_t *axis, Gyro_
         return ERR;
     }
 
-    
-    
     return ESP_OK;
 }
 
@@ -360,7 +340,7 @@ esp_err_t acc_config(struct i2c_device *device)
     return ESP_OK;
 }
 
-bool verify_step(const Three_Axis_t *ax)
+bool verify_step(const Three_Axis_final_t *ax)
 {
 
     if (ax == NULL)
@@ -374,13 +354,13 @@ bool verify_step(const Three_Axis_t *ax)
 
     static bool up = false;
 
-    if (!up && M > (M_REST + THRESHOLD_H))
+    if (!up && M > (ACCEL_SCALE + THRESHOLD_H))
     { // rising edge
         // ! this means that one step is detected when M raises above TH_H and up is false (down)
         up = true;
         return true;
     }
-    else if (up && M < (M_REST + THRESHOLD_L))
+    else if (up && M < (ACCEL_SCALE + THRESHOLD_L))
     { // falling edge
         up = false;
     }
@@ -419,7 +399,7 @@ bool verify_wrist_rotation(const Gyro_Axis_final_t *g)
     return false;
 }
 
-void motion_analysis(const Three_Axis_t *ax, const Gyro_Axis_final_t *gyro)
+void motion_analysis(const Three_Axis_final_t *ax, const Gyro_Axis_final_t *gyro)
 {
 
     bool step = verify_step(ax);
@@ -429,15 +409,12 @@ void motion_analysis(const Three_Axis_t *ax, const Gyro_Axis_final_t *gyro)
     {
         global_parameters.step_cntr ++;
         printf("STEPS: %d\n", global_parameters.step_cntr);
-        fflush(stdout);
     }
     else if (wrist)
     {
         printf("WRIST ROTATION DETECT\n");
-        fflush(stdout);
 
-        //EventType evt = EVT_GYRO;
-        //xQueueSend(event_queue, &evt, 0);
+        EventType evt = EVT_GYRO;
+        xQueueSend(event_queue, &evt, 0);
     }
 }
-

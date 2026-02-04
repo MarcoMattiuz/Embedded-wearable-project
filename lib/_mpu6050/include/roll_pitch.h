@@ -1,40 +1,33 @@
-/********************************************************************************************
- * Project: MPU6050 ESP32 Sensor Interface
- * Author: Muhammad Idrees
- * 
- * Description:
- * This header file declares the functions required for roll and pitch calculations using
- * complementary filters. It provides the necessary prototypes for initializing and updating
- * angle calculations.
- * 
- * Author's Background:
- * Name: Muhammad Idrees
- * Degree: Bachelor's in Electrical and Electronics Engineering
- * Institution: Institute of Space Technology, Islamabad
- * 
- * License:
- * This header file is part of the MPU6050 interface project authored by Muhammad Idrees.
- * It is intended for educational purposes and may be used with acknowledgment of the author.
- * 
- * Key Features:
- * - Complementary filter setup and update functions.
- * 
- * Date: [28/7/2024]
- ********************************************************************************************/
-
-
-
-#ifndef ROLL_PITCH_H
-#define ROLL_PITCH_H
+#ifndef __ROLL_PITCH_H__
+#define __ROLL_PITCH_H__
 
 #include "driver/i2c.h"
 #include "esp_err.h"
+#include "mpu6050.h"
+
+// Complementary filter coefficients
+#define ALPHA               0.7f // The weight for the gyroscope data
+#define THRESHOLD_H         1.2f
+#define THRESHOLD_L         0.8f
+#define REFRACT_MS          500      // ro avoid double triggers
+#define MIN_ROT_ANGLE       20.0f    //min accumulate ang for confirm rotation
+#define WRIST_ROT_THRESHOLD 60.0f    //min wrist rotation
+#define DT                  0.01f    //time between samples relate to 100Hz
+
+typedef struct {
+    float    integrated_angle;
+    uint32_t last_trigger;
+} Rotation_t;
 
 // Function prototypes
-void roll_pitch_init(void);
-void roll_pitch_update(float accel_x, float accel_y, float accel_z, float gyro_x, float gyro_y, float gyro_z);
-float roll_get(void);
-float pitch_get(void);
+void  roll_pitch_init   (void);
+void  roll_pitch_update (ACC_Three_Axis_t acc_data, GYRO_Three_Axis_t gyro_data);
+float roll_get          (void);
+float pitch_get         (void);
 
-#endif // ROLL_PITCH_H
+bool verify_step           (const ACC_Three_Axis_t *ax);
+bool verify_wrist_rotation (const GYRO_Three_Axis_t *g);
+void verify_motion         (const ACC_Three_Axis_t *acc_data, const GYRO_Three_Axis_t *gyro_data);
+
+#endif
 

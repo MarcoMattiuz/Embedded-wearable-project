@@ -25,9 +25,10 @@
 #include "esp_adc_cal.h"
 #include "../ENS160/ens160.h"
 
-#include "mpu6050.h"
-#include "roll_pitch.h"
-#include "quaternions.h"
+#include "../lib/_mpu6050/include/mpu6050.h"
+#include "../lib/_mpu6050/include/roll_pitch.h"
+#include "../lib/_mpu6050/include/quaternions.h"
+
 #define I2C_MASTER_SCL_IO 22 // SCL pin
 #define I2C_MASTER_SDA_IO 21 // SDA pin
 #define I2C_MASTER_FREQ_HZ 400000
@@ -60,82 +61,74 @@ static void on_time_write(current_time_t *time_data);
 void task_acc(void *parameters)
 {
     esp_err_t ret;
-    int16_t accel_x, accel_y, accel_z;
-    int16_t gyro_x, gyro_y, gyro_z;
+    
+    Raw_Data_acc raw_acc;
+    Raw_Data_gyro raw_gyro;
 
-    float accel_x_g, accel_y_g, accel_z_g;
-    float gyro_x_dps, gyro_y_dps, gyro_z_dps;
+    ACC_Three_Axis_t  accel_data;
+    GYRO_Three_Axis_t gyro_data;
 
     float accel_bias[3] = {0};
-    float gyro_bias[3] = {0};
+    float gyro_bias[3]  = {0};
 
-    /* Calibrate */
     mpu6050_calibrate(accel_bias, gyro_bias);
     ESP_LOGI("MPU6050", "Calibration complete");
 
-    /* Filters */
     roll_pitch_init();
 
-    Quaternion q;
-    quaternion_init(&q);
+    // Quaternion q;
+    // quaternion_init(&q);
 
     while (1)
     {
-        ret = mpu6050_read_raw_data(
-            &accel_x, &accel_y, &accel_z,
-            &gyro_x, &gyro_y, &gyro_z);
+        ret = mpu6050_read_raw_data(&raw_acc, &raw_gyro);
 
         if (ret != ESP_OK)
         {
             ESP_LOGE("MPU6050", "Read failed");
-            continue; // <-- better than return inside a loop
+            continue;
         }
         else
         {
-            mpu6050_convert_accel(
-                accel_x, accel_y, accel_z,
-                &accel_x_g, &accel_y_g, &accel_z_g);
+            mpu6050_convert_accel(&raw_acc, &accel_data);
 
-            mpu6050_convert_gyro(
-                gyro_x, gyro_y, gyro_z,
-                &gyro_x_dps, &gyro_y_dps, &gyro_z_dps);
+            mpu6050_convert_gyro(&raw_gyro, &gyro_data);
 
-            roll_pitch_update(
-                accel_x_g, accel_y_g, accel_z_g,
-                gyro_x_dps, gyro_y_dps, gyro_z_dps);
+            // roll_pitch_update(accel_data, gyro_data);
+            verify_motion(&accel_data, &gyro_data);
 
-            quaternion_update(
-                &q,
-                gyro_x_dps, gyro_y_dps, gyro_z_dps,
-                accel_x_g, accel_y_g, accel_z_g,
-                0.01f);
+            // quaternion_update(
+            //     &q,
+            //     gyro_x_dps, gyro_y_dps, gyro_z_dps,
+            //     accel_x_g, accel_y_g, accel_z_g,
+            //     0.01f);
 
-            ESP_LOGI("ACC", "Accel: X=%.2f m/s^2, Y=%.2f m/s^2, Z=%.2f m/s^2",
-                     accel_x_g, accel_y_g, accel_z_g);
+            // ESP_LOGI("ACC", "Accel: X=%.2f m/s^2, Y=%.2f m/s^2, Z=%.2f m/s^2",
+            //          accel_x_g, accel_y_g, accel_z_g);
 
-            ESP_LOGI("ACC", "Gyro: X=%.2f deg/s, Y=%.2f deg/s, Z=%.2f deg/s",
-                     gyro_x_dps, gyro_y_dps, gyro_z_dps);
+            // ESP_LOGI("ACC", "Gyro: X=%.2f deg/s, Y=%.2f deg/s, Z=%.2f deg/s",
+            //          gyro_x_dps, gyro_y_dps, gyro_z_dps);
 
-            ESP_LOGI("ACC", "Roll: %.2f", roll_get());
-            ESP_LOGI("ACC", "Pitch: %.2f", pitch_get());
+            // ESP_LOGI("ACC", "Roll: %.2f", roll_get());
+            // ESP_LOGI("ACC", "Pitch: %.2f", pitch_get());
 
-            ESP_LOGI("ACC", "Quaternion Roll: %.2f", quaternion_get_roll(&q));
-            ESP_LOGI("ACC", "Quaternion Pitch: %.2f", quaternion_get_pitch(&q));
-            ESP_LOGI("ACC", "Quaternion Yaw: %.2f", quaternion_get_yaw(&q));
-            ESP_LOGI("ACC", "Quaternion x: %.2f", q.x);
-            ESP_LOGI("ACC", "Quaternion y: %.2f", q.y);
-            ESP_LOGI("ACC", "Quaternion z: %.2f", q.z);
+            // ESP_LOGI("ACC", "Quaternion Roll: %.2f", quaternion_get_roll(&q));
+            // ESP_LOGI("ACC", "Quaternion Pitch: %.2f", quaternion_get_pitch(&q));
+            // ESP_LOGI("ACC", "Quaternion Yaw: %.2f", quaternion_get_yaw(&q));
+            // ESP_LOGI("ACC", "Quaternion x: %.2f", q.x);
+            // ESP_LOGI("ACC", "Quaternion y: %.2f", q.y);
+            // ESP_LOGI("ACC", "Quaternion z: %.2f", q.z);
 
-            GyroData_t q_data = {
-                .roll = roll_get(),
-                .pitch = pitch_get(),
-            };
-            if (ble_manager_is_connected())
-            {
-                ble_manager_notify_gyro(
-                    ble_manager_get_conn_handle(),
-                    &q_data);
-            }
+            // GyroData_t q_data = {
+            //     .roll = roll_get(),
+            //     .pitch = pitch_get(),
+            // };
+            // if (ble_manager_is_connected())
+            // {
+            //     ble_manager_notify_gyro(
+            //         ble_manager_get_conn_handle(),
+            //         &q_data);
+            // }
         }
 
         vTaskDelay(pdMS_TO_TICKS(150));
@@ -259,12 +252,9 @@ static void c02_check_task(void *pvParameter)
             {
                 ESP_LOGW(TAG, "Performing ENS160 full reset");
                 global_parameters.CO2 = 0;
-<<<<<<< HEAD
 
-=======
                 global_parameters.CO2_risk_level = 0;
                 
->>>>>>> 0fd10779254a03afab12a5aef600454e5dc85278
                 esp_err_t reset_ret = ens160_full_reset();
                 if (reset_ret != ESP_OK)
                 {
