@@ -122,10 +122,18 @@ esp_err_t ens160_read_data(ens160_data_t *data) {
         return ret;
     }
 
+    uint8_t validity = (status >> 2) & 0x03;
     ESP_LOGI(TAG, "Status register: 0x%02X (NEWDAT=%d, NEWGPR=%d, VALIDITY=%d)", 
-             status, (status >> 1) & 1, status & 1, (status >> 2) & 3);
+             status, (status >> 1) & 1, status & 1, validity);
+    
     if (!(status & ENS160_STATUS_NEWDAT)) {
         ESP_LOGE(TAG, "Data not ready");
+        return ESP_ERR_NOT_FINISHED;
+    }
+    
+    // Check data validity (0 = Normal operation, 1 = Warm-up, 2 = Initial start-up, 3 = Invalid)
+    if (validity != 0) {
+        ESP_LOGW(TAG, "Data not valid yet (validity=%d)", validity);
         return ESP_ERR_NOT_FINISHED;
     }
 
