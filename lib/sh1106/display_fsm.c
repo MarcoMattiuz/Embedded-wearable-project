@@ -26,7 +26,7 @@ int test = 0;
 
 void show_loading_screen(esp_lcd_panel_handle_t *panel_handle)
 {
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < 5; i++)
     {
         memset(buffer_data, 0, sizeof(buffer_data));
 
@@ -39,7 +39,7 @@ void show_loading_screen(esp_lcd_panel_handle_t *panel_handle)
             drawBitmapToBuffer(
                 LoadingBitmap,
                 buffer_data,
-                40 + j * (16+8),
+                4 + j * (16+8),
                 32,
                 16,
                 16);
