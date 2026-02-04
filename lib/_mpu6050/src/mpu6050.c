@@ -28,6 +28,7 @@
 
 #include "mpu6050.h"
 #include "driver/i2c_master.h"
+#include "esp_log.h"
 
 #define ACCEL_SCALE 16384.0f // for ±2g range
 #define GYRO_SCALE 131.0f    // for ±250°/s range
@@ -86,7 +87,7 @@ esp_err_t mpu6050_read_raw_data(int16_t *accel_x, int16_t *accel_y, int16_t *acc
 
     if (ret != ESP_OK)
     {
-        return ret;
+        ESP_LOGE("mpu6050", "Failed to read: %s", esp_err_to_name(ret));
     }
 
     *accel_x = (data[0] << 8) | data[1];

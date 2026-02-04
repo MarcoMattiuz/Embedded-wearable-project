@@ -43,6 +43,8 @@ void fn_BATTERY(esp_lcd_panel_handle_t *, struct global_param *param);
 void fn_STEPS(esp_lcd_panel_handle_t *, struct global_param *param);
 void fn_CO2(esp_lcd_panel_handle_t *, struct global_param *param);
 
+void show_loading_screen(esp_lcd_panel_handle_t *);
+
 void long_press_timer_handler(TimerHandle_t xTimer);
 void refresh_timer_handler(TimerHandle_t xTimer);
 

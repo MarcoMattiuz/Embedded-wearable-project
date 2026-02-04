@@ -24,6 +24,31 @@ uint32_t last_button_isr_time = 0;
 
 int test = 0;
 
+void show_loading_screen(esp_lcd_panel_handle_t *panel_handle)
+{
+    for (int i = 0; i < 5; i++)
+    {
+        memset(buffer_data, 0, sizeof(buffer_data));
+
+        
+        drawStringToBuffer("LOADING", buffer_data, 40, 18);
+
+        // Draw circles 
+        for (int j = 0; j <= i; j++)
+        {
+            drawBitmapToBuffer(
+                LoadingBitmap,
+                buffer_data,
+                4 + j * (16+8),
+                32,
+                16,
+                16);
+        }
+
+        drawBufferToLcd(buffer_data, *panel_handle);
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+}
 void fn_CLOCK(esp_lcd_panel_handle_t *panel_handle, struct global_param *param)
 {
     memset(buffer_data, 0, sizeof(buffer_data));
@@ -69,6 +94,7 @@ void fn_STEPS(esp_lcd_panel_handle_t *panel_handle, struct global_param *param)
 
     drawBufferToLcd(buffer_data, *panel_handle);
 }
+
 
 void fn_WEATHER(esp_lcd_panel_handle_t *panel_handle, struct global_param *param)
 {

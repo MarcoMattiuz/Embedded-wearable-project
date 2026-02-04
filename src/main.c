@@ -57,9 +57,6 @@ static void rtc_clock_task(void *pvParameter);
 static void on_notify_state_changed(bool enabled);
 static void on_time_write(current_time_t *time_data);
 
-
-
-
 void task_acc(void *parameters)
 {
     esp_err_t ret;
@@ -93,53 +90,55 @@ void task_acc(void *parameters)
             ESP_LOGE("MPU6050", "Read failed");
             continue; // <-- better than return inside a loop
         }
-
-        mpu6050_convert_accel(
-            accel_x, accel_y, accel_z,
-            &accel_x_g, &accel_y_g, &accel_z_g);
-
-        mpu6050_convert_gyro(
-            gyro_x, gyro_y, gyro_z,
-            &gyro_x_dps, &gyro_y_dps, &gyro_z_dps);
-
-        roll_pitch_update(
-            accel_x_g, accel_y_g, accel_z_g,
-            gyro_x_dps, gyro_y_dps, gyro_z_dps);
-
-        quaternion_update(
-            &q,
-            gyro_x_dps, gyro_y_dps, gyro_z_dps,
-            accel_x_g, accel_y_g, accel_z_g,
-            0.01f);
-
-        ESP_LOGI("ACC", "Accel: X=%.2f m/s^2, Y=%.2f m/s^2, Z=%.2f m/s^2",
-                 accel_x_g, accel_y_g, accel_z_g);
-
-        ESP_LOGI("ACC", "Gyro: X=%.2f deg/s, Y=%.2f deg/s, Z=%.2f deg/s",
-                 gyro_x_dps, gyro_y_dps, gyro_z_dps);
-
-        ESP_LOGI("ACC", "Roll: %.2f", roll_get());
-        ESP_LOGI("ACC", "Pitch: %.2f", pitch_get());
-
-        ESP_LOGI("ACC", "Quaternion Roll: %.2f", quaternion_get_roll(&q));
-        ESP_LOGI("ACC", "Quaternion Pitch: %.2f", quaternion_get_pitch(&q));
-        ESP_LOGI("ACC", "Quaternion Yaw: %.2f", quaternion_get_yaw(&q));
-        ESP_LOGI("ACC", "Quaternion x: %.2f", q.x);
-        ESP_LOGI("ACC", "Quaternion y: %.2f", q.y);
-        ESP_LOGI("ACC", "Quaternion z: %.2f", q.z);
-
-        GyroData_t q_data = {
-            .roll = roll_get(),
-            .pitch = pitch_get(),
-        };
-        if (ble_manager_is_connected())
+        else
         {
-            ble_manager_notify_gyro(
-                ble_manager_get_conn_handle(),
-                &q_data);
+            mpu6050_convert_accel(
+                accel_x, accel_y, accel_z,
+                &accel_x_g, &accel_y_g, &accel_z_g);
+
+            mpu6050_convert_gyro(
+                gyro_x, gyro_y, gyro_z,
+                &gyro_x_dps, &gyro_y_dps, &gyro_z_dps);
+
+            roll_pitch_update(
+                accel_x_g, accel_y_g, accel_z_g,
+                gyro_x_dps, gyro_y_dps, gyro_z_dps);
+
+            quaternion_update(
+                &q,
+                gyro_x_dps, gyro_y_dps, gyro_z_dps,
+                accel_x_g, accel_y_g, accel_z_g,
+                0.01f);
+
+            ESP_LOGI("ACC", "Accel: X=%.2f m/s^2, Y=%.2f m/s^2, Z=%.2f m/s^2",
+                     accel_x_g, accel_y_g, accel_z_g);
+
+            ESP_LOGI("ACC", "Gyro: X=%.2f deg/s, Y=%.2f deg/s, Z=%.2f deg/s",
+                     gyro_x_dps, gyro_y_dps, gyro_z_dps);
+
+            ESP_LOGI("ACC", "Roll: %.2f", roll_get());
+            ESP_LOGI("ACC", "Pitch: %.2f", pitch_get());
+
+            ESP_LOGI("ACC", "Quaternion Roll: %.2f", quaternion_get_roll(&q));
+            ESP_LOGI("ACC", "Quaternion Pitch: %.2f", quaternion_get_pitch(&q));
+            ESP_LOGI("ACC", "Quaternion Yaw: %.2f", quaternion_get_yaw(&q));
+            ESP_LOGI("ACC", "Quaternion x: %.2f", q.x);
+            ESP_LOGI("ACC", "Quaternion y: %.2f", q.y);
+            ESP_LOGI("ACC", "Quaternion z: %.2f", q.z);
+
+            GyroData_t q_data = {
+                .roll = roll_get(),
+                .pitch = pitch_get(),
+            };
+            if (ble_manager_is_connected())
+            {
+                ble_manager_notify_gyro(
+                    ble_manager_get_conn_handle(),
+                    &q_data);
+            }
         }
 
-        vTaskDelay(pdMS_TO_TICKS(50));
+        vTaskDelay(pdMS_TO_TICKS(150));
     }
 }
 
@@ -230,14 +229,16 @@ static void rtc_clock_task(void *pvParameter)
 static void c02_check_task(void *pvParameter)
 {
     ens160_data_t data;
+    uint8_t consecutive_errors = 0;
+    const uint8_t MAX_CONSECUTIVE_ERRORS = 3;
 
     while (1)
     {
         esp_err_t ret = ens160_read_data(&data);
         if (ret == ESP_OK)
         {
+            consecutive_errors = 0;
             ESP_LOGI(TAG, "eCO2: %d ppm, TVOC: %d ppb, AQI: %d", data.eco2, data.tvoc, data.aqi);
-            ESP_LOGI(TAG, "global param CO2: %d", global_parameters.CO2);
             global_parameters.CO2 = data.eco2;
 
             if (notify_enabled && ble_manager_is_connected())
@@ -249,7 +250,29 @@ static void c02_check_task(void *pvParameter)
         }
         else
         {
-            ESP_LOGE(TAG, "Failed to read ENS160 data: %s (ens160_dev_handle status = %p)", esp_err_to_name(ret), ens160_get_dev_handle());
+            consecutive_errors++;
+            ESP_LOGE(TAG, "Failed to read ENS160: %s (errors: %d/%d)",
+                     esp_err_to_name(ret), consecutive_errors, MAX_CONSECUTIVE_ERRORS);
+
+            if (consecutive_errors >= MAX_CONSECUTIVE_ERRORS)
+            {
+                ESP_LOGW(TAG, "Performing ENS160 full reset");
+                global_parameters.CO2 = 0;
+
+                esp_err_t reset_ret = ens160_full_reset();
+                if (reset_ret != ESP_OK)
+                {
+                    ESP_LOGE(TAG, "ENS160 Full reset failed: %s", esp_err_to_name(reset_ret));
+                    ens160_deinit();
+                    vTaskDelay(pdMS_TO_TICKS(1000));
+                    add_device_ENS160();
+                }
+                else
+                {
+                    ESP_LOGI(TAG, "ENS160 Full reset completed successfully");
+                    consecutive_errors = 0;
+                }
+            }
         }
         vTaskDelay(pdMS_TO_TICKS(3000));
     }
@@ -414,8 +437,21 @@ void LCD_task(void *parameters)
     GPIO_init();
     memset(buffer_data, 0, sizeof(buffer_data));
 
-    bool LCD_ON = false;
     EventType evt;
+
+    gpio_intr_disable(PUSH_BUTTON_GPIO);
+
+    bool LCD_ON = true;
+    TurnLcdOn(panel_handle);
+    show_loading_screen(&panel_handle);
+
+    xTimerStart(refresh_timer_handle, 0);
+    global_parameters.show_heart = true;
+    (*fsm[current_state].state_function)(&panel_handle, &global_parameters);
+    xTimerStart(frame_timer_handle, 0);
+
+    xQueueReset(event_queue);
+    gpio_intr_enable(PUSH_BUTTON_GPIO);
 
     while (1)
     {
@@ -444,7 +480,6 @@ void LCD_task(void *parameters)
                 }
                 else // released
                 {
-
                     xTimerStop(long_press_timer_handle, 0);
                     if (!long_press_triggered && LCD_ON) // short press
                     {
@@ -536,13 +571,13 @@ static void bettery_level_task(void *pvParameter)
         // 3.5V= 1.75V -> 25%
         // 3.3V= 1.65V -> 0%
 
-        if (voltage >= 2.0f)
+        if (voltage >= 1.95f)
             global_parameters.battery_state = BATTERY_FULL;
-        else if (voltage >= 1.90f)
+        else if (voltage >= 1.85f)
             global_parameters.battery_state = BATTERY_HIGH;
-        else if (voltage >= 1.82f)
+        else if (voltage >= 1.75f)
             global_parameters.battery_state = BATTERY_MEDIUM;
-        else if (voltage >= 1.72f)
+        else if (voltage >= 1.7f)
             global_parameters.battery_state = BATTERY_LOW;
         else
             global_parameters.battery_state = BATTERY_EMPTY;
@@ -554,15 +589,18 @@ static void bettery_level_task(void *pvParameter)
 
 static uint64_t start_time;
 
-void vConfigureTimerForRunTimeStats(void) {
+void vConfigureTimerForRunTimeStats(void)
+{
     start_time = esp_timer_get_time();
 }
 
-unsigned long ulGetRunTimeCounterValue(void) {
+unsigned long ulGetRunTimeCounterValue(void)
+{
     return (unsigned long)(esp_timer_get_time() - start_time);
 }
 
-void print_task_stats(void) {
+void print_task_stats(void)
+{
     char buffer[2048];
 
     printf("\n\n===== TASK LIST =====\n");
@@ -583,7 +621,8 @@ void app_main()
     esp_log_level_set("i2c.master", ESP_LOG_VERBOSE);     // questo è IL tag che ti interessa
     esp_log_level_set("lcd_panel.io.i2c", ESP_LOG_VERBOSE);
     esp_log_level_set("lcd_panel", ESP_LOG_VERBOSE);
-    esp_log_level_set("*", ESP_LOG_INFO);  */// non alzare tutto a VERBOSE o diventi cieco
+    esp_log_level_set("*", ESP_LOG_INFO);  */
+    // non alzare tutto a VERBOSE o diventi cieco
 
     /* esp_err_t ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
@@ -600,10 +639,19 @@ void app_main()
     // I2C busses init
     init_I2C_bus_PORT0(&i2c_bus_0);
     init_I2C_bus_PORT1(&i2c_bus_1);
-    vTaskDelay(pdMS_TO_TICKS(500));
-    add_device_MAX30102(&max30102_device);
-    vTaskDelay(pdMS_TO_TICKS(500));
+
     add_device_SH1106(&panel_handle);
+    vTaskDelay(pdMS_TO_TICKS(50));
+    xTaskCreate(
+        LCD_task,
+        "LCD_task_debug",
+        4096,
+        &panel_handle,
+        2,
+        NULL);
+    vTaskDelay(pdMS_TO_TICKS(500));
+
+    add_device_MAX30102(&max30102_device);
     vTaskDelay(pdMS_TO_TICKS(500));
     add_device_MPU6050(&mpu6050_device);
     vTaskDelay(pdMS_TO_TICKS(500));
@@ -631,14 +679,6 @@ void app_main()
     TaskHandle_t ppg_task_handle = NULL;
 
     // tasks
-    xTaskCreate(
-        LCD_task,
-        "LCD_task_debug",
-        4096,
-        &panel_handle,
-        2,
-        NULL);
-    vTaskDelay(pdMS_TO_TICKS(500));
 
     retF = xTaskCreatePinnedToCore(
         task_acc,
@@ -650,28 +690,38 @@ void app_main()
         1);
     vTaskDelay(pdMS_TO_TICKS(500));
 
-
     //* Start battery level monitoring task */
-    // xTaskCreate(
-    //     bettery_level_task,
-    //     "battery_level_task",
-    //     2048,
-    //     NULL,
-    //     6,
-    //     NULL);
+    xTaskCreate(
+        bettery_level_task,
+        "battery_level_task",
+        2048,
+        NULL,
+        6,
+        NULL);
     vTaskDelay(pdMS_TO_TICKS(500));
     /* Start RTC clock display task */
-    // xTaskCreate(rtc_clock_task, "rtc_clock", 4096, NULL, 4, NULL);
+    xTaskCreate(rtc_clock_task, "rtc_clock", 4096, NULL, 4, NULL);
+    vTaskDelay(pdMS_TO_TICKS(500));
+
+    xTaskCreatePinnedToCore(
+        PPG_sensor_task,
+        "PPG_sensor_task_debug",
+        4096,
+        &parameters_ppg_max30102,
+        3,
+        &ppg_task_handle,
+        0);
     vTaskDelay(pdMS_TO_TICKS(500));
 
     /* Start CO2 check task */
     xTaskCreate(c02_check_task, "c02_check", 4096, NULL, 5, NULL);
-    
+
     ESP_LOGI(TAG, "Service initialized successfully");
-    
+
     /* Start touch sensor task */
     // xTaskCreate(touch_sensor_task, "touch_sensor", 4096, NULL, 10, NULL);
-    while (1) {
+    while (1)
+    {
         print_task_stats();
         vTaskDelay(pdMS_TO_TICKS(2000));
         esp_err_t err0 = i2c_master_probe(i2c_bus_0, I2C_MAX30102_ADDR, 0x7F);
@@ -685,7 +735,4 @@ void app_main()
                err2 == ESP_OK ? "OK 0x53" : "FAIL 0x53",
                err3 == ESP_OK ? "OK 0x52" : "FAIL 0x52");
     }
-    
-
-    
 }
