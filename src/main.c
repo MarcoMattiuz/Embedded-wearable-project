@@ -601,9 +601,9 @@ void app_main()
     init_I2C_bus_PORT0(&i2c_bus_0);
     init_I2C_bus_PORT1(&i2c_bus_1);
     vTaskDelay(pdMS_TO_TICKS(500));
-    // add_device_MAX30102(&max30102_device);
+    add_device_MAX30102(&max30102_device);
     vTaskDelay(pdMS_TO_TICKS(500));
-    // add_device_SH1106(&panel_handle);
+    add_device_SH1106(&panel_handle);
     vTaskDelay(pdMS_TO_TICKS(500));
     add_device_MPU6050(&mpu6050_device);
     vTaskDelay(pdMS_TO_TICKS(500));
@@ -631,13 +631,13 @@ void app_main()
     TaskHandle_t ppg_task_handle = NULL;
 
     // tasks
-    // xTaskCreate(
-    //     LCD_task,
-    //     "LCD_task_debug",
-    //     4096,
-    //     &panel_handle,
-    //     2,
-    //     NULL);
+    xTaskCreate(
+        LCD_task,
+        "LCD_task_debug",
+        4096,
+        &panel_handle,
+        2,
+        NULL);
     vTaskDelay(pdMS_TO_TICKS(500));
 
     retF = xTaskCreatePinnedToCore(
