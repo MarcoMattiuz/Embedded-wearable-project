@@ -376,8 +376,22 @@ void LCD_task(void *parameters)
     GPIO_init();
     memset(buffer_data, 0, sizeof(buffer_data));
 
-    bool LCD_ON = false;
+    
     EventType evt;
+
+    gpio_intr_disable(PUSH_BUTTON_GPIO);
+
+    bool LCD_ON = true;
+    TurnLcdOn(panel_handle);
+    show_loading_screen(&panel_handle);
+
+    xTimerStart(refresh_timer_handle, 0);
+    global_parameters.show_heart = true;
+    (*fsm[current_state].state_function)(&panel_handle, &global_parameters);
+    xTimerStart(frame_timer_handle, 0);
+
+    xQueueReset(event_queue);
+    gpio_intr_enable(PUSH_BUTTON_GPIO);
 
     while (1)
     {
@@ -406,7 +420,6 @@ void LCD_task(void *parameters)
                 }
                 else // released
                 {
-
                     xTimerStop(long_press_timer_handle, 0);
                     if (!long_press_triggered && LCD_ON) // short press
                     {
@@ -498,13 +511,13 @@ static void bettery_level_task(void *pvParameter)
         // 3.5V= 1.75V -> 25%
         // 3.3V= 1.65V -> 0%
 
-        if (voltage >= 2.0f)
+        if (voltage >= 1.95f)
             global_parameters.battery_state = BATTERY_FULL;
-        else if (voltage >= 1.90f)
+        else if (voltage >= 1.85f)
             global_parameters.battery_state = BATTERY_HIGH;
-        else if (voltage >= 1.82f)
+        else if (voltage >= 1.75f)
             global_parameters.battery_state = BATTERY_MEDIUM;
-        else if (voltage >= 1.72f)
+        else if (voltage >= 1.7f)
             global_parameters.battery_state = BATTERY_LOW;
         else
             global_parameters.battery_state = BATTERY_EMPTY;
@@ -614,10 +627,18 @@ void app_main()
     // I2C busses init
     init_I2C_bus_PORT0(&i2c_bus_0);
     init_I2C_bus_PORT1(&i2c_bus_1);
+
+    add_device_SH1106(&panel_handle);
+    vTaskDelay(pdMS_TO_TICKS(50));
+    xTaskCreate(
+        LCD_task,
+        "LCD_task_debug",
+        4096,
+        &panel_handle,
+        2,
+        NULL);
     vTaskDelay(pdMS_TO_TICKS(500));
     add_device_MAX30102(&max30102_device);
-    vTaskDelay(pdMS_TO_TICKS(500));
-    add_device_SH1106(&panel_handle);
     vTaskDelay(pdMS_TO_TICKS(500));
     // add_device_MPU6050(&mpu6050_device);
     vTaskDelay(pdMS_TO_TICKS(500));
@@ -645,14 +666,7 @@ void app_main()
     TaskHandle_t ppg_task_handle = NULL;
 
     // tasks
-    xTaskCreate(
-        LCD_task,
-        "LCD_task_debug",
-        4096,
-        &panel_handle,
-        2,
-        NULL);
-    vTaskDelay(pdMS_TO_TICKS(500));
+  
 
     // retF = xTaskCreatePinnedToCore(
     //     task_acc,
@@ -675,13 +689,13 @@ void app_main()
     vTaskDelay(pdMS_TO_TICKS(500));
 
     //* Start battery level monitoring task */
-    // xTaskCreate(
-    //     bettery_level_task,
-    //     "battery_level_task",
-    //     2048,
-    //     NULL,
-    //     6,
-    //     NULL);
+    xTaskCreate(
+        bettery_level_task,
+        "battery_level_task",
+        2048,
+        NULL,
+        6,
+        NULL);
     vTaskDelay(pdMS_TO_TICKS(500));
     /* Start RTC clock display task */
     xTaskCreate(rtc_clock_task, "rtc_clock", 4096, NULL, 4, NULL);
