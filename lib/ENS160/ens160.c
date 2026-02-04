@@ -182,7 +182,7 @@ esp_err_t ens160_init(i2c_master_bus_handle_t bus_handle) {
     
     ESP_LOGI(TAG, "ENS160 found, Part ID: 0x%04X", part_id);
 
-    // Perform FULL reset (including baseline clear)
+    // Perform FULL reset
     ret = ens160_full_reset();
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "Full reset failed");
