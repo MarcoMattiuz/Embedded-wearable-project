@@ -33,7 +33,7 @@
 // so we don't need GYRO_SCALE here
 #define ACCEL_SCALE 16384.0f
 #define GRAVITY 9.8f
-#define DT 0.15f // Time step in seconds (matches task delay of 150ms)
+#define DT 0.05f // Time step in seconds (matches task delay in main)
 
 static float roll = 0.0f;
 static float pitch = 0.0f;
