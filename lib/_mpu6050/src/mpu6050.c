@@ -1,11 +1,9 @@
 #include "../include/mpu6050.h"
-#include "driver/i2c_master.h"
-#include "esp_log.h"
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
 
-static float accel_bias[3] = {1.12f, -0.30f, -0.55f};
-static float gyro_bias[3]  = {-0.27f, 0.24f, 0.16f};
+static float accel_bias[3]  = {1.12f, -0.30f, -0.55f};
+static float gyro_bias[3]   = {-0.27f, 0.24f, 0.16f};
+static Orientation_t orient = {0, 0};
+
 
 // Handle for the new I2C device
 static i2c_master_dev_handle_t mpu6050_dev = NULL;
@@ -299,4 +297,23 @@ void mpu6050_calibrate(float *accel_bias_out, float *gyro_bias_out)
     gyro_bias_out[0] = gyro_sum.g_x_sum / target_samples;
     gyro_bias_out[1] = gyro_sum.g_y_sum / target_samples;
     gyro_bias_out[2] = gyro_sum.g_z_sum / target_samples;
+}
+
+int* mpu6050_convert_gyro2 (GYRO_Three_Axis_t *gyro_data)
+{
+    // orient is degrees
+    orient.pitch += gyro_data->g_y * DT;
+    orient.yaw   += gyro_data->g_z * DT;
+
+    // ° -> rad
+    float pitch = orient.pitch * DEG_TO_RAD;
+    float yaw   = orient.yaw   * DEG_TO_RAD;
+
+    int vec[3] = {0};
+    
+    vec[0] = cosf(pitch) * cosf(yaw);
+    vec[1] = cosf(pitch) * sinf(yaw);
+    vec[2] = sinf(pitch);
+
+    return vec;
 }

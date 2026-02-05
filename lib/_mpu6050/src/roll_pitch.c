@@ -1,53 +1,52 @@
 #include "../include/roll_pitch.h"
-#include <math.h>
 
 static float roll  = 0.0f;
 static float pitch = 0.0f;
 
 Rotation_t rotation;
 
-void roll_pitch_init(void) 
-{
-    roll = 0.0f;
-    pitch = 0.0f;
-    rotation.integrated_angle = 0.0f;
-    rotation.last_trigger = 0;
-}
+// void roll_pitch_init(void) 
+// {
+//     roll = 0.0f;
+//     pitch = 0.0f;
+//     rotation.integrated_angle = 0.0f;
+//     rotation.last_trigger = 0;
+// }
 
-void roll_pitch_update(ACC_Three_Axis_t acc_data, GYRO_Three_Axis_t gyro_data)
-{
+// void roll_pitch_update(ACC_Three_Axis_t acc_data, GYRO_Three_Axis_t gyro_data)
+// {
 
-    // Calculate roll and pitch from accelerometer data
-    float accel_roll  = atan2f(acc_data.a_y, acc_data.a_z) * 180.0f / M_PI;
-    float accel_pitch = atan2f(-acc_data.a_x, sqrtf(acc_data.a_y * acc_data.a_y + acc_data.a_z * acc_data.a_z)) * 180.0f / M_PI;
+//     // Calculate roll and pitch from accelerometer data
+//     float accel_roll  = atan2f(acc_data.a_y, acc_data.a_z) * 180.0f / M_PI;
+//     float accel_pitch = atan2f(-acc_data.a_x, sqrtf(acc_data.a_y * acc_data.a_y + acc_data.a_z * acc_data.a_z)) * 180.0f / M_PI;
 
-    // Gyroscope readings in degrees per second
-    float roll_rate  = gyro_data.g_x / GYRO_SCALE;
-    float pitch_rate = gyro_data.g_y / GYRO_SCALE;
+//     // Gyroscope readings in degrees per second
+//     float roll_rate  = gyro_data.g_x / GYRO_SCALE;
+//     float pitch_rate = gyro_data.g_y / GYRO_SCALE;
 
-    // Update roll and pitch using gyroscope data
-    roll += roll_rate * DT;
-    pitch += pitch_rate * DT;
+//     // Update roll and pitch using gyroscope data
+//     roll += roll_rate * DT;
+//     pitch += pitch_rate * DT;
 
-    // Complementary filter to combine accelerometer and gyroscope data
-    roll = ALPHA * roll + (1.0f - ALPHA) * accel_roll;
-    pitch = ALPHA * pitch + (1.0f - ALPHA) * accel_pitch;
-}
+//     // Complementary filter to combine accelerometer and gyroscope data
+//     roll = ALPHA * roll + (1.0f - ALPHA) * accel_roll;
+//     pitch = ALPHA * pitch + (1.0f - ALPHA) * accel_pitch;
+// }
 
-float roll_get(void) 
-{
-    return roll;
-}
+// float roll_get(void) 
+// {
+//     return roll;
+// }
 
-float pitch_get(void) 
-{
-    return pitch;
-}
+// float pitch_get(void) 
+// {
+//     return pitch;
+// }
 
 /*
    MOTION ANALYSIS
 */
-bool verify_step(const ACC_Three_Axis_t *ax)
+bool verify_step(ACC_Three_Axis_t *ax)
 {
     
     float M = sqrt((ax->a_x * ax->a_x) +
@@ -72,7 +71,7 @@ bool verify_step(const ACC_Three_Axis_t *ax)
     return false;
 }
 
-bool verify_wrist_rotation(const GYRO_Three_Axis_t *g)
+bool verify_wrist_rotation(GYRO_Three_Axis_t *g)
 {
     // refractory window, avoid double triggers
     uint32_t now = xTaskGetTickCount() * portTICK_PERIOD_MS;
@@ -102,7 +101,7 @@ bool verify_wrist_rotation(const GYRO_Three_Axis_t *g)
     return false;
 }
 
-void verify_motion(const ACC_Three_Axis_t *acc_data, const GYRO_Three_Axis_t *gyro_data) 
+void verify_motion(ACC_Three_Axis_t *acc_data, GYRO_Three_Axis_t *gyro_data) 
 {
     bool step  = verify_step(acc_data);
     bool wrist = verify_wrist_rotation(gyro_data);
@@ -110,11 +109,11 @@ void verify_motion(const ACC_Three_Axis_t *acc_data, const GYRO_Three_Axis_t *gy
     if (step && !wrist)
     {
         global_parameters.step_cntr ++;
-        printf("STEPS: %d\n", global_parameters.step_cntr);
+        ESP_LOGI("VERIFY_MOTION", "STEPS: %d", global_parameters.step_cntr);
     }
     else if (wrist)
     {
-        printf("WRIST ROTATION DETECT\n");
+        ESP_LOGI("VERIFY_MOTION", "WRIST ROTATION DETECTED");
 
         // EventType evt = EVT_GYRO;
         // xQueueSend(event_queue, &evt, 0);

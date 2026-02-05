@@ -2,15 +2,15 @@
 #define __MPU6050_H__
 
 #include "driver/i2c_master.h"
+#include "esp_log.h"
 #include "esp_err.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 #include "../SHARED/global_param.h"
 #include <stdint.h>
+#include <math.h>
 
-// ERRORS
-extern esp_err_t NOT_ENOUGH_DATA = ESP_ERR_INVALID_ARG;
-extern esp_err_t NOT_GOOD_DATA;
-extern esp_err_t RESET_FIFO;
-
+// MPU6050 I2C address
 #define MPU6050_ADDR 0x68
 
 // MPU6050 Register Addresses
@@ -104,9 +104,11 @@ extern esp_err_t RESET_FIFO;
 
 //MACROS
 #define FIFO_SAMPLE_SIZE 14
-#define ACCEL_SCALE      16384.0f // for ±2g range
-#define GYRO_SCALE       131.0f   // for ±250°/s range
-#define GRAVITY          9.8f     // m/s²
+#define ACCEL_SCALE      16384.0f        // for ±2g range
+#define GYRO_SCALE       131.0f          // for ±250°/s range
+#define GRAVITY          9.8f            // m/s²
+#define DEG_TO_RAD       0.01745329252f  // π/180
+#define DT               0.008f          // 8 ms -> sample period
 
 //TYPES
 typedef struct {
@@ -145,26 +147,35 @@ typedef struct {
     float g_z_sum;
 } GYRO_accumulated;
 
-typedef struct
-{
+typedef struct {
     float roll;
     float pitch;
 } GyroData_t;
+
+typedef struct {
+    float pitch;  
+    float yaw;    
+} Orientation_t;
 
 //FUNCTIONS
 void      mpu6050_set_handle (i2c_master_dev_handle_t dev_handle);
 esp_err_t mpu6050_init       ();
 
+int get_fifo_size (void);
+
 esp_err_t mpu6050_read_raw_data (Raw_Data_acc *raw_acc, Raw_Data_gyro *raw_gyro);
-void      mpu6050_convert_accel (Raw_Data_acc *raw_acc, ACC_Three_Axis_t *acc_data);
-void      mpu6050_convert_gyro  (Raw_Data_gyro *raw_gyro, GYRO_Three_Axis_t *gyro_data);
+
+void mpu6050_convert_accel (Raw_Data_acc *raw_acc, ACC_Three_Axis_t *acc_data);
+void mpu6050_convert_gyro  (Raw_Data_gyro *raw_gyro, GYRO_Three_Axis_t *gyro_data);
 
 void mpu6050_calibrate (float *accel_bias, float *gyro_bias);
 
-// Roll and pitch calculation functions
-void  roll_pitch_init   (void);
-void  roll_pitch_update (float accel_x, float accel_y, float accel_z, float gyro_x, float gyro_y, float gyro_z);
-float roll_get          (void);
-float pitch_get         (void);
+int* mpu6050_convert_gyro2 (GYRO_Three_Axis_t *gyro_data);
+
+// // Roll and pitch calculation functions
+// void  roll_pitch_init   (void);
+// void  roll_pitch_update (float accel_x, float accel_y, float accel_z, float gyro_x, float gyro_y, float gyro_z);
+// float roll_get          (void);
+// float pitch_get         (void);
 
 #endif

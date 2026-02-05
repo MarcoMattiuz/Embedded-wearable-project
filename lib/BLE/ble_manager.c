@@ -510,15 +510,15 @@ int ble_manager_notify_ens160(uint16_t conn_handle, const ens160_data_t *ens160_
 }
 
 /* Send notification with Gyro_Axis_t data */
-int ble_manager_notify_gyro(uint16_t conn_handle, const GyroData_t *gyro_data)
+int ble_manager_notify_gyro(uint16_t conn_handle, const GYRO_Three_Axis_t *gyro_data)
 {
     struct os_mbuf *om;
     int rc;
 
     /* Update current value for read operations */
-    memcpy(&current_gyro_value, gyro_data, sizeof(GyroData_t));
+    memcpy(&current_gyro_value, gyro_data, sizeof(GYRO_Three_Axis_t));
 
-    om = ble_hs_mbuf_from_flat(gyro_data, sizeof(GyroData_t));
+    om = ble_hs_mbuf_from_flat(gyro_data, sizeof(GYRO_Three_Axis_t));
     if (om == NULL) {
         ESP_LOGE(TAG, "Error allocating mbuf for gyro");
         return -1;

@@ -24,7 +24,6 @@
 
 #include "../lib/_mpu6050/include/mpu6050.h"
 #include "../lib/_mpu6050/include/roll_pitch.h"
-#include "../lib/_mpu6050/include/quaternions.h"
 
 #define I2C_MASTER_SCL_IO     22        // SCL pin
 #define I2C_MASTER_SDA_IO     21        // SDA pin
@@ -63,7 +62,7 @@ void task_acc(void *parameters)
 
     if(ret != ESP_OK)
     {
-        ESP_LOGE("MPU6050", "Initialization failed");
+        ESP_LOGE("TASK_ACC", "Initialization failed");
         vTaskDelete(NULL);
     }
     
@@ -77,7 +76,7 @@ void task_acc(void *parameters)
     float gyro_bias[3]  = {0};
 
     mpu6050_calibrate(accel_bias, gyro_bias);
-    ESP_LOGI("MPU6050", "Calibration complete");
+    ESP_LOGI("TASK_ACC", "Calibration complete");
 
     // roll_pitch_init();
 
@@ -89,25 +88,22 @@ void task_acc(void *parameters)
         fifo_size = get_fifo_size();
         if (fifo_size == -1)
         {
-            ESP_LOGE("MPU6050", "Not enough data in FIFO!");
-            vTaskDelay(pdMS_TO_TICKS(100));
+            ESP_LOGE("TASK_ACC", "Not enough data in FIFO!");
             continue;
         } 
         else if (fifo_size == -2)
         {
-            ESP_LOGE("MPU6050", "Data misalignment detected!");
-            vTaskDelay(pdMS_TO_TICKS(100));
+            ESP_LOGE("TASK_ACC", "Data misalignment detected!");
             continue;
         } 
         else if (fifo_size == -3)
         {
-            ESP_LOGE("MPU6050", "Failed to read!");
-            vTaskDelay(pdMS_TO_TICKS(100));
+            ESP_LOGE("TASK_ACC", "Failed to read!");
             continue;
         }
         else 
         {
-            samples = fifo_count / MPU6050_FIFO_SAMPLE_SIZE;
+            samples = fifo_size / FIFO_SAMPLE_SIZE;
 
             for (int i = 0; i < samples; i++)
             {
@@ -120,12 +116,14 @@ void task_acc(void *parameters)
 
                 verify_motion(&accel_data, &gyro_data);
 
-                // if (ble_manager_is_connected())
-                // {
-                //     ble_manager_notify_gyro(
-                //         ble_manager_get_conn_handle(),
-                //         &gyro_data);
-                // }
+                if (ble_manager_is_connected())
+                {
+                    int* vec = mpu6050_convert_gyro2(&gyro_data);
+
+                    ble_manager_notify_gyro(
+                        ble_manager_get_conn_handle(),
+                        vec);
+                }
             }
         }
 
@@ -139,20 +137,10 @@ void task_acc(void *parameters)
         // else
         // {
         //     mpu6050_convert_accel(&raw_acc, &accel_data);
-
         //     mpu6050_convert_gyro(&raw_gyro, &gyro_data);
-
-        //     verify_motion(&accel_data, &gyro_data);
-
-        //     if (ble_manager_is_connected())
-        //     {
-        //         ble_manager_notify_gyro(
-        //             ble_manager_get_conn_handle(),
-        //             &gyro_data);
-        //     }
         // }
 
-        vTaskDelay(pdMS_TO_TICKS(150));
+        vTaskDelay(pdMS_TO_TICKS(20));
     }
 }
 

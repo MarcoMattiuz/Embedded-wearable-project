@@ -1,12 +1,8 @@
 #include "MPU6050_api.h"
 
-
-
 // static bool fifo_initialized = false;
 Rotation_t rotation = {0.0f, 0};
 static Orientation_t orient = {0};
-
-
 
 esp_err_t mpu6050_write_reg(struct i2c_device *device, uint8_t reg_to_write, uint8_t val_to_write)
 {
