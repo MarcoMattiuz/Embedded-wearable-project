@@ -29,10 +29,11 @@
 #include "roll_pitch.h"
 #include <math.h>
 
-#define GYRO_SCALE 131.0f
+// Note: gyro data is already converted to deg/s before calling roll_pitch_update()
+// so we don't need GYRO_SCALE here
 #define ACCEL_SCALE 16384.0f
 #define GRAVITY 9.8f
-#define DT 0.0001f // Time step in seconds
+#define DT 0.15f // Time step in seconds (matches task delay of 150ms)
 
 static float roll = 0.0f;
 static float pitch = 0.0f;
@@ -50,9 +51,9 @@ void roll_pitch_update(float accel_x, float accel_y, float accel_z, float gyro_x
     float accel_roll = atan2f(accel_y, accel_z) * 180.0f / M_PI;
     float accel_pitch = atan2f(-accel_x, sqrtf(accel_y * accel_y + accel_z * accel_z)) * 180.0f / M_PI;
 
-    // Gyroscope readings in degrees per second
-    float roll_rate = gyro_x / GYRO_SCALE;
-    float pitch_rate = gyro_y / GYRO_SCALE;
+    // Gyroscope readings are already in degrees per second (converted by mpu6050_convert_gyro)
+    float roll_rate = gyro_x;
+    float pitch_rate = gyro_y;
 
     // Update roll and pitch using gyroscope data
     roll += roll_rate * DT;

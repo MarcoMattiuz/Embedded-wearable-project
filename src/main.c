@@ -59,7 +59,17 @@ static void on_time_write(current_time_t *time_data);
 
 void task_acc(void *parameters)
 {
-    esp_err_t ret;
+    esp_err_t ret = mpu6050_init();
+    if (ret == ESP_OK)
+    {
+        ESP_LOGI("MPU6050", "Initialization successful");
+    }
+    else
+    {
+        ESP_LOGE("MPU6050", "Initialization failed");
+    }
+
+
     int16_t accel_x, accel_y, accel_z;
     int16_t gyro_x, gyro_y, gyro_z;
 
@@ -690,7 +700,7 @@ void app_main()
         "task_acc_debug",
         8192,
         &mpu6050_device,
-        1,
+        7,
         NULL,
         1);
     vTaskDelay(pdMS_TO_TICKS(500));
