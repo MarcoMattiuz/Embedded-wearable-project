@@ -1,4 +1,3 @@
-#include "MPU6050_api.h"
 #include <stdio.h>
 #include <math.h>
 #include <stdbool.h>
@@ -8,9 +7,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "max30102.h"
-#include "MPU6050_api.h"
 #include "I2C_api.h"
-#include "reg.h"
 #include "esp_err.h"
 #include "macros.h"
 #include "display_fsm.h"
@@ -29,10 +26,10 @@
 #include "../lib/_mpu6050/include/roll_pitch.h"
 #include "../lib/_mpu6050/include/quaternions.h"
 
-#define I2C_MASTER_SCL_IO 22 // SCL pin
-#define I2C_MASTER_SDA_IO 21 // SDA pin
-#define I2C_MASTER_FREQ_HZ 400000
-#define I2C_MASTER_NUM I2C_NUM_0
+#define I2C_MASTER_SCL_IO     22        // SCL pin
+#define I2C_MASTER_SDA_IO     21        // SDA pin
+#define I2C_MASTER_FREQ_HZ    400000
+#define I2C_MASTER_NUM        I2C_NUM_0
 #define ESP_INTR_FLAG_DEFAULT 0
 
 struct ppg_task_params
@@ -61,6 +58,14 @@ static void on_time_write(current_time_t *time_data);
 void task_acc(void *parameters)
 {
     esp_err_t ret;
+
+    ret = mpu6050_init();
+
+    if(ret != ESP_OK)
+    {
+        ESP_LOGE("MPU6050", "Initialization failed");
+        vTaskDelete(NULL);
+    }
     
     Raw_Data_acc raw_acc;
     Raw_Data_gyro raw_gyro;
@@ -74,62 +79,78 @@ void task_acc(void *parameters)
     mpu6050_calibrate(accel_bias, gyro_bias);
     ESP_LOGI("MPU6050", "Calibration complete");
 
-    roll_pitch_init();
+    // roll_pitch_init();
 
-    // Quaternion q;
-    // quaternion_init(&q);
+    int fifo_size = 0;
+    int samples   = 0;
 
     while (1)
     {
-        ret = mpu6050_read_raw_data(&raw_acc, &raw_gyro);
-
-        if (ret != ESP_OK)
+        fifo_size = get_fifo_size();
+        if (fifo_size == -1)
         {
-            ESP_LOGE("MPU6050", "Read failed");
+            ESP_LOGE("MPU6050", "Not enough data in FIFO!");
+            vTaskDelay(pdMS_TO_TICKS(100));
+            continue;
+        } 
+        else if (fifo_size == -2)
+        {
+            ESP_LOGE("MPU6050", "Data misalignment detected!");
+            vTaskDelay(pdMS_TO_TICKS(100));
+            continue;
+        } 
+        else if (fifo_size == -3)
+        {
+            ESP_LOGE("MPU6050", "Failed to read!");
+            vTaskDelay(pdMS_TO_TICKS(100));
             continue;
         }
-        else
+        else 
         {
-            mpu6050_convert_accel(&raw_acc, &accel_data);
+            samples = fifo_count / MPU6050_FIFO_SAMPLE_SIZE;
 
-            mpu6050_convert_gyro(&raw_gyro, &gyro_data);
+            for (int i = 0; i < samples; i++)
+            {
+                ret = mpu6050_read_raw_data(&raw_acc, &raw_gyro);
+                if (ret != ESP_OK)
+                    break;
 
-            // roll_pitch_update(accel_data, gyro_data);
-            verify_motion(&accel_data, &gyro_data);
+                mpu6050_convert_accel(&raw_acc, &accel_data);
+                mpu6050_convert_gyro (&raw_gyro, &gyro_data);
 
-            // quaternion_update(
-            //     &q,
-            //     gyro_x_dps, gyro_y_dps, gyro_z_dps,
-            //     accel_x_g, accel_y_g, accel_z_g,
-            //     0.01f);
+                verify_motion(&accel_data, &gyro_data);
 
-            // ESP_LOGI("ACC", "Accel: X=%.2f m/s^2, Y=%.2f m/s^2, Z=%.2f m/s^2",
-            //          accel_x_g, accel_y_g, accel_z_g);
-
-            // ESP_LOGI("ACC", "Gyro: X=%.2f deg/s, Y=%.2f deg/s, Z=%.2f deg/s",
-            //          gyro_x_dps, gyro_y_dps, gyro_z_dps);
-
-            // ESP_LOGI("ACC", "Roll: %.2f", roll_get());
-            // ESP_LOGI("ACC", "Pitch: %.2f", pitch_get());
-
-            // ESP_LOGI("ACC", "Quaternion Roll: %.2f", quaternion_get_roll(&q));
-            // ESP_LOGI("ACC", "Quaternion Pitch: %.2f", quaternion_get_pitch(&q));
-            // ESP_LOGI("ACC", "Quaternion Yaw: %.2f", quaternion_get_yaw(&q));
-            // ESP_LOGI("ACC", "Quaternion x: %.2f", q.x);
-            // ESP_LOGI("ACC", "Quaternion y: %.2f", q.y);
-            // ESP_LOGI("ACC", "Quaternion z: %.2f", q.z);
-
-            // GyroData_t q_data = {
-            //     .roll = roll_get(),
-            //     .pitch = pitch_get(),
-            // };
-            // if (ble_manager_is_connected())
-            // {
-            //     ble_manager_notify_gyro(
-            //         ble_manager_get_conn_handle(),
-            //         &q_data);
-            // }
+                // if (ble_manager_is_connected())
+                // {
+                //     ble_manager_notify_gyro(
+                //         ble_manager_get_conn_handle(),
+                //         &gyro_data);
+                // }
+            }
         }
+
+        // ret = mpu6050_read_raw_data(&raw_acc, &raw_gyro);
+
+        // if (ret != ESP_OK)
+        // {
+        //     ESP_LOGE("MPU6050", "Read failed");
+        //     continue;
+        // }
+        // else
+        // {
+        //     mpu6050_convert_accel(&raw_acc, &accel_data);
+
+        //     mpu6050_convert_gyro(&raw_gyro, &gyro_data);
+
+        //     verify_motion(&accel_data, &gyro_data);
+
+        //     if (ble_manager_is_connected())
+        //     {
+        //         ble_manager_notify_gyro(
+        //             ble_manager_get_conn_handle(),
+        //             &gyro_data);
+        //     }
+        // }
 
         vTaskDelay(pdMS_TO_TICKS(150));
     }
@@ -628,7 +649,6 @@ void app_main()
     ESP_ERROR_CHECK(ret); */
     esp_task_wdt_deinit();
 
-    // TODO: remove
     // Suppress NimBLE INFO logs (GATT procedure initiated, att_handle, etc.)
     esp_log_level_set("NimBLE", ESP_LOG_WARN);
 
@@ -681,7 +701,7 @@ void app_main()
         "task_acc_debug",
         4096,
         &mpu6050_device,
-        1,
+        7,
         NULL,
         1);
     vTaskDelay(pdMS_TO_TICKS(500));

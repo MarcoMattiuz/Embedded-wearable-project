@@ -1,18 +1,17 @@
 #include "MPU6050_api.h"
 
+
+
 // static bool fifo_initialized = false;
 Rotation_t rotation = {0.0f, 0};
 static Orientation_t orient = {0};
+
+
 
 esp_err_t mpu6050_write_reg(struct i2c_device *device, uint8_t reg_to_write, uint8_t val_to_write)
 {
 
     uint8_t buf[2] = {reg_to_write, val_to_write};
-
-    // return i2c_master_transmit(device->i2c_dev_handle,
-    //                            buf,
-    //                            sizeof(buf),
-    //                            1000);
 
     esp_err_t ret = i2c_master_transmit(device->i2c_dev_handle,
                                         buf,
@@ -43,6 +42,8 @@ esp_err_t mpu6050_read_reg(struct i2c_device *device, uint8_t reg_to_read, uint8
     return ret;
 }
 
+
+
 void print_acc(const Three_Axis_final_t *ax)
 {
 
@@ -66,6 +67,8 @@ void print_gyro(const Gyro_Axis_final_t *gyro)
 
     printf("GYRO --- X: %f  Y: %f  Z: %f\n", gyro->g_x, gyro->g_y, gyro->g_z);
 }
+
+
 
 void read_sample_ACC(Three_Axis_t *ax, Three_Axis_final_t *f_ax, uint8_t *r_buff, const int i)
 {
@@ -222,6 +225,8 @@ esp_err_t mpu6050_read_FIFO(struct i2c_device *device, Three_Axis_t *axis, Gyro_
     return ESP_OK;
 }
 
+
+
 esp_err_t set_USR_CTRL(struct i2c_device *device)
 {
 
@@ -230,13 +235,13 @@ esp_err_t set_USR_CTRL(struct i2c_device *device)
 
         7 | 6 | 5 | 4 | 3 | 2 | 1 | 0
         -----------------------------
-        0 | 1 | 0 | 0 | 0 | 1 | 0 | 0
+        0 | 1 | 0 | 0 | 0 | 0 | 0 | 0
             ^               ^
             | FIFO_EN       | FIFO_RESET
     */
     return mpu6050_write_reg(device,
                              MPU6050_USER_CTRL,
-                             0x00 | USER_CTRL_BIT_FIFO_RST | USER_CTRL_BIT_FIFO_EN);
+                             USER_CTRL_BIT_FIFO_EN);
 }
 
 esp_err_t set_FIFO_EN(struct i2c_device *device)
@@ -292,6 +297,7 @@ esp_err_t acc_config(struct i2c_device *device)
         return ESP_ERR_INVALID_ARG;
     }
     vTaskDelay(DELAY_10);
+
     // Sample rate = 1kHz / (1 + 7) = 125 Hz
     if (mpu6050_write_reg(device, SMPLRT_DIV, 0x07) != ESP_OK)
     {
@@ -339,6 +345,8 @@ esp_err_t acc_config(struct i2c_device *device)
 
     return ESP_OK;
 }
+
+
 
 bool verify_step(const Three_Axis_final_t *ax)
 {
