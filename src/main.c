@@ -120,21 +120,21 @@ void task_acc(void *parameters)
                 accel_x_g, accel_y_g, accel_z_g,
                 0.01f);
 
-            // ESP_LOGI("ACC", "Accel: X=%.2f m/s^2, Y=%.2f m/s^2, Z=%.2f m/s^2",
-            //          accel_x_g, accel_y_g, accel_z_g);
+            ESP_LOGI("ACC", "Accel: X=%.2f m/s^2, Y=%.2f m/s^2, Z=%.2f m/s^2",
+                     accel_x_g, accel_y_g, accel_z_g);
 
-            // ESP_LOGI("ACC", "Gyro: X=%.2f deg/s, Y=%.2f deg/s, Z=%.2f deg/s",
-            //          gyro_x_dps, gyro_y_dps, gyro_z_dps);
+            ESP_LOGI("ACC", "Gyro: X=%.2f deg/s, Y=%.2f deg/s, Z=%.2f deg/s",
+                     gyro_x_dps, gyro_y_dps, gyro_z_dps);
 
-            // ESP_LOGI("ACC", "Roll: %.2f", roll_get());
-            // ESP_LOGI("ACC", "Pitch: %.2f", pitch_get());
+            ESP_LOGI("ACC", "Roll: %.2f", roll_get());
+            ESP_LOGI("ACC", "Pitch: %.2f", pitch_get());
 
-            // ESP_LOGI("ACC", "Quaternion Roll: %.2f", quaternion_get_roll(&q));
-            // ESP_LOGI("ACC", "Quaternion Pitch: %.2f", quaternion_get_pitch(&q));
-            // ESP_LOGI("ACC", "Quaternion Yaw: %.2f", quaternion_get_yaw(&q));
-            // ESP_LOGI("ACC", "Quaternion x: %.2f", q.x);
-            // ESP_LOGI("ACC", "Quaternion y: %.2f", q.y);
-            // ESP_LOGI("ACC", "Quaternion z: %.2f", q.z);
+            ESP_LOGI("ACC", "Quaternion Roll: %.2f", quaternion_get_roll(&q));
+            ESP_LOGI("ACC", "Quaternion Pitch: %.2f", quaternion_get_pitch(&q));
+            ESP_LOGI("ACC", "Quaternion Yaw: %.2f", quaternion_get_yaw(&q));
+            ESP_LOGI("ACC", "Quaternion x: %.2f", q.x);
+            ESP_LOGI("ACC", "Quaternion y: %.2f", q.y);
+            ESP_LOGI("ACC", "Quaternion z: %.2f", q.z);
 
             GyroData_t q_data = {
                 .roll = roll_get(),
