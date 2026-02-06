@@ -124,12 +124,12 @@ void read_sample_GYRO(Gyro_Axis_t *gyro, Gyro_Axis_final_t *f_gyro, uint8_t *r_b
 
     Gyro_Axis_final_t tmp = {v.x, v.y, v.z};
 
-    if (ble_manager_is_connected())
+    /* if (ble_manager_is_connected())
     {
         ble_manager_notify_gyro(
             ble_manager_get_conn_handle(),
             &tmp);
-    }
+    } */
 }
 
 esp_err_t empty_FIFO(struct i2c_device *device, Three_Axis_t *axis, Three_Axis_final_t *f_ax, Gyro_Axis_t *gyro, Gyro_Axis_final_t *f_gyro, uint8_t *reading_buffer, int fs)

@@ -46,6 +46,7 @@ let MAX_SIZE_IRAC_BUFFER = 960;
 let MAX_SIZE_BPM_BUFFER = 200;
 let MAX_SIZE_IRRAW_BUFFER = 960;
 let MAX_SIZE_ECO2_BUFFER = 200;
+let weatherTimer = null;
 
 function log(message, type = "info") {
   const entry = document.createElement("div");
@@ -68,6 +69,11 @@ async function toggleConnection() {
   if (bluetoothDevice?.gatt.connected) {
     bluetoothDevice.gatt.disconnect();
     log("Disconnected by user", "info");
+
+    if (weatherTimer) {
+      clearInterval(weatherTimer);
+      weatherTimer = null;
+    }
     return;
   }
 
@@ -134,6 +140,18 @@ async function toggleConnection() {
 
     await getWeather();
     log("Weather data sent to device", "success");
+
+    if (!weatherTimer) {
+      weatherTimer = setInterval(async () => {
+        try {
+          await getWeather();
+          log("Weather updated", "info");
+        } catch (err) {
+          console.error("Weather update failed:", err);
+        }
+      }, 10000); // 60,000 ms = 1 minute
+    }
+
   } catch (error) {
     log(`Error: ${error}`, "error");
     console.error(error);
@@ -148,6 +166,11 @@ function onDisconnected() {
   gyroCharacteristic = null;
   ens160Characteristic = null;
   weatherCharacteristic = null;
+
+  if (weatherTimer) {
+    clearInterval(weatherTimer);
+    weatherTimer = null;
+  }
 }
 
 function handleEns160Notification(event) {
@@ -183,16 +206,17 @@ function handleEns160Notification(event) {
 function handleGyroNotification(event) {
   const value = event.target.value;
 
-  if (value.byteLength >= 12) {
-    const gx = value.getFloat32(0, true);
-    const gy = value.getFloat32(4, true);
-    const gz = value.getFloat32(8, true);
+  if (value.byteLength >= 4) {
+    const roll = value.getFloat32(0, true);//roll
+    const pitch = value.getFloat32(4, true);//pitch
+    
 
     if (typeof window.update3DObject === "function") {
-      window.update3DObject(gx, gy, gz);
+      window.update3DObject(roll,pitch);
     }
+
     console.log(
-      `Gyro - X: ${gx.toFixed(2)}, Y: ${gy.toFixed(2)}, Z: ${gz.toFixed(2)}`,
+      `GYRO - roll: ${roll.toFixed(3)}, pitch: ${pitch.toFixed(3)}}`
     );
   }
 }
@@ -250,7 +274,9 @@ function handleBPM(event) {
   if (window.BPMsampleArr.length >= MAX_SIZE_BPM_BUFFER) {
     window.BPMsampleArr = [];
   }
-  updateDropdown(BPMsampleArr.at(-1).value, AVGBPMsampleArr.at(-1).value);
+  if (BPMsampleArr.length > 0 && AVGBPMsampleArr.length > 0) {
+    updateDropdown(BPMsampleArr.at(-1).value, AVGBPMsampleArr.at(-1).value);
+  }
   updateBPMGraph();
 }
 
@@ -269,7 +295,9 @@ function handleAVGBPM(event) {
   if (window.AVGBPMsampleArr.length >= MAX_SIZE_BPM_BUFFER) {
     window.AVGBPMsampleArr = [];
   }
-  updateDropdown(BPMsampleArr.at(-1).value, AVGBPMsampleArr.at(-1).value);
+  if (BPMsampleArr.length > 0 && AVGBPMsampleArr.length > 0) {
+    updateDropdown(BPMsampleArr.at(-1).value, AVGBPMsampleArr.at(-1).value);
+  }
   updateBPMGraph();
 }
 

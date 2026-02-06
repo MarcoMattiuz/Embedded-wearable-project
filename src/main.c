@@ -16,7 +16,6 @@
 #include "display_fsm.h"
 #include "global_param.h"
 #include "esp_log.h"
-#include "nvs_flash.h"
 #include "ble_manager.h"
 #include "driver/touch_pad.h"
 #include <sys/time.h>
@@ -25,7 +24,15 @@
 #include "driver/adc.h"
 #include "esp_adc_cal.h"
 #include "../ENS160/ens160.h"
-#include "esp_timer.h"
+
+#include "mpu6050.h"
+#include "roll_pitch.h"
+#include "quaternions.h"
+#define I2C_MASTER_SCL_IO 22 // SCL pin
+#define I2C_MASTER_SDA_IO 21 // SDA pin
+#define I2C_MASTER_FREQ_HZ 400000
+#define I2C_MASTER_NUM I2C_NUM_0
+#define ESP_INTR_FLAG_DEFAULT 0
 
 struct ppg_task_params
 {
@@ -50,31 +57,101 @@ static void rtc_clock_task(void *pvParameter);
 static void on_notify_state_changed(bool enabled);
 static void on_time_write(current_time_t *time_data);
 
-/* Send data to the website */
-static void touch_sensor_task(void *pvParameter)
+void task_acc(void *parameters)
 {
-    uint16_t touch_value;
-    touch_pad_init();
-    touch_pad_config(TOUCH_PAD_NUM0, 0);
+    esp_err_t ret = mpu6050_init();
+    if (ret == ESP_OK)
+    {
+        ESP_LOGI("MPU6050", "Initialization successful");
+    }
+    else
+    {
+        ESP_LOGE("MPU6050", "Initialization failed");
+    }
+
+
+    int16_t accel_x, accel_y, accel_z;
+    int16_t gyro_x, gyro_y, gyro_z;
+
+    float accel_x_g, accel_y_g, accel_z_g;
+    float gyro_x_dps, gyro_y_dps, gyro_z_dps;
+
+    float accel_bias[3] = {0};
+    float gyro_bias[3] = {0};
+
+    /* Calibrate */
+    mpu6050_calibrate(accel_bias, gyro_bias);
+    ESP_LOGI("MPU6050", "Calibration complete");
+
+    /* Filters */
+    roll_pitch_init();
+
+    Quaternion q;
+    quaternion_init(&q);
 
     while (1)
     {
-        touch_pad_read(TOUCH_PAD_NUM0, &touch_value);
-        if (touch_value < 500)
-        {
-            if (notify_enabled && ble_manager_is_connected())
-            {
-                float touch_value_send = 9.9f;
-                ESP_LOGI(TAG, "Touch detected! Sending %.1f", touch_value_send);
+        ret = mpu6050_read_raw_data(
+            &accel_x, &accel_y, &accel_z,
+            &gyro_x, &gyro_y, &gyro_z);
 
-                ble_manager_notify_iracbuffer(
+        if (ret != ESP_OK)
+        {
+            ESP_LOGE("MPU6050", "Read failed");
+            continue; // <-- better than return inside a loop
+        }
+        else
+        {
+            mpu6050_convert_accel(
+                accel_x, accel_y, accel_z,
+                &accel_x_g, &accel_y_g, &accel_z_g);
+
+            mpu6050_convert_gyro(
+                gyro_x, gyro_y, gyro_z,
+                &gyro_x_dps, &gyro_y_dps, &gyro_z_dps);
+
+            roll_pitch_update(
+                accel_x_g, accel_y_g, accel_z_g,
+                gyro_x_dps, gyro_y_dps, gyro_z_dps);
+
+            quaternion_update(
+                &q,
+                gyro_x_dps, gyro_y_dps, gyro_z_dps,
+                accel_x_g, accel_y_g, accel_z_g,
+                0.01f);
+
+            ESP_LOGI("ACC", "Accel: X=%.2f m/s^2, Y=%.2f m/s^2, Z=%.2f m/s^2",
+                     accel_x_g, accel_y_g, accel_z_g);
+
+            ESP_LOGI("ACC", "Gyro: X=%.2f deg/s, Y=%.2f deg/s, Z=%.2f deg/s",
+                     gyro_x_dps, gyro_y_dps, gyro_z_dps);
+
+            ESP_LOGI("ACC", "Roll: %.2f", roll_get());
+            ESP_LOGI("ACC", "Pitch: %.2f", pitch_get());
+
+            ESP_LOGI("ACC", "Quaternion Roll: %.2f", quaternion_get_roll(&q));
+            ESP_LOGI("ACC", "Quaternion Pitch: %.2f", quaternion_get_pitch(&q));
+            ESP_LOGI("ACC", "Quaternion Yaw: %.2f", quaternion_get_yaw(&q));
+            ESP_LOGI("ACC", "Quaternion x: %.2f", q.x);
+            ESP_LOGI("ACC", "Quaternion y: %.2f", q.y);
+            ESP_LOGI("ACC", "Quaternion z: %.2f", q.z);
+
+            GyroData_t q_data = {
+                .roll = roll_get(),
+                .pitch = pitch_get(),
+            };
+            ESP_LOGI("ACC", "GyroData_t Roll: %.2f", q_data.roll);
+            ESP_LOGI("ACC", "GyroData_t Pitch: %.2f", q_data.pitch);
+
+            if (ble_manager_is_connected())
+            {
+                ble_manager_notify_gyro(
                     ble_manager_get_conn_handle(),
-                    ble_manager_get_iracbuffer_char_handle(),
-                    &touch_value_send,
-                    sizeof(touch_value_send));
+                    &q_data);
             }
         }
-        vTaskDelay(pdMS_TO_TICKS(100));
+
+        vTaskDelay(pdMS_TO_TICKS(50));
     }
 }
 
@@ -176,6 +253,7 @@ static void c02_check_task(void *pvParameter)
             consecutive_errors = 0;
             ESP_LOGI(TAG, "eCO2: %d ppm, TVOC: %d ppb, AQI: %d", data.eco2, data.tvoc, data.aqi);
             global_parameters.CO2 = data.eco2;
+            global_parameters.CO2_risk_level = data.aqi;
 
             if (notify_enabled && ble_manager_is_connected())
             {
@@ -187,13 +265,14 @@ static void c02_check_task(void *pvParameter)
         else
         {
             consecutive_errors++;
-            ESP_LOGE(TAG, "Failed to read ENS160: %s (errors: %d/%d)", 
+            ESP_LOGE(TAG, "Failed to read ENS160: %s (errors: %d/%d)",
                      esp_err_to_name(ret), consecutive_errors, MAX_CONSECUTIVE_ERRORS);
-            
+
             if (consecutive_errors >= MAX_CONSECUTIVE_ERRORS)
             {
                 ESP_LOGW(TAG, "Performing ENS160 full reset");
                 global_parameters.CO2 = 0;
+                global_parameters.CO2_risk_level = 0;
                 
                 esp_err_t reset_ret = ens160_full_reset();
                 if (reset_ret != ESP_OK)
@@ -244,17 +323,16 @@ void add_device_MPU6050(struct i2c_device *device)
     esp_err_t esp_ret;
 
     // setup device
-    device->i2c_dev_config.dev_addr_length = I2C_ADDR_BIT_LEN_7;
-    device->i2c_dev_config.device_address = I2C_MPU6050_ADDR;
-    device->i2c_dev_config.scl_speed_hz = I2C_FREQ_HZ;
+    device->i2c_dev_config.dev_addr_length = I2C_ADDR_BIT_LEN_7,
+    device->i2c_dev_config.device_address = MPU6050_ADDR,
+    device->i2c_dev_config.scl_speed_hz = 400000,
 
-    // initialize MPU6050 on the bus
     esp_ret = i2c_master_bus_add_device(i2c_bus_1, &device->i2c_dev_config, &device->i2c_dev_handle);
     if (esp_ret != ESP_OK)
     {
-        DBG_PRINTF("Failed to add MPU6050 device to I2C bus: %d\n", esp_ret);
-        abort();
+        ESP_LOGE(TAG, "Failed to add ACC to bus");
     }
+    mpu6050_set_handle(device->i2c_dev_handle);
 }
 
 esp_err_t add_device_ENS160()
@@ -374,7 +452,6 @@ void LCD_task(void *parameters)
     GPIO_init();
     memset(buffer_data, 0, sizeof(buffer_data));
 
-    
     EventType evt;
 
     gpio_intr_disable(PUSH_BUTTON_GPIO);
@@ -527,15 +604,18 @@ static void bettery_level_task(void *pvParameter)
 
 static uint64_t start_time;
 
-void vConfigureTimerForRunTimeStats(void) {
+void vConfigureTimerForRunTimeStats(void)
+{
     start_time = esp_timer_get_time();
 }
 
-unsigned long ulGetRunTimeCounterValue(void) {
+unsigned long ulGetRunTimeCounterValue(void)
+{
     return (unsigned long)(esp_timer_get_time() - start_time);
 }
 
-void print_task_stats(void) {
+void print_task_stats(void)
+{
     // char buffer[2048];
 
     // printf("\n\n===== TASK LIST =====\n");
@@ -547,78 +627,27 @@ void print_task_stats(void) {
     // printf("%s\n", buffer);
 }
 
-void task_acc(void *pvParameters)
-{
-
-    struct i2c_device *device = (struct i2c_device *)pvParameters;
-
-    global_parameters.step_cntr = 0;
-
-    if (device == NULL)
-    {
-        printf("task_acc: invalid device\n");
-        vTaskDelete(NULL);
-        abort();
-    }
-
-    if (acc_config(device) != ESP_OK)
-    {
-        printf("Configuration error!\n");
-        abort();
-    }
-        
-    vTaskDelay(pdMS_TO_TICKS(60));
-
-    Three_Axis_t axis;
-    Gyro_Axis_t gyro;
-    Three_Axis_final_t f_axis;
-    Gyro_Axis_final_t f_gyro;
-
-    fifo_initialized = true;
-
-    for (;;)
-    {   
-        static uint32_t acc_hb = 0;
-        if ((acc_hb++ % 5) == 0) printf("ACC heartbeat %lu\n", (unsigned long)acc_hb);
-        fflush(stdout);
-        esp_err_t err = mpu6050_read_FIFO(device, &axis, &gyro, &f_axis, &f_gyro);
-        if (err == ERR)
-        {
-            printf("Error reading!\n");
-        }
-        else if (err == FIFO_EMPTY)
-        {
-            printf("FIFO empty!\n");
-        }
-        else if (err == RESET_FIFO)
-        {
-            printf("TOO MUCH data!\n");
-        }
-
-        // vTaskDelay(pdMS_TO_TICKS(60));
-        vTaskDelay(pdMS_TO_TICKS(20));
-    }
-}
-
 void app_main()
 {
     // Enable detailed I2C logging to catch NACK sources
-    esp_log_level_set("i2c", ESP_LOG_VERBOSE);
+    /* esp_log_level_set("i2c", ESP_LOG_VERBOSE);
     esp_log_level_set("i2c_master", ESP_LOG_VERBOSE);
     esp_log_level_set("i2c.common", ESP_LOG_VERBOSE);
     esp_log_level_set("i2c.master", ESP_LOG_VERBOSE);     // questo è IL tag che ti interessa
     esp_log_level_set("lcd_panel.io.i2c", ESP_LOG_VERBOSE);
     esp_log_level_set("lcd_panel", ESP_LOG_VERBOSE);
-    esp_log_level_set("*", ESP_LOG_INFO); // non alzare tutto a VERBOSE o diventi cieco
+    esp_log_level_set("*", ESP_LOG_INFO);  */
+    // non alzare tutto a VERBOSE o diventi cieco
 
-    esp_err_t ret = nvs_flash_init();
+    /* esp_err_t ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
         ESP_ERROR_CHECK(nvs_flash_erase());
         ret = nvs_flash_init();
     }
-    ESP_ERROR_CHECK(ret);
+    ESP_ERROR_CHECK(ret); */
     esp_task_wdt_deinit();
 
+    // TODO: remove
     // Suppress NimBLE INFO logs (GATT procedure initiated, att_handle, etc.)
     esp_log_level_set("NimBLE", ESP_LOG_WARN);
 
@@ -633,9 +662,10 @@ void app_main()
         "LCD_task_debug",
         4096,
         &panel_handle,
-        2,
+        7,
         NULL);
     vTaskDelay(pdMS_TO_TICKS(500));
+
     add_device_MAX30102(&max30102_device);
     vTaskDelay(pdMS_TO_TICKS(500));
     // add_device_MPU6050(&mpu6050_device);
@@ -664,16 +694,28 @@ void app_main()
     TaskHandle_t ppg_task_handle = NULL;
 
     // tasks
-  
 
     // retF = xTaskCreatePinnedToCore(
     //     task_acc,
     //     "task_acc_debug",
-    //     4096,
+    //     8192,
     //     &mpu6050_device,
-    //     1,
+    //     6,
     //     NULL,
     //     1);
+    vTaskDelay(pdMS_TO_TICKS(500));
+
+    //* Start battery level monitoring task */
+    xTaskCreate(
+        bettery_level_task,
+        "battery_level_task",
+        2048,
+        NULL,
+        5,
+        NULL);
+    vTaskDelay(pdMS_TO_TICKS(500));
+    /* Start RTC clock display task */
+    xTaskCreate(rtc_clock_task, "rtc_clock", 4096, NULL, 4, NULL);
     vTaskDelay(pdMS_TO_TICKS(500));
 
     xTaskCreatePinnedToCore(
@@ -700,13 +742,14 @@ void app_main()
     vTaskDelay(pdMS_TO_TICKS(500));
 
     /* Start CO2 check task */
-    xTaskCreate(c02_check_task, "c02_check", 4096, NULL, 5, NULL);
-    
+    xTaskCreate(c02_check_task, "c02_check", 4096, NULL, 2, NULL);
+
     ESP_LOGI(TAG, "Service initialized successfully");
-    
+
     /* Start touch sensor task */
     // xTaskCreate(touch_sensor_task, "touch_sensor", 4096, NULL, 10, NULL);
-    while (1) {
+    while (1)
+    {
         print_task_stats();
         vTaskDelay(pdMS_TO_TICKS(2000));
         esp_err_t err0 = i2c_master_probe(i2c_bus_0, I2C_MAX30102_ADDR, 0x7F);
@@ -720,7 +763,4 @@ void app_main()
                err2 == ESP_OK ? "OK 0x53" : "FAIL 0x53",
                err3 == ESP_OK ? "OK 0x52" : "FAIL 0x52");
     }
-    
-
-    
 }
