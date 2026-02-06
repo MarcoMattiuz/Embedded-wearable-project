@@ -218,7 +218,7 @@ void fn_CO2(esp_lcd_panel_handle_t *panel_handle, struct global_param *param)
     default:
         break;
     }
-    sprintf(buff, "%d ppm%s", param->CO2,level);
+    sprintf(buff, "%d ppm\n%s", param->CO2,level);
 
     drawStringToBuffer(buff, buffer_data, 64 + 5, 28);
 
