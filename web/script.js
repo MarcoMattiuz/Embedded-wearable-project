@@ -145,11 +145,11 @@ async function toggleConnection() {
       weatherTimer = setInterval(async () => {
         try {
           await getWeather();
-          log("Weather updated", "info");
+          log("Weather updated",);
         } catch (err) {
           console.error("Weather update failed:", err);
         }
-      }, 10000); // 60,000 ms = 1 minute
+      }, 10000);
     }
 
   } catch (error) {
