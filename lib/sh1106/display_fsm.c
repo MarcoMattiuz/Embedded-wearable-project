@@ -218,14 +218,14 @@ void fn_CO2(esp_lcd_panel_handle_t *panel_handle, struct global_param *param)
     default:
         break;
     }
-    sprintf(buff, "%d ppm\nRating:%s", param->CO2,level);
+    sprintf(buff, "%d ppm%s", param->CO2,level);
 
     drawStringToBuffer(buff, buffer_data, 64 + 5, 28);
 
     drawBitmapToBuffer(co2Bitmap, buffer_data, 0, 0, 64, 64);
 
     if (param->CO2 == 0){
-        drawBitmapToBuffer(circleArrowBitmap, buffer_data, 96, 0, 32, 32);
+        drawBitmapToBuffer(circleArrowBitmap, buffer_data, 112, 0, 16, 16);
     }
 
         drawBufferToLcd(buffer_data, *panel_handle);
