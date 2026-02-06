@@ -46,6 +46,7 @@ let MAX_SIZE_IRAC_BUFFER = 960;
 let MAX_SIZE_BPM_BUFFER = 200;
 let MAX_SIZE_IRRAW_BUFFER = 960;
 let MAX_SIZE_ECO2_BUFFER = 200;
+let weatherTimer = null;
 
 function log(message, type = "info") {
   const entry = document.createElement("div");
@@ -68,6 +69,11 @@ async function toggleConnection() {
   if (bluetoothDevice?.gatt.connected) {
     bluetoothDevice.gatt.disconnect();
     log("Disconnected by user", "info");
+
+    if (weatherTimer) {
+      clearInterval(weatherTimer);
+      weatherTimer = null;
+    }
     return;
   }
 
@@ -134,6 +140,18 @@ async function toggleConnection() {
 
     await getWeather();
     log("Weather data sent to device", "success");
+
+    if (!weatherTimer) {
+      weatherTimer = setInterval(async () => {
+        try {
+          await getWeather();
+          log("Weather updated", "info");
+        } catch (err) {
+          console.error("Weather update failed:", err);
+        }
+      }, 10000); // 60,000 ms = 1 minute
+    }
+
   } catch (error) {
     log(`Error: ${error}`, "error");
     console.error(error);
@@ -148,6 +166,11 @@ function onDisconnected() {
   gyroCharacteristic = null;
   ens160Characteristic = null;
   weatherCharacteristic = null;
+
+  if (weatherTimer) {
+    clearInterval(weatherTimer);
+    weatherTimer = null;
+  }
 }
 
 function handleEns160Notification(event) {

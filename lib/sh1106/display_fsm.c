@@ -195,14 +195,40 @@ void fn_CO2(esp_lcd_panel_handle_t *panel_handle, struct global_param *param)
 {
     memset(buffer_data, 0, sizeof(buffer_data));
 
-    char buff[10];
-    sprintf(buff, "%d ppm", param->CO2);
+    char level[64];
+    char buff[32];
+    
+    switch (param->CO2_risk_level)
+    {   
+    case 1:
+        sprintf(level, "Excellent");
+        break;
+    case 2:
+        sprintf(level, "Good");
+        break;
+    case 3:
+        sprintf(level, "Fair");
+        break;
+    case 4:
+        sprintf(level, "Poor");
+        break;
+    case 5:
+        sprintf(level, "Bad");
+        break;
+    default:
+        break;
+    }
+    sprintf(buff, "%d ppm\nRating:%s", param->CO2,level);
 
     drawStringToBuffer(buff, buffer_data, 64 + 5, 28);
 
     drawBitmapToBuffer(co2Bitmap, buffer_data, 0, 0, 64, 64);
 
-    drawBufferToLcd(buffer_data, *panel_handle);
+    if (param->CO2 == 0){
+        drawBitmapToBuffer(circleArrowBitmap, buffer_data, 96, 0, 32, 32);
+    }
+
+        drawBufferToLcd(buffer_data, *panel_handle);
 }
 
 void long_press_timer_handler(TimerHandle_t xTimer)
