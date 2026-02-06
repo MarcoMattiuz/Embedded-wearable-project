@@ -1,8 +1,10 @@
 #include "../include/roll_pitch.h"
 
-static float roll   = 0.0f;
-static float pitch  = 0.0f;
-Rotation_t rotation = {0.0f, 0};
+static float         roll     = 0.0f;
+static float         pitch    = 0.0f;
+Rotation_t           rotation = {0.0f, 0};
+static Orientation_t orient   = {0, 0, 0};
+
 
 // void roll_pitch_init(void) 
 // {
@@ -61,7 +63,7 @@ bool verify_step(ACC_Three_Axis_t *ax)
         up = true;
         return true;
     }
-    else if (up && M < (ACCEL_SCALE + THRESHOLD_L))
+    else if (up && M < (GRAVITY + THRESHOLD_L))
     { 
         // falling edge
         up = false;
@@ -108,13 +110,52 @@ void verify_motion(ACC_Three_Axis_t *acc_data, GYRO_Three_Axis_t *gyro_data)
     if (step && !wrist)
     {
         global_parameters.step_cntr ++;
-        ESP_LOGI("VERIFY_MOTION", "STEPS: %d", global_parameters.step_cntr);
+        ESP_LOGI("VERIFY_MOTION", "STEPS: %d -------------------------------------------------", 
+            global_parameters.step_cntr);
     }
     else if (wrist)
     {
-        ESP_LOGI("VERIFY_MOTION", "WRIST ROTATION DETECTED");
+        ESP_LOGI("VERIFY_MOTION", "WRIST ROTATION DETECTED ---------------------------------------------");
 
         // EventType evt = EVT_GYRO;
         // xQueueSend(event_queue, &evt, 0);
     }
+}
+
+void update_orientation(const GYRO_Three_Axis_t *gyro, const ACC_Three_Axis_t  *acc)
+{
+    // ACC angles 
+    float acc_roll  = atan2f(acc->a_y, acc->a_z) * RAD_TO_DEG;
+    float acc_pitch = atan2f(-acc->a_x,
+                       sqrtf(acc->a_y * acc->a_y +
+                             acc->a_z * acc->a_z)) * RAD_TO_DEG;
+
+    // GYRO integration 
+    orient.roll  += gyro->g_x * DT;
+    orient.pitch += gyro->g_y * DT;
+    orient.yaw   += gyro->g_z * DT;   // drift inevitabile
+
+    // Complementary filter 
+    orient.roll  = ALPHA * orient.roll  + (1.0f - ALPHA) * acc_roll;
+    orient.pitch = ALPHA * orient.pitch + (1.0f - ALPHA) * acc_pitch;
+}
+
+void get_orientation_vector(GYRO_Three_Axis_t *gyro_data, GYRO_Three_Axis_t *tmp)
+{
+    // this function create a verson of gyro data in which:
+    // X = cos(pitch) * cos(yaw)
+    // Y = cos(pitch) * sin(yaw)
+    // Z = sin(pitch)
+
+    // orient is degrees
+    orient.pitch += gyro_data->g_y * DT;
+    orient.yaw   += gyro_data->g_z * DT;
+
+    // ° -> rad
+    float pitch = orient.pitch * DEG_TO_RAD;
+    float yaw   = orient.yaw   * DEG_TO_RAD;
+    
+    tmp->g_x = cosf(pitch) * cosf(yaw);
+    tmp->g_y = cosf(pitch) * sinf(yaw);
+    tmp->g_z = sinf(pitch);
 }

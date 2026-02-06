@@ -10,6 +10,17 @@
 #include <stdint.h>
 #include <math.h>
 
+/******************
+*   bit 0 = 0x01  *
+*   bit 1 = 0x02  *
+*   bit 2 = 0x04  *
+*   bit 3 = 0x08  *
+*   bit 4 = 0x10  *
+*   bit 5 = 0x20  *
+*   bit 6 = 0x40  *
+*   bit 7 = 0x80  *
+*******************/
+
 // MPU6050 I2C address
 #define MPU6050_ADDR 0x68
 
@@ -43,7 +54,7 @@
         2         8      0x10
         3        16      0x18
 */
-#define ACCEL_G_RANGE 0x00
+#define ACCEL_G_RANGE 0x08
 #define GYRO_CONFIG   0x1B
 /*
     7:       XG_ST
@@ -58,7 +69,7 @@
        2         1000      0x10     32.8
        3         2000      0x18     16.4
 */
-#define GYRO_RANGE 0x00
+#define GYRO_RANGE 0x18
 
 #define SMPLRT_DIV 0x19
 #define CONFIG     0x1A
@@ -68,7 +79,7 @@
 
     7 | 6 | 5 | 4 | 3 | 2 | 1 | 0
     -----------------------------
-    0 | 1 | 0 | 0 | 0 | 0 | 0 | 0
+    0 | 1 | 0 | 0 | 0 | 1 | 0 | 0
         ^               ^
         | FIFO_EN       | FIFO_RESET
 */
@@ -101,14 +112,23 @@
 // DIM SAMPLE IN BYTES
 #define MPU6050_FIFO_COUNT_H  0x72 
 #define MPU6050_FIFO_COUNT_L  0x73
+#define MPU6050_INT_STATUS    0x3A
+/*
+    set INT_STATUS register to:
+
+    7 | 6 | 5 | 4 | 3 | 2 | 1 | 0
+    -----------------------------
+    1 | 0 | 0 | 1 | 0 | 0 | 0 | 0
+                ^
+                |
+                | FIFO_OFLOW_INT
+*/
 
 //MACROS
 #define FIFO_SAMPLE_SIZE 14
-#define ACCEL_SCALE      16384.0f        // for ±2g range
-#define GYRO_SCALE       131.0f          // for ±250°/s range
-#define GRAVITY          9.8f            // m/s²
-#define DEG_TO_RAD       0.01745329252f  // π/180
-#define DT               0.008f          // 8 ms -> sample period
+#define ACCEL_SCALE      16384.0f // for ±2g range
+#define GYRO_SCALE       131.0f   // for ±250°/s range
+#define GRAVITY          9.8f     // m/s²
 
 //TYPES
 typedef struct {
@@ -146,20 +166,11 @@ typedef struct {
     float g_y_sum;
     float g_z_sum;
 } GYRO_accumulated;
-
-typedef struct {
-    float roll;
-    float pitch;
-} GyroData_t;
-
-typedef struct {
-    float pitch;  
-    float yaw;
-} Orientation_t;
     
 //FUNCTIONS
-void      mpu6050_set_handle (i2c_master_dev_handle_t dev_handle);
-esp_err_t mpu6050_init       ();
+void      mpu6050_set_handle     (i2c_master_dev_handle_t dev_handle);
+esp_err_t mpu6050_init           ();
+bool      mpu6050_check_overflow (void);
 
 int get_fifo_size (void);
 
@@ -169,7 +180,6 @@ void mpu6050_convert_accel (Raw_Data_acc *raw_acc, ACC_Three_Axis_t *acc_data);
 void mpu6050_convert_gyro  (Raw_Data_gyro *raw_gyro, GYRO_Three_Axis_t *gyro_data);
 
 void mpu6050_calibrate (float *accel_bias, float *gyro_bias);
-void mpu6050_convert_gyro2 (GYRO_Three_Axis_t *gyro_data, GYRO_Three_Axis_t *tmp);
 
 // // Roll and pitch calculation functions
 // void  roll_pitch_init   (void);

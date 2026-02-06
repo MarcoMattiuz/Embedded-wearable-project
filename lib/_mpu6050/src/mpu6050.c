@@ -2,8 +2,6 @@
 
 static float accel_bias[3]  = {1.12f, -0.30f, -0.55f};
 static float gyro_bias[3]   = {-0.27f, 0.24f, 0.16f};
-static Orientation_t orient = {0, 0};
-
 
 // Handle for the new I2C device
 static i2c_master_dev_handle_t mpu6050_dev = NULL;
@@ -50,7 +48,7 @@ esp_err_t mpu6050_init()
         return ret;
     }
 
-    // Configure accel ±2g
+    // Configure accel 
     cmd[0] = ACCEL_CONFIG;
     cmd[1] = ACCEL_G_RANGE;
     ret = i2c_master_transmit(mpu6050_dev, cmd, sizeof(cmd), -1);
@@ -59,7 +57,7 @@ esp_err_t mpu6050_init()
         return ret;
     }
 
-    // Configure gyro ±250°/s
+    // Configure gyro 
     cmd[0] = GYRO_CONFIG;
     cmd[1] = GYRO_RANGE;
     ret = i2c_master_transmit(mpu6050_dev, cmd, sizeof(cmd), -1);
@@ -68,8 +66,16 @@ esp_err_t mpu6050_init()
         return ret;
     }
 
-    // Enable FIFO for accel and gyro
+    // reset FIFO
     cmd[0] = USER_CTRL;
+    cmd[1] = 0x04;
+    ret = i2c_master_transmit(mpu6050_dev, cmd, sizeof(cmd), -1);
+    if (ret != ESP_OK)
+    {
+        return ret; 
+    } 
+
+    // Enable FIFO
     cmd[1] = 0x40;
     ret = i2c_master_transmit(mpu6050_dev, cmd, sizeof(cmd), -1);
     if (ret != ESP_OK)
@@ -79,7 +85,16 @@ esp_err_t mpu6050_init()
 
     // Enable OVERFLOW interrupt
     cmd[0] = INT_ENABLE;
-    cmd[1] = 0x80 | 0x08 | 0x40 | 0x20 | 0x10;
+    cmd[1] = 0x10;
+    ret = i2c_master_transmit(mpu6050_dev, cmd, sizeof(cmd), -1);
+    if (ret != ESP_OK)
+    {
+        return ret;
+    }
+    
+    // Enable FIFO for accel, gyro, tmp
+    cmd[0] = FIFO_EN;
+    cmd[1] = 0xF8; 
     ret = i2c_master_transmit(mpu6050_dev, cmd, sizeof(cmd), -1);
     if (ret != ESP_OK)
     {
@@ -87,6 +102,39 @@ esp_err_t mpu6050_init()
     }
 
     return ESP_OK;
+}
+
+bool mpu6050_check_overflow(void)
+{
+    uint8_t int_status;
+    uint8_t reg = MPU6050_INT_STATUS;
+    esp_err_t ret = i2c_master_transmit_receive(mpu6050_dev, &reg, sizeof(reg), &int_status, 1, -1);
+
+    if (int_status & 0x10) {  
+        ESP_LOGE("MPU6050", "FIFO OVERFLOW!");
+
+        uint8_t cmd[2];
+        
+        cmd[0] = USER_CTRL;
+
+        // disable FIFO_EN
+        cmd[1] = 0x00;   
+        i2c_master_transmit(mpu6050_dev, cmd, sizeof(cmd), -1);
+
+        // reset FIFO
+        cmd[1] = 0x04;   
+        i2c_master_transmit(mpu6050_dev, cmd, sizeof(cmd), -1);
+
+        vTaskDelay(pdMS_TO_TICKS(2));
+
+        // re-enable FIFO
+        cmd[1] = 0x40;
+        i2c_master_transmit(mpu6050_dev, cmd, sizeof(cmd), -1);
+
+        return true;
+    }
+
+    return false;
 }
 
 /*
@@ -97,7 +145,6 @@ int get_fifo_size(void) {
     uint8_t  fifo_h = 0;
     uint8_t  fifo_l = 0;
     uint16_t fifo_size = 0; // byte in a sample
-    uint8_t  reg_int_status = 0;
 
     uint8_t reg = MPU6050_FIFO_COUNT_H;
 
@@ -125,6 +172,7 @@ int get_fifo_size(void) {
 
     fifo_size = (fifo_h << 8) | fifo_l;
     ESP_LOGI("MPU6050_FIFO", "FIFO SIZE: %d", fifo_size);
+
     if (fifo_size < FIFO_SAMPLE_SIZE || fifo_size == 0)
     {
         return -1;
@@ -143,13 +191,13 @@ esp_err_t mpu6050_read_raw_data(Raw_Data_acc *raw_acc, Raw_Data_gyro *raw_gyro)
     uint8_t   reg = MPU6050_FIFO_DATA_R_W;
 
     // REG DATA: LIVE DATA
-    // uint8_t data[14];
-    // ret = i2c_master_transmit_receive(mpu6050_dev,
-    //                                             MPU6050_REG_ACCEL_XOUT_H,
-    //                                             1,
-    //                                             data,
-    //                                             sizeof(data),
-    //                                             -1);
+    /* uint8_t data[14];
+    ret = i2c_master_transmit_receive(mpu6050_dev,
+                                                MPU6050_REG_ACCEL_XOUT_H,
+                                                1,
+                                                data,
+                                                sizeof(data),
+                                                -1); */
     
     // FIFO DATA: HISTORICAL DATA
     uint8_t data[FIFO_SAMPLE_SIZE];
@@ -169,17 +217,17 @@ esp_err_t mpu6050_read_raw_data(Raw_Data_acc *raw_acc, Raw_Data_gyro *raw_gyro)
     raw_acc->a_x  = (data[0] << 8) | data[1];
     raw_acc->a_y  = (data[2] << 8) | data[3];
     raw_acc->a_z  = (data[4] << 8) | data[5];
-    ESP_LOGI("MPU6050_FIFO", "RAW ACCEL: X=%d Y=%d Z=%d", raw_acc->a_x, raw_acc->a_y, raw_acc->a_z);
+    ESP_LOGI("MPU6050_FIFO", "RAW ACCEL: X = %d Y = %d Z = %d", raw_acc->a_x, raw_acc->a_y, raw_acc->a_z);
 
     /*
-        raw_temp = (data[6] << 8) | data[7];
         I dont use it
+        raw_temp = (data[6] << 8) | data[7];
     */
 
     raw_gyro->g_x = (data[8]  << 8) | data[9];
     raw_gyro->g_y = (data[10] << 8) | data[11];
     raw_gyro->g_z = (data[12] << 8) | data[13];
-    ESP_LOGI("MPU6050_FIFO", "RAW GYRO:  X=%d Y=%d Z=%d", raw_gyro->g_x, raw_gyro->g_y, raw_gyro->g_z);
+    ESP_LOGI("MPU6050_FIFO", "RAW GYRO:  X = %d Y = %d Z = %d", raw_gyro->g_x, raw_gyro->g_y, raw_gyro->g_z);
 
     return ESP_OK;
 }
@@ -226,12 +274,17 @@ void mpu6050_calibrate(float *accel_bias_out, float *gyro_bias_out)
     GYRO_Three_Axis_t gyro_data = {0.0f, 0.0f, 0.0f};
     GYRO_accumulated  gyro_sum  = {0.0f, 0.0f, 0.0f};
 
+    int fifo_size      = 0;
     int target_samples = 100;
     int collected      = 0;
-    int fifo_size      = get_fifo_size();
-
+    
     while (collected < target_samples) 
     {
+        if (mpu6050_check_overflow())
+            continue;
+
+        fifo_size = get_fifo_size();
+        
         if (fifo_size == -1)
         {
             ESP_LOGE("MPU6050_CALIB", "Not enough data in FIFO!");
@@ -248,21 +301,14 @@ void mpu6050_calibrate(float *accel_bias_out, float *gyro_bias_out)
             continue;
         }
 
-        if (mpu6050_read_raw_data(&raw_acc, &raw_gyro) != ESP_OK)
-        {
-            continue;
-        }
-
         int samples_in_fifo = fifo_size / FIFO_SAMPLE_SIZE;
 
         for (int i = 0; i < samples_in_fifo && collected < target_samples; i++)
         {
             if (mpu6050_read_raw_data(&raw_acc, &raw_gyro) != ESP_OK)
-            {
                 continue;
-            }
 
-            mpu6050_convert_accel(&raw_acc, &acc_data);
+            mpu6050_convert_accel(&raw_acc, &acc_data); 
             mpu6050_convert_gyro(&raw_gyro, &gyro_data);
 
             acc_sum.a_x_sum += acc_data.a_x;
@@ -276,23 +322,23 @@ void mpu6050_calibrate(float *accel_bias_out, float *gyro_bias_out)
         }
     }
 
-    // for (int i = 0; i < samples; i++)
-    // {
-    //     if (mpu6050_read_raw_data(&raw_acc, &raw_gyro) != ESP_OK)
-    //     {
-    //         continue;
-    //     }
+    /*for (int i = 0; i < samples; i++)
+    {
+        if (mpu6050_read_raw_data(&raw_acc, &raw_gyro) != ESP_OK)
+        {
+            continue;
+        }
 
-    //     mpu6050_convert_accel(&raw_acc, &acc_data);
-    //     mpu6050_convert_gyro(&raw_gyro, &gyro_data);
+        mpu6050_convert_accel(&raw_acc, &acc_data);
+        mpu6050_convert_gyro(&raw_gyro, &gyro_data);
 
-    //     acc_sum.a_x_sum += acc_data.a_x;
-    //     acc_sum.a_y_sum += acc_data.a_y;
-    //     acc_sum.a_z_sum += acc_data.a_z;
-    //     gyro_sum.g_x_sum += gyro_data.g_x;
-    //     gyro_sum.g_y_sum += gyro_data.g_y;
-    //     gyro_sum.g_z_sum += gyro_data.g_z;
-    // }
+        acc_sum.a_x_sum += acc_data.a_x;
+        acc_sum.a_y_sum += acc_data.a_y;
+        acc_sum.a_z_sum += acc_data.a_z;
+        gyro_sum.g_x_sum += gyro_data.g_x;
+        gyro_sum.g_y_sum += gyro_data.g_y;
+        gyro_sum.g_z_sum += gyro_data.g_z;
+    }*/
 
     //AVG: rapresent the bias (the value which the sensor reads when it is still)
     accel_bias_out[0] =  acc_sum.a_x_sum / target_samples;
@@ -302,19 +348,4 @@ void mpu6050_calibrate(float *accel_bias_out, float *gyro_bias_out)
     gyro_bias_out[0] = gyro_sum.g_x_sum / target_samples;
     gyro_bias_out[1] = gyro_sum.g_y_sum / target_samples;
     gyro_bias_out[2] = gyro_sum.g_z_sum / target_samples;
-}
-
-void mpu6050_convert_gyro2 (GYRO_Three_Axis_t *gyro_data, GYRO_Three_Axis_t *tmp)
-{
-    // orient is degrees
-    orient.pitch += gyro_data->g_y * DT;
-    orient.yaw   += gyro_data->g_z * DT;
-
-    // ° -> rad
-    float pitch = orient.pitch * DEG_TO_RAD;
-    float yaw   = orient.yaw   * DEG_TO_RAD;
-    
-    tmp->g_x = cosf(pitch) * cosf(yaw);
-    tmp->g_y = cosf(pitch) * sinf(yaw);
-    tmp->g_z = sinf(pitch);
 }

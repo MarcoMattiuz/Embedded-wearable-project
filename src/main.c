@@ -82,12 +82,19 @@ void task_acc(void *parameters)
 
     int fifo_size = 0;
     int samples   = 0;
-    
+
     GYRO_Three_Axis_t tmp;
 
     while (1)
     {
+        if (mpu6050_check_overflow())
+        {
+            ESP_LOGW("MPU6050_TASK_ACC", "Overflow detected, resetting FIFO...");
+            continue;
+        }
+
         fifo_size = get_fifo_size();
+        
         if (fifo_size == -1)
         {
             ESP_LOGE("TASK_ACC", "Not enough data in FIFO!");
@@ -103,44 +110,39 @@ void task_acc(void *parameters)
             ESP_LOGE("TASK_ACC", "Failed to read!");
             continue;
         }
-        else 
+        
+        samples = fifo_size / FIFO_SAMPLE_SIZE;
+
+        for (int i = 0; i < samples; i++)
         {
-            samples = fifo_size / FIFO_SAMPLE_SIZE;
+            if (mpu6050_read_raw_data(&raw_acc, &raw_gyro) != ESP_OK)
+                continue;
 
-            for (int i = 0; i < samples; i++)
-            {
-                ret = mpu6050_read_raw_data(&raw_acc, &raw_gyro);
-                if (ret != ESP_OK)
-                    break;
+            mpu6050_convert_accel(&raw_acc, &accel_data);
+            mpu6050_convert_gyro(&raw_gyro, &gyro_data);
+            
+            verify_motion(&accel_data, &gyro_data);
+            update_orientation(&gyro_data, &accel_data);
 
-                mpu6050_convert_accel(&raw_acc, &accel_data);
-                mpu6050_convert_gyro (&raw_gyro, &gyro_data);
-
-                verify_motion(&accel_data, &gyro_data);
-
-                if (ble_manager_is_connected())
-                {
-                    mpu6050_convert_gyro2(&gyro_data, &tmp);
-
-                    ble_manager_notify_gyro(
-                        ble_manager_get_conn_handle(),
-                        &tmp);
-                }
-            }
+            get_orientation_vector(&gyro_data, &tmp);
+            ESP_LOGI("TASK_ACC", "GYRO: X = %.2f Y = %.2f Z = %.2f", tmp.g_x, tmp.g_y, tmp.g_z);
+            
+            if (ble_manager_is_connected())
+                ble_manager_notify_gyro(ble_manager_get_conn_handle(), &tmp);
         }
 
-        // ret = mpu6050_read_raw_data(&raw_acc, &raw_gyro);
+        /*ret = mpu6050_read_raw_data(&raw_acc, &raw_gyro);
 
-        // if (ret != ESP_OK)
-        // {
-        //     ESP_LOGE("MPU6050", "Read failed");
-        //     continue;
-        // }
-        // else
-        // {
-        //     mpu6050_convert_accel(&raw_acc, &accel_data);
-        //     mpu6050_convert_gyro(&raw_gyro, &gyro_data);
-        // }
+        if (ret != ESP_OK)
+        {
+            ESP_LOGE("MPU6050", "Read failed");
+            continue;
+        }
+        else
+        {
+            mpu6050_convert_accel(&raw_acc, &accel_data);
+            mpu6050_convert_gyro(&raw_gyro, &gyro_data);
+        }*/
 
         vTaskDelay(pdMS_TO_TICKS(20));
     }
