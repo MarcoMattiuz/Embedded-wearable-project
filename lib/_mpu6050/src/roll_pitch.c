@@ -1,9 +1,8 @@
 #include "../include/roll_pitch.h"
 
-static float roll  = 0.0f;
-static float pitch = 0.0f;
-
-Rotation_t rotation;
+static float roll   = 0.0f;
+static float pitch  = 0.0f;
+Rotation_t rotation = {0.0f, 0};
 
 // void roll_pitch_init(void) 
 // {

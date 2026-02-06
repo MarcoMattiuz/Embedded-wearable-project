@@ -27,7 +27,7 @@ static ble_time_write_cb_t time_write_callback = NULL;
 static float current_iracbuffer_value = 0.0f;
 static float current_irrawbuffer_value = 0.0f;
 static ens160_data_t current_ens160_value = {0};
-static Gyro_Axis_final_t current_gyro_value = {0};
+static GYRO_Three_Axis_t current_gyro_value = {0};
 static int16_t current_bpm_value = 0;
 static int16_t current_avgbpm_value = 0;
 
@@ -146,7 +146,7 @@ static int gatt_svr_chr_access(uint16_t conn_handle, uint16_t attr_handle,
     } 
     else if (uuid == GYRO_CHAR_UUID) {
         if (ctxt->op == BLE_GATT_ACCESS_OP_READ_CHR) {
-            rc = os_mbuf_append(ctxt->om, &current_gyro_value, sizeof(GyroData_t));
+            rc = os_mbuf_append(ctxt->om, &current_gyro_value, sizeof(GYRO_Three_Axis_t));
             return rc == 0 ? 0 : BLE_ATT_ERR_UNLIKELY;
         }
     }

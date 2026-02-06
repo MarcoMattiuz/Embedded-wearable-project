@@ -14,7 +14,7 @@
 #define MPU6050_ADDR 0x68
 
 // MPU6050 Register Addresses
-#define MPU6050_REG_PWR_MGMT_1   0x6B
+#define MPU6050_REG_PWR_MGMT_1 0x6B
 /*
 
     7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 
@@ -29,7 +29,7 @@
 */
 #define MPU6050_REG_ACCEL_XOUT_H 0x3B
 #define MPU6050_REG_GYRO_XOUT_H  0x43
-#define ACCEL_CONFIG 0x1C
+#define ACCEL_CONFIG             0x1C
 /*
     7:       XA_SELF_TEST
     6:       YA_SELF_TEST
@@ -44,7 +44,7 @@
         3        16      0x18
 */
 #define ACCEL_G_RANGE 0x00
-#define GYRO_CONFIG  0x1B
+#define GYRO_CONFIG   0x1B
 /*
     7:       XG_ST
     6:       YG_ST
@@ -154,9 +154,9 @@ typedef struct {
 
 typedef struct {
     float pitch;  
-    float yaw;    
+    float yaw;
 } Orientation_t;
-
+    
 //FUNCTIONS
 void      mpu6050_set_handle (i2c_master_dev_handle_t dev_handle);
 esp_err_t mpu6050_init       ();
@@ -169,8 +169,7 @@ void mpu6050_convert_accel (Raw_Data_acc *raw_acc, ACC_Three_Axis_t *acc_data);
 void mpu6050_convert_gyro  (Raw_Data_gyro *raw_gyro, GYRO_Three_Axis_t *gyro_data);
 
 void mpu6050_calibrate (float *accel_bias, float *gyro_bias);
-
-int* mpu6050_convert_gyro2 (GYRO_Three_Axis_t *gyro_data);
+void mpu6050_convert_gyro2 (GYRO_Three_Axis_t *gyro_data, GYRO_Three_Axis_t *tmp);
 
 // // Roll and pitch calculation functions
 // void  roll_pitch_init   (void);

@@ -5,7 +5,6 @@
 // #include "esp_err.h"
 // #include "freertos/queue.h"
 #include "mpu6050.h"
-#include <math.h>
 
 // Complementary filter coefficients
 #define ALPHA               0.7f     // the weight for the gyroscope data

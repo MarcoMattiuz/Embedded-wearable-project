@@ -82,6 +82,8 @@ void task_acc(void *parameters)
 
     int fifo_size = 0;
     int samples   = 0;
+    
+    GYRO_Three_Axis_t tmp;
 
     while (1)
     {
@@ -118,11 +120,11 @@ void task_acc(void *parameters)
 
                 if (ble_manager_is_connected())
                 {
-                    int* vec = mpu6050_convert_gyro2(&gyro_data);
+                    mpu6050_convert_gyro2(&gyro_data, &tmp);
 
                     ble_manager_notify_gyro(
                         ble_manager_get_conn_handle(),
-                        vec);
+                        &tmp);
                 }
             }
         }
@@ -644,23 +646,23 @@ void app_main()
     init_I2C_bus_PORT0(&i2c_bus_0);
     init_I2C_bus_PORT1(&i2c_bus_1);
 
-    add_device_SH1106(&panel_handle);
-    vTaskDelay(pdMS_TO_TICKS(50));
-    xTaskCreate(
-        LCD_task,
-        "LCD_task_debug",
-        4096,
-        &panel_handle,
-        2,
-        NULL);
-    vTaskDelay(pdMS_TO_TICKS(500));
+    // add_device_SH1106(&panel_handle);
+    // vTaskDelay(pdMS_TO_TICKS(50));
+    // xTaskCreate(
+    //     LCD_task,
+    //     "LCD_task_debug",
+    //     4096,
+    //     &panel_handle,
+    //     2,
+    //     NULL);
+    // vTaskDelay(pdMS_TO_TICKS(500));
 
-    add_device_MAX30102(&max30102_device);
-    vTaskDelay(pdMS_TO_TICKS(500));
+    // add_device_MAX30102(&max30102_device);
+    // vTaskDelay(pdMS_TO_TICKS(500));
     add_device_MPU6050(&mpu6050_device);
     vTaskDelay(pdMS_TO_TICKS(500));
-    esp_err_t ens160_ret = add_device_ENS160();
-    vTaskDelay(pdMS_TO_TICKS(500));
+    // esp_err_t ens160_ret = add_device_ENS160();
+    // vTaskDelay(pdMS_TO_TICKS(500));
 
     // ppg parameters init
     parameters_ppg_max30102.bus = i2c_bus_0;
@@ -695,30 +697,30 @@ void app_main()
     vTaskDelay(pdMS_TO_TICKS(500));
 
     //* Start battery level monitoring task */
-    xTaskCreate(
-        bettery_level_task,
-        "battery_level_task",
-        2048,
-        NULL,
-        6,
-        NULL);
-    vTaskDelay(pdMS_TO_TICKS(500));
-    /* Start RTC clock display task */
-    xTaskCreate(rtc_clock_task, "rtc_clock", 4096, NULL, 4, NULL);
-    vTaskDelay(pdMS_TO_TICKS(500));
+    // xTaskCreate(
+    //     bettery_level_task,
+    //     "battery_level_task",
+    //     2048,
+    //     NULL,
+    //     6,
+    //     NULL);
+    // vTaskDelay(pdMS_TO_TICKS(500));
+    // /* Start RTC clock display task */
+    // xTaskCreate(rtc_clock_task, "rtc_clock", 4096, NULL, 4, NULL);
+    // vTaskDelay(pdMS_TO_TICKS(500));
 
-    xTaskCreatePinnedToCore(
-        PPG_sensor_task,
-        "PPG_sensor_task_debug",
-        4096,
-        &parameters_ppg_max30102,
-        3,
-        &ppg_task_handle,
-        0);
-    vTaskDelay(pdMS_TO_TICKS(500));
+    // xTaskCreatePinnedToCore(
+    //     PPG_sensor_task,
+    //     "PPG_sensor_task_debug",
+    //     4096,
+    //     &parameters_ppg_max30102,
+    //     3,
+    //     &ppg_task_handle,
+    //     0);
+    // vTaskDelay(pdMS_TO_TICKS(500));
 
     /* Start CO2 check task */
-    xTaskCreate(c02_check_task, "c02_check", 4096, NULL, 5, NULL);
+    // xTaskCreate(c02_check_task, "c02_check", 4096, NULL, 5, NULL);
 
     ESP_LOGI(TAG, "Service initialized successfully");
 

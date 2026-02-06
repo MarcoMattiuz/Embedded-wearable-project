@@ -99,8 +99,10 @@ int get_fifo_size(void) {
     uint16_t fifo_size = 0; // byte in a sample
     uint8_t  reg_int_status = 0;
 
+    uint8_t reg = MPU6050_FIFO_COUNT_H;
+
     esp_err_t ret = i2c_master_transmit_receive(mpu6050_dev,
-                                                MPU6050_FIFO_COUNT_H,
+                                                &reg,
                                                 1,
                                                 &fifo_h,
                                                 sizeof(fifo_h),
@@ -108,8 +110,10 @@ int get_fifo_size(void) {
     if (ret != ESP_OK) {
         ESP_LOGE("mpu6050", "Failed to read: %s", esp_err_to_name(ret));
     }
+
+    reg = MPU6050_FIFO_COUNT_L;
     ret = i2c_master_transmit_receive(mpu6050_dev,
-                                      MPU6050_FIFO_COUNT_L,
+                                      &reg,
                                       1,
                                       &fifo_l,
                                       sizeof(fifo_l),
@@ -136,6 +140,7 @@ int get_fifo_size(void) {
 esp_err_t mpu6050_read_raw_data(Raw_Data_acc *raw_acc, Raw_Data_gyro *raw_gyro)
 {
     esp_err_t ret;
+    uint8_t   reg = MPU6050_FIFO_DATA_R_W;
 
     // REG DATA: LIVE DATA
     // uint8_t data[14];
@@ -150,7 +155,7 @@ esp_err_t mpu6050_read_raw_data(Raw_Data_acc *raw_acc, Raw_Data_gyro *raw_gyro)
     uint8_t data[FIFO_SAMPLE_SIZE];
 
     ret = i2c_master_transmit_receive(mpu6050_dev,
-                                      MPU6050_FIFO_DATA_R_W,
+                                      &reg,
                                       1,
                                       data,
                                       sizeof(data),
@@ -299,7 +304,7 @@ void mpu6050_calibrate(float *accel_bias_out, float *gyro_bias_out)
     gyro_bias_out[2] = gyro_sum.g_z_sum / target_samples;
 }
 
-int* mpu6050_convert_gyro2 (GYRO_Three_Axis_t *gyro_data)
+void mpu6050_convert_gyro2 (GYRO_Three_Axis_t *gyro_data, GYRO_Three_Axis_t *tmp)
 {
     // orient is degrees
     orient.pitch += gyro_data->g_y * DT;
@@ -308,12 +313,8 @@ int* mpu6050_convert_gyro2 (GYRO_Three_Axis_t *gyro_data)
     // ° -> rad
     float pitch = orient.pitch * DEG_TO_RAD;
     float yaw   = orient.yaw   * DEG_TO_RAD;
-
-    int vec[3] = {0};
     
-    vec[0] = cosf(pitch) * cosf(yaw);
-    vec[1] = cosf(pitch) * sinf(yaw);
-    vec[2] = sinf(pitch);
-
-    return vec;
+    tmp->g_x = cosf(pitch) * cosf(yaw);
+    tmp->g_y = cosf(pitch) * sinf(yaw);
+    tmp->g_z = sinf(pitch);
 }
