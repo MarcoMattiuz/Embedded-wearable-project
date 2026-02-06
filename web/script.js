@@ -66,6 +66,7 @@ function updateUI(connected) {
 }
 
 async function toggleConnection() {
+
   if (bluetoothDevice?.gatt.connected) {
     bluetoothDevice.gatt.disconnect();
     log("Disconnected by user", "info");
@@ -138,6 +139,10 @@ async function toggleConnection() {
     log("Connected successfully!", "success");
     updateUI(true);
 
+    const pos = await getGeolocation();
+    latitude = pos.latitude;
+    longitude = pos.longitude;
+    
     await getWeather();
     log("Weather data sent to device", "success");
 
@@ -435,8 +440,7 @@ function getGeolocation() {
 
 async function getWeather() {
   try {
-    const { latitude, longitude } = await getGeolocation();
-
+  
     const URL =
       `https://api.open-meteo.com/v1/forecast` +
       `?latitude=${latitude}&longitude=${longitude}` +
