@@ -687,13 +687,13 @@ void app_main()
     vTaskDelay(pdMS_TO_TICKS(500));
 
     //* Start battery level monitoring task */
-    xTaskCreate(
-        bettery_level_task,
-        "battery_level_task",
-        2048,
-        NULL,
-        6,
-        NULL);
+    // xTaskCreate(
+    //     bettery_level_task,
+    //     "battery_level_task",
+    //     2048,
+    //     NULL,
+    //     6,
+    //     NULL);
     vTaskDelay(pdMS_TO_TICKS(500));
     /* Start RTC clock display task */
     xTaskCreate(rtc_clock_task, "rtc_clock", 4096, NULL, 4, NULL);
