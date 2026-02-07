@@ -267,9 +267,6 @@ static void c02_check_task(void *pvParameter)
             {
                 ESP_LOGW(TAG, "Performing ENS160 full reset");
                 global_parameters.CO2 = 0;
-<<<<<<< HEAD
-
-=======
                 global_parameters.CO2_risk_level = 0;
                 
                 esp_err_t reset_ret = ens160_full_reset();
@@ -614,15 +611,15 @@ unsigned long ulGetRunTimeCounterValue(void)
 
 void print_task_stats(void)
 {
-    // char buffer[2048];
+    char buffer[2048];
 
-    // printf("\n\n===== TASK LIST =====\n");
-    // vTaskList(buffer);
-    // printf("%s\n", buffer);
+    printf("\n\n===== TASK LIST =====\n");
+    vTaskList(buffer);
+    printf("%s\n", buffer);
 
-    // printf("\n===== RUNTIME STATS =====\n");
-    // vTaskGetRunTimeStats(buffer);
-    // printf("%s\n", buffer);
+    printf("\n===== RUNTIME STATS =====\n");
+    vTaskGetRunTimeStats(buffer);
+    printf("%s\n", buffer);
 }
 
 void app_main()
@@ -663,8 +660,8 @@ void app_main()
         NULL);
     vTaskDelay(pdMS_TO_TICKS(500));
 
-    // add_device_MAX30102(&max30102_device);
-    // vTaskDelay(pdMS_TO_TICKS(500));
+    add_device_MAX30102(&max30102_device);
+    vTaskDelay(pdMS_TO_TICKS(500));
     add_device_MPU6050(&mpu6050_device);
     vTaskDelay(pdMS_TO_TICKS(500));
     add_device_ENS160();
@@ -715,15 +712,15 @@ void app_main()
     xTaskCreate(rtc_clock_task, "rtc_clock", 4096, NULL, 4, NULL);
     vTaskDelay(pdMS_TO_TICKS(500));
 
-    // xTaskCreatePinnedToCore(
-    //     PPG_sensor_task,
-    //     "PPG_sensor_task_debug",
-    //     4096,
-    //     &parameters_ppg_max30102,
-    //     3,
-    //     &ppg_task_handle,
-    //     0);
-    // vTaskDelay(pdMS_TO_TICKS(500));
+    xTaskCreatePinnedToCore(
+        PPG_sensor_task,
+        "PPG_sensor_task_debug",
+        4096,
+        &parameters_ppg_max30102,
+        3,
+        &ppg_task_handle,
+        0);
+    vTaskDelay(pdMS_TO_TICKS(500));
 
     /* Start CO2 check task */
     xTaskCreate(c02_check_task, "c02_check", 4096, NULL, 2, NULL);
@@ -737,14 +734,12 @@ void app_main()
         print_task_stats();
         vTaskDelay(pdMS_TO_TICKS(2000));
         esp_err_t err0 = i2c_master_probe(i2c_bus_0, I2C_MAX30102_ADDR, 0x7F);
-        esp_err_t err1 = i2c_master_probe(i2c_bus_1, I2C_MPU6050_ADDR, 0x7F);
+        esp_err_t err1 = i2c_master_probe(i2c_bus_0, I2C_MPU6050_ADDR, 0x7F);
         esp_err_t err2 = i2c_master_probe(i2c_bus_0, 0x53, 0x7F);
-        esp_err_t err3 = i2c_master_probe(i2c_bus_0, 0x52, 0x7F);
 
-        printf("I2C probe results: MAX30102=%s, MPU6050=%s, ENS160=%s - %s\n",
+        printf("I2C probe results: MAX30102=%s, MPU6050=%s, ENS160=%s\n",
                err0 == ESP_OK ? "OK" : "FAIL",
                err1 == ESP_OK ? "OK" : "FAIL",
-               err2 == ESP_OK ? "OK 0x53" : "FAIL 0x53",
-               err3 == ESP_OK ? "OK 0x52" : "FAIL 0x52");
+               err2 == ESP_OK ? "OK" : "FAIL");
     }
 }
