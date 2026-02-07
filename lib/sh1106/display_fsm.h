@@ -42,6 +42,7 @@ void fn_CLOCK(esp_lcd_panel_handle_t *, struct global_param *param);
 void fn_BATTERY(esp_lcd_panel_handle_t *, struct global_param *param);
 void fn_STEPS(esp_lcd_panel_handle_t *, struct global_param *param);
 void fn_CO2(esp_lcd_panel_handle_t *, struct global_param *param);
+void fn_PARTICULATE(esp_lcd_panel_handle_t *, struct global_param *param);
 
 void show_loading_screen(esp_lcd_panel_handle_t *);
 

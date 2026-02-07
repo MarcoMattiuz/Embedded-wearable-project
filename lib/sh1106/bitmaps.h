@@ -22,3 +22,5 @@ extern const uint8_t fullBatteryBitmap[];
 extern const uint8_t bluetoothBitmap[];
 extern const uint8_t LoadingBitmap[];
 extern const uint8_t circleArrowBitmap[];
+
+extern const uint8_t particulateBitmap[];

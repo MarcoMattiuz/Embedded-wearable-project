@@ -254,6 +254,7 @@ static void c02_check_task(void *pvParameter)
             ESP_LOGI(TAG, "eCO2: %d ppm, TVOC: %d ppb, AQI: %d", data.eco2, data.tvoc, data.aqi);
             global_parameters.CO2 = data.eco2;
             global_parameters.CO2_risk_level = data.aqi;
+            global_parameters.particulate = data.tvoc;
 
             if (notify_enabled && ble_manager_is_connected())
             {

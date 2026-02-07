@@ -22,6 +22,7 @@ typedef enum
     STATE_STEPS,
     STATE_BATTERY,
     STATE_CO2,
+    STATE_PARTICULATE,
     STATE_COUNT,
 
 } State_t;
@@ -58,6 +59,7 @@ struct global_param
     char time_str[6];
     int CO2;
     int CO2_risk_level;
+    int particulate;
     float battery_voltage;
 };
 

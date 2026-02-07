@@ -8,6 +8,7 @@ StateMachine_t fsm[] = {
     {STATE_STEPS, fn_STEPS},
     {STATE_BATTERY, fn_BATTERY},
     {STATE_CO2, fn_CO2},
+    {STATE_PARTICULATE, fn_PARTICULATE},
 };
 
 uint8_t buffer_data[SH1106_BUFFER_SIZE];
@@ -231,6 +232,25 @@ void fn_CO2(esp_lcd_panel_handle_t *panel_handle, struct global_param *param)
         drawBufferToLcd(buffer_data, *panel_handle);
 }
 
+void fn_PARTICULATE(esp_lcd_panel_handle_t *panel_handle, struct global_param *param)
+{
+    memset(buffer_data, 0, sizeof(buffer_data));
+
+    char buff[36];
+
+    sprintf(buff, "%d ppb", param->CO2);
+
+    drawStringToBuffer(buff, buffer_data, 64 + 5, 28);
+
+    drawBitmapToBuffer(particulateBitmap, buffer_data, 0, 0, 64, 64);
+
+    if (param->CO2 == 0)
+    {
+        drawBitmapToBuffer(circleArrowBitmap, buffer_data, 112, 0, 16, 16);
+    }
+    drawBufferToLcd(buffer_data, *panel_handle);
+}
+
 void long_press_timer_handler(TimerHandle_t xTimer)
 {
     EventType evt = EVT_LONG_PRESS;
@@ -239,14 +259,12 @@ void long_press_timer_handler(TimerHandle_t xTimer)
 
 void refresh_timer_handler(TimerHandle_t xTimer)
 {
-    test++;
     EventType evt = EVT_REFRESH;
     xQueueSend(event_queue, &evt, 0);
 }
 
 void frame_timer_handler(TimerHandle_t xTimer)
 {
-
     EventType evt = EVT_REFRESH;
     global_parameters.show_heart = !global_parameters.show_heart;
     xQueueSend(event_queue, &evt, 0);
@@ -304,7 +322,7 @@ void GPIO_init()
         refresh_timer_handler);
     // bpm screen blinking heart timer
     frame_timer_handle = xTimerCreate(
-        "refresh",
+        "frame refresh",
         pdMS_TO_TICKS(FRAME_TIME_MS),
         pdTRUE, // repeating timer
         NULL,
