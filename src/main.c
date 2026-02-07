@@ -134,19 +134,6 @@ void task_acc(void *parameters)
                 ble_manager_notify_gyro(ble_manager_get_conn_handle(), &tmp);
         }
 
-        /*ret = mpu6050_read_raw_data(&raw_acc, &raw_gyro);
-
-        if (ret != ESP_OK)
-        {
-            ESP_LOGE("MPU6050", "Read failed");
-            continue;
-        }
-        else
-        {
-            mpu6050_convert_accel(&raw_acc, &accel_data);
-            mpu6050_convert_gyro(&raw_gyro, &gyro_data);
-        }*/
-
         vTaskDelay(pdMS_TO_TICKS(20));
     }
 }
