@@ -1,40 +1,47 @@
-/********************************************************************************************
- * Project: MPU6050 ESP32 Sensor Interface
- * Author: Muhammad Idrees
- * 
- * Description:
- * This header file declares the functions required for roll and pitch calculations using
- * complementary filters. It provides the necessary prototypes for initializing and updating
- * angle calculations.
- * 
- * Author's Background:
- * Name: Muhammad Idrees
- * Degree: Bachelor's in Electrical and Electronics Engineering
- * Institution: Institute of Space Technology, Islamabad
- * 
- * License:
- * This header file is part of the MPU6050 interface project authored by Muhammad Idrees.
- * It is intended for educational purposes and may be used with acknowledgment of the author.
- * 
- * Key Features:
- * - Complementary filter setup and update functions.
- * 
- * Date: [28/7/2024]
- ********************************************************************************************/
+#ifndef __ROLL_PITCH_H__
+#define __ROLL_PITCH_H__
 
+// #include "driver/i2c.h"
+// #include "esp_err.h"
+// #include "freertos/queue.h"
+#include "mpu6050.h"
 
+// Complementary filter coefficients
+/*
+    2g = 19.62 m/s²
+    my peaks have to stay under this value
+*/
+#define THRESHOLD_H         2.5f     
+#define THRESHOLD_L         1.5f    
+#define ALPHA               0.9f     // the weight for the gyroscope data
+#define REFRACT_MS          500      // ro avoid double triggers
+#define MIN_ROT_ANGLE       20.0f    // min accumulate ang for confirm rotation
+#define WRIST_ROT_THRESHOLD 60.0f    // min wrist rotation
+#define DT                  0.008f   // time between samples relate to 125Hz
 
-#ifndef ROLL_PITCH_H
-#define ROLL_PITCH_H
+// MACROS
+#define DEG_TO_RAD 0.01745329252f  // π/180
+#define RAD_TO_DEG 57.2957795131f  // 180/π
+#define DT         0.008f          // 8 ms -> sample period
 
-#include "driver/i2c.h"
-#include "esp_err.h"
+// Types
+typedef struct {
+    float    integrated_angle;
+    uint32_t last_trigger;
+} Rotation_t;
 
-// Function prototypes
-void roll_pitch_init(void);
-void roll_pitch_update(float accel_x, float accel_y, float accel_z, float gyro_x, float gyro_y, float gyro_z);
-float roll_get(void);
-float pitch_get(void);
+typedef struct {
+    float roll;
+    float pitch;  
+    float yaw;
+} Orientation_t;
 
-#endif // ROLL_PITCH_H
+bool verify_step           (ACC_Three_Axis_t *ax);
+bool verify_wrist_rotation (GYRO_Three_Axis_t *g);
+void verify_motion         (ACC_Three_Axis_t *acc_data, GYRO_Three_Axis_t *gyro_data);
+
+void update_orientation     (const GYRO_Three_Axis_t *gyro, const ACC_Three_Axis_t  *acc);
+void get_orientation_vector (GYRO_Three_Axis_t *gyro_data, GYRO_Three_Axis_t *tmp);
+
+#endif
 
