@@ -130,12 +130,12 @@ void verify_motion(ACC_Three_Axis_t *acc_data, GYRO_Three_Axis_t *gyro_data)
     if (step && !wrist)
     {
         global_parameters.step_cntr ++;
-        ESP_LOGI("VERIFY_MOTION", "STEPS: %d -------------------------------------------------", 
+        ESP_LOGI("VERIFY_MOTION", "STEPS: %d -----------------------------------------------------------------------------", 
             global_parameters.step_cntr);
     }
     else if (wrist)
     {
-        ESP_LOGI("VERIFY_MOTION", "WRIST ROTATION DETECTED ---------------------------------------------");
+        ESP_LOGI("VERIFY_MOTION", "WRIST ROTATION DETECTED -----------------------------------------------------------------");
 
         // EventType evt = EVT_GYRO;
         // xQueueSend(event_queue, &evt, 0);
