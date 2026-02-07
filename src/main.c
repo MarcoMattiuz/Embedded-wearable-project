@@ -127,7 +127,7 @@ void task_acc(void *parameters)
             update_orientation(&gyro_data, &accel_data);
 
             get_orientation_vector(&gyro_data, &tmp);
-            ESP_LOGI("TASK_ACC", "GYRO: X = %.2f Y = %.2f Z = %.2f", tmp.g_x, tmp.g_y, tmp.g_z);
+            //ESP_LOGI("TASK_ACC", "GYRO: X = %.2f Y = %.2f Z = %.2f", tmp.g_x, tmp.g_y, tmp.g_z);
             
             if (ble_manager_is_connected())
                 ble_manager_notify_gyro(ble_manager_get_conn_handle(), &tmp);

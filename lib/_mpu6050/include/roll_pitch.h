@@ -36,13 +36,6 @@ typedef struct {
     float yaw;
 } Orientation_t;
 
-// Function prototypes
-// void  roll_pitch_init   (void);
-// void  roll_pitch_update (ACC_Three_Axis_t acc_data, GYRO_Three_Axis_t gyro_data);
-
-// float roll_get  (void);
-// float pitch_get (void);
-
 bool verify_step           (ACC_Three_Axis_t *ax);
 bool verify_wrist_rotation (GYRO_Three_Axis_t *g);
 void verify_motion         (ACC_Three_Axis_t *acc_data, GYRO_Three_Axis_t *gyro_data);

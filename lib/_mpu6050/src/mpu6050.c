@@ -171,7 +171,7 @@ int get_fifo_size(void) {
     }
 
     fifo_size = (fifo_h << 8) | fifo_l;
-    ESP_LOGI("MPU6050_FIFO", "FIFO SIZE: %d", fifo_size);
+    //ESP_LOGI("MPU6050_FIFO", "FIFO SIZE: %d", fifo_size);
 
     if (fifo_size < FIFO_SAMPLE_SIZE || fifo_size == 0)
     {
@@ -217,7 +217,7 @@ esp_err_t mpu6050_read_raw_data(Raw_Data_acc *raw_acc, Raw_Data_gyro *raw_gyro)
     raw_acc->a_x  = (data[0] << 8) | data[1];
     raw_acc->a_y  = (data[2] << 8) | data[3];
     raw_acc->a_z  = (data[4] << 8) | data[5];
-    ESP_LOGI("MPU6050_FIFO", "RAW ACCEL: X = %d Y = %d Z = %d", raw_acc->a_x, raw_acc->a_y, raw_acc->a_z);
+    //ESP_LOGI("MPU6050_FIFO", "RAW ACCEL: X = %d Y = %d Z = %d", raw_acc->a_x, raw_acc->a_y, raw_acc->a_z);
 
     /*
         I dont use it
@@ -227,7 +227,7 @@ esp_err_t mpu6050_read_raw_data(Raw_Data_acc *raw_acc, Raw_Data_gyro *raw_gyro)
     raw_gyro->g_x = (data[8]  << 8) | data[9];
     raw_gyro->g_y = (data[10] << 8) | data[11];
     raw_gyro->g_z = (data[12] << 8) | data[13];
-    ESP_LOGI("MPU6050_FIFO", "RAW GYRO:  X = %d Y = %d Z = %d", raw_gyro->g_x, raw_gyro->g_y, raw_gyro->g_z);
+    //ESP_LOGI("MPU6050_FIFO", "RAW GYRO:  X = %d Y = %d Z = %d", raw_gyro->g_x, raw_gyro->g_y, raw_gyro->g_z);
 
     return ESP_OK;
 }
@@ -314,7 +314,7 @@ void mpu6050_calibrate(float *accel_bias_out, float *gyro_bias_out)
             acc_sum.a_x_sum += acc_data.a_x;
             acc_sum.a_y_sum += acc_data.a_y;
             acc_sum.a_z_sum += acc_data.a_z;
-            
+
             gyro_sum.g_x_sum += gyro_data.g_x;
             gyro_sum.g_y_sum += gyro_data.g_y;
             gyro_sum.g_z_sum += gyro_data.g_z;
