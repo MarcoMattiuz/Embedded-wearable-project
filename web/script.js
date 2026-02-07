@@ -206,6 +206,9 @@ function handleEns160Notification(event) {
     updateECO2Graph();
     // log(`eCO2: ${eco2} ppm, TVOC: ${tvoc} ppb, AQI: ${aqi}`);
   }
+
+  updateIndicator(2, true);
+  setTimeout(() => updateIndicator(2, false), 500);
 }
 
 function handleGyroNotification(event) {
@@ -224,6 +227,9 @@ function handleGyroNotification(event) {
       `GYRO - roll: ${roll.toFixed(3)}, pitch: ${pitch.toFixed(3)}}`
     );
   }
+
+  updateIndicator(3, true);
+  setTimeout(() => updateIndicator(3, false), 500);
 }
 
 async function sendTimeValue(timestamp) {
@@ -283,6 +289,9 @@ function handleBPM(event) {
     updateDropdown(BPMsampleArr.at(-1).value, AVGBPMsampleArr.at(-1).value);
   }
   updateBPMGraph();
+  
+  updateIndicator(4, true);
+  setTimeout(() => updateIndicator(4, false), 500);
 }
 
 function handleAVGBPM(event) {
@@ -304,6 +313,9 @@ function handleAVGBPM(event) {
     updateDropdown(BPMsampleArr.at(-1).value, AVGBPMsampleArr.at(-1).value);
   }
   updateBPMGraph();
+
+  updateIndicator(5, true);
+  setTimeout(() => updateIndicator(5, false), 500);
 }
 
 function handleIRACbuffer(event) {
@@ -321,6 +333,9 @@ function handleIRACbuffer(event) {
   //   `Array IR AC int16: [${window.IRACsampleArr.join(", ")}]`,
   //   "success",
   // );
+
+  updateIndicator(0, true);
+  setTimeout(() => updateIndicator(0, false), 500);
 }
 
 function handleIRRAWbuffer(event) {
@@ -340,6 +355,9 @@ function handleIRRAWbuffer(event) {
   //   `Array IR RAW Uint32: [${window.IRRAWsampleArr.join(", ")}]`,
   //   "success",
   // );
+
+  updateIndicator(1, true);
+  setTimeout(() => updateIndicator(1, false), 500);
 }
 
 //convert weather code from api to a WeatherType
@@ -463,6 +481,43 @@ async function getWeather() {
     log(error, "error");
   }
 }
+
+const indicators = [
+  document.getElementById("data1"),
+  document.getElementById("data2"),
+  document.getElementById("data3"),
+  document.getElementById("data4"),
+  document.getElementById("data5"),
+  document.getElementById("data6"),
+];
+
+// Ensure all indicators are red and not blinking at the start
+indicators.forEach(indicator => {
+  indicator.classList.remove("active");
+  indicator.style.animation = "none"; // Disable blinking
+});
+
+// Initialize all indicators to red (not receiving data)
+indicators.forEach(indicator => {
+  indicator.classList.remove("active");
+});
+
+function updateIndicator(index, isActive) {
+  if (isActive) {
+    indicators[index].classList.add("active");
+  } else {
+    indicators[index].classList.remove("active");
+  }
+}
+
+// function handleBluetoothData(data) {
+//   // Example: Update indicators based on data received
+//   // Assuming data is an array of booleans indicating the status of each data type
+//   data.forEach((status, index) => {
+//     updateIndicator(index, status);
+//   });
+// }
+
 
 connectBtn.addEventListener("click", toggleConnection);
 

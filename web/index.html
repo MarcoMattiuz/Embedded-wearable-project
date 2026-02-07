@@ -14,11 +14,46 @@
         }
       }
     </script>
+
+    <style>
+      .status-indicator {
+        display: inline-block;
+        width: 15px;
+        height: 15px;
+        margin: 0 5px;
+        border-radius: 50%;
+        background-color: red;
+        animation: none;
+      }
+
+      .status-indicator.active {
+        background-color: green;
+        animation: blink 1s infinite;
+      }
+
+      @keyframes blink {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0;
+        }
+      }
+    </style>
   </head>
   <body>
     <div class="top-bar">
+      <div id="data-indicators">
+        <span class="status-indicator" id="data1" title="Gyro Data Handler"></span>
+        <span class="status-indicator" id="data2" title="BPM Data Handler"></span>
+        <span class="status-indicator" id="data3" title="AVG BPM Data Handler"></span>
+        <span class="status-indicator" id="data4" title="IRAC Buffer Handler"></span>
+        <span class="status-indicator" id="data5" title="IRRAW Buffer Handler"></span>
+        <span class="status-indicator" id="data6" title="ENS160 Data Handler"></span>
+      </div>
       <div class="dropdown">
-        <button class="dropdown-btn">BPM ▼</button>
+        <button class="dropdown-btn"> bpm ▼ </button>
         <div class="dropdown-content">
           <div id="dropdown-bpm">BPM: --</div>
           <div id="dropdown-avg">AVG(4) BPM: --</div>

@@ -237,8 +237,6 @@ input[type="text"]:focus {
   grid-area: graphFILTERED;
 }
 
-
-
 /* 📱 Modalità mobile: layout a UNA colonna */
 @media (max-width: 900px) {
   .graphsContainer {
@@ -395,4 +393,51 @@ button:disabled {
 /* Mostra dropdown */
 .dropdown:hover .dropdown-content {
   display: block;
+}
+
+#data-indicators {
+  position: relative;
+  margin-right: auto;
+}
+
+.status-indicator {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin: 0 2px;
+  border-radius: 50%;
+  background-color: red;
+  animation: none;
+  font-size: 0.7rem;
+  position: relative;
+}
+
+.status-indicator.active {
+  background-color: green;
+  animation: blink 1s infinite;
+}
+
+.status-indicator:hover::after {
+  content: attr(title);
+  position: absolute;
+  top: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #333;
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 10;
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
 }
