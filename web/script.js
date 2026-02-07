@@ -7,6 +7,7 @@ const AVGBPM_CHAR_UUID = 0x0017;
 const IRRAWBUFFER_CHAR_UUID = 0x0018;
 const WEATHER_CHAR_UUID = 0x0019;
 const ENS160_CHAR_UUID = 0x0029;
+
 const DEVICE_NAME = "ESP32_BLE";
 let bluetoothDevice = null;
 let timeCharacteristic = null;
@@ -489,22 +490,24 @@ const indicators = [
   document.getElementById("data6"),
 ];
 
-// Ensure all indicators are red and not blinking at the start
-indicators.forEach(indicator => {
-  indicator.classList.remove("active");
-  indicator.style.animation = "none"; // Disable blinking
-});
-
 // Initialize all indicators to red (not receiving data)
-indicators.forEach(indicator => {
+indicators.forEach((indicator) => {
   indicator.classList.remove("active");
+  // Ensure no inline style blocks the CSS animation
+  indicator.style.animation = "";
 });
 
 function updateIndicator(index, isActive) {
+  const indicator = indicators[index];
+  if (!indicator) return;
+
+  // Remove any inline animation override so CSS can control blinking
+  indicator.style.animation = "";
+
   if (isActive) {
-    indicators[index].classList.add("active");
+    indicator.classList.add("active");
   } else {
-    indicators[index].classList.remove("active");
+    indicator.classList.remove("active");
   }
 }
 
