@@ -7,9 +7,7 @@ const AVGBPM_CHAR_UUID = 0x0017;
 const IRRAWBUFFER_CHAR_UUID = 0x0018;
 const WEATHER_CHAR_UUID = 0x0019;
 const ENS160_CHAR_UUID = 0x0029;
-
 const DEVICE_NAME = "ESP32_BLE";
-
 let bluetoothDevice = null;
 let timeCharacteristic = null;
 let iracbufferCharacteristic = null;
