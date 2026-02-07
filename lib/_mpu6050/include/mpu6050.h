@@ -181,10 +181,4 @@ void mpu6050_convert_gyro  (Raw_Data_gyro *raw_gyro, GYRO_Three_Axis_t *gyro_dat
 
 void mpu6050_calibrate (float *accel_bias, float *gyro_bias);
 
-// // Roll and pitch calculation functions
-// void  roll_pitch_init   (void);
-// void  roll_pitch_update (float accel_x, float accel_y, float accel_z, float gyro_x, float gyro_y, float gyro_z);
-// float roll_get          (void);
-// float pitch_get         (void);
-
 #endif

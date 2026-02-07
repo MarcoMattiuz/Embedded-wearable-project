@@ -85,6 +85,8 @@ void task_acc(void *parameters)
 
     GYRO_Three_Axis_t tmp;
 
+    global_parameters.step_cntr = 0;
+
     while (1)
     {
         if (mpu6050_check_overflow())

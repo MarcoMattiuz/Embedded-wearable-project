@@ -314,6 +314,7 @@ void mpu6050_calibrate(float *accel_bias_out, float *gyro_bias_out)
             acc_sum.a_x_sum += acc_data.a_x;
             acc_sum.a_y_sum += acc_data.a_y;
             acc_sum.a_z_sum += acc_data.a_z;
+            
             gyro_sum.g_x_sum += gyro_data.g_x;
             gyro_sum.g_y_sum += gyro_data.g_y;
             gyro_sum.g_z_sum += gyro_data.g_z;

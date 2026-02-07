@@ -5,6 +5,10 @@ static float         pitch    = 0.0f;
 Rotation_t           rotation = {0.0f, 0};
 static Orientation_t orient   = {0, 0, 0};
 
+float accMagFiltered = 0;
+float accMagPrev     = 0;
+
+unsigned long lastStepTime = 0;
 
 // void roll_pitch_init(void) 
 // {
@@ -49,17 +53,33 @@ static Orientation_t orient   = {0, 0, 0};
 */
 bool verify_step(ACC_Three_Axis_t *ax)
 {
-    
+    /*
+        Compute Magnitude
+        It rappresents the lenght of a 3D vector,
+        in this case the acceleration vector composed 
+        by the 3 axis of the accelerometer.
+
+        M oscillates around GRAVITY (9.8 m/s²) when 
+        the device is still, but when a step is taken, 
+        M will show a peak that can be detected by 
+        setting a threshold.
+
+        Being in 1D is easier to filtrate noise and detect steps, 
+        but this method is less accurate and can be affected by other movements.
+    */
     float M = sqrt((ax->a_x * ax->a_x) +
                    (ax->a_y * ax->a_y) +
                    (ax->a_z * ax->a_z));
 
+    ESP_LOGI("VERIFY_STEP", "M: %.2f", M);
+
     static bool up = false;
 
-    if (!up && M > (ACCEL_SCALE + THRESHOLD_H))
+    if (!up && M > (GRAVITY + THRESHOLD_H))
     { 
         // rising edge
-        // this means that one step is detected when M raises above TH_H and up is false (down)
+        // this means that one step is detected when M 
+        // raises above THRESHOLD_H and up is false (down)
         up = true;
         return true;
     }
