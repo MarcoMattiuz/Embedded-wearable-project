@@ -11,11 +11,11 @@
     2g = 19.62 m/s²
     my peaks have to stay under this value
 */
-#define THRESHOLD_H         2.5f     
-#define THRESHOLD_L         1.5f    
+#define THRESHOLD_H         4.0f     
+#define THRESHOLD_L         0.5f    
 #define ALPHA               0.9f     // the weight for the gyroscope data
 #define REFRACT_MS          500      // ro avoid double triggers
-#define MIN_ROT_ANGLE       20.0f    // min accumulate ang for confirm rotation
+#define MIN_ROT_ANGLE       10.0f    // min accumulate ang for confirm rotation
 #define WRIST_ROT_THRESHOLD 60.0f    // min wrist rotation
 #define DT                  0.008f   // time between samples relate to 125Hz
 

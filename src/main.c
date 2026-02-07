@@ -124,6 +124,7 @@ void task_acc(void *parameters)
             mpu6050_convert_gyro(&raw_gyro, &gyro_data);
             
             verify_motion(&accel_data, &gyro_data);
+            
             update_orientation(&gyro_data, &accel_data);
 
             get_orientation_vector(&gyro_data, &tmp);

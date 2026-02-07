@@ -1,8 +1,11 @@
 #include "../include/roll_pitch.h"
 
-Rotation_t           rotation = {0.0f, 0};
+static Rotation_t    rotation = {0.0f, 0};
 static Orientation_t orient   = {0, 0, 0};
 
+static float M_lp = GRAVITY;
+static bool up = false;
+static uint32_t last_step = 0;
 /*
    MOTION ANALYSIS
 */
@@ -25,30 +28,39 @@ bool verify_step(ACC_Three_Axis_t *ax)
         Being in 1D is easier to filtrate noise and detect steps, 
         but this method is less accurate and can be affected by other movements.
     */
-    float M = sqrt((ax->a_x * ax->a_x) +
-                   (ax->a_y * ax->a_y) +
-                   (ax->a_z * ax->a_z));
+    float M = sqrtf(ax->a_x * ax->a_x +
+                    ax->a_y * ax->a_y +
+                    ax->a_z * ax->a_z);
 
-    //ESP_LOGI("VERIFY_STEP", "M: %.2f", M);
+    uint32_t now = xTaskGetTickCount() * portTICK_PERIOD_MS;
 
-    static bool up = false;
+    // low-pass filer esponetional average
+    M_lp = 0.95f * M_lp + 0.05f * M;
+    float M_hp = M - M_lp;
 
-    if (!up && M > (GRAVITY + THRESHOLD_H))
-    { 
+    // avoid double triggers, 500ms is an average step time 
+    // for a normal walking pace (120 steps/min)
+    if ((now - last_step) < 500)
+        return false;
+
+    if (!up && M_hp > THRESHOLD_H)
+    {
         // rising edge
         // this means that one step is detected when M 
         // raises above THRESHOLD_H and up is false (down)
         up = true;
+        last_step = now;
         return true;
     }
-    else if (up && M < (GRAVITY + THRESHOLD_L))
-    { 
+    else if (up && M_hp < THRESHOLD_L)
+    {
         // falling edge
         up = false;
     }
 
     return false;
 }
+
 
 bool verify_wrist_rotation(GYRO_Three_Axis_t *g)
 {
@@ -64,21 +76,7 @@ bool verify_wrist_rotation(GYRO_Three_Axis_t *g)
         set wrist rotation axis, in this case Z axis, 
         but it can be changed depending on the orientation of the device
     */
-   float w = fabsf(g->g_z);   
-
-    /* 
-        noise threshold
-        include: 
-          - micro rotations
-          - gyro noise
-          - involuntary movements that are not wrist rotations    
-    */
-    if (w < MIN_ROT_ANGLE) 
-    {
-        // leaky integrator to forget noise
-        rotation.integrated_angle *= 0.95f;
-        return false;
-    }
+   float w = fabsf(g->g_x);   
     
     // °/s * s -> °
     rotation.integrated_angle += w * DT;   
@@ -101,20 +99,19 @@ void verify_motion(ACC_Three_Axis_t *acc_data, GYRO_Three_Axis_t *gyro_data)
     bool step  = verify_step(acc_data);
     bool wrist = verify_wrist_rotation(gyro_data);
 
-    if (step && !wrist)
+    if (wrist) 
+    {
+        ESP_LOGI("VERIFY_MOTION", "WRIST ROTATION DETECTED -----------------------------------------------------------------");
+    }
+
+    if (step) 
     {
         global_parameters.step_cntr ++;
         ESP_LOGI("VERIFY_MOTION", "STEPS: %d -----------------------------------------------------------------------------", 
             global_parameters.step_cntr);
     }
-    else if (wrist)
-    {
-        ESP_LOGI("VERIFY_MOTION", "WRIST ROTATION DETECTED -----------------------------------------------------------------");
-
-        // EventType evt = EVT_GYRO;
-        // xQueueSend(event_queue, &evt, 0);
-    }
 }
+
 
 void update_orientation(const GYRO_Three_Axis_t *gyro, const ACC_Three_Axis_t  *acc)
 {
