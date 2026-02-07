@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { STLLoader } from "three/addons/loaders/STLLoader.js";
 
 let container;
 let scene;
@@ -36,6 +37,9 @@ function init3DObject() {
   controls.dampingFactor = 0.05;
   controls.autoRotate = false;
 
+  const ambient = new THREE.AmbientLight(0xffffff, 0.6);
+  scene.add(ambient);
+
   const light = new THREE.DirectionalLight(0xffffff, 1.2);
   light.position.set(10, 10, 100);
   scene.add(light);
@@ -56,15 +60,41 @@ function init3DObject() {
   const gridHelper = new THREE.GridHelper(10, 10, 0x444444, 0x888888);
   scene.add(gridHelper);
 
-  const geometry = new THREE.BoxGeometry(1.5, 1.5, 1.5);
-  const material = new THREE.MeshStandardMaterial({
-    color: 0xfffdd0,
-    roughness: 0.4,
-    metalness: 0.3,
-  });
-  model = new THREE.Mesh(geometry, material);
-  model.position.set(0, 0, 0);
-  scene.add(model);
+  // Load an STL model (place your .stl inside your web folder and update this path)
+  const stlLoader = new STLLoader();
+  const stlPath = "models/mostro.stl"; // <-- change to your STL path (e.g. "hand.stl" or "assets/hand.stl")
+
+  stlLoader.load(
+    stlPath,
+    (geometry) => {
+      // STL is usually in mm and often has no normals; fix both
+      geometry.computeVertexNormals();
+
+      const material = new THREE.MeshStandardMaterial({
+        color: 0xfffdd0,
+        roughness: 0.4,
+        metalness: 0.3,
+      });
+
+      model = new THREE.Mesh(geometry, material);
+
+      // Center the STL so rotations happen around its center
+      geometry.computeBoundingBox();
+      const box = geometry.boundingBox;
+      const center = new THREE.Vector3();
+      box.getCenter(center);
+      geometry.translate(-center.x, -center.y, -center.z);
+
+      // Reasonable default scale (tweak as needed)
+      model.scale.setScalar(0.01);
+      model.position.set(0, 0, 0);
+      scene.add(model);
+    },
+    undefined,
+    (err) => {
+      console.error("Failed to load STL:", stlPath, err);
+    },
+  );
 
   animate();
 
@@ -89,6 +119,7 @@ function animate() {
   //     );
   // }
 
+  if (controls) controls.update();
   renderer.render(scene, camera);
 }
 const targetQ = new THREE.Quaternion();
