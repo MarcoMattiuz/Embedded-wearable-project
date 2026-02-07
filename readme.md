@@ -11,33 +11,37 @@ We focused on features that are essential for modern wearables, such as:
 - Heart rate monitoring  
 - TODO: Sp02 measurement
 - digital clock (updated using the web-app through BLE connectivity)
-- Step counting  
-- wrist rotation (to toggle the display)
+- TODO: Step counting  
+- TODO: wrist rotation (to toggle the display)
 - Bluetooth Low Energy (BLE) communication with a web-app 
 - Weather data (using API) 
-- An OLED display to show real-time information  
+- A display to show real-time information  
 - Data plots in the web-app
-- CO2 measurement
+- CO2/TVOC/Air quality measurement
 - TODO: implementing temperature/umidity sensor
 - TODO: 3D model that follows device rotation (in the web-app) **quaternion implementation is needed**
 
 To ensure maintainability and accessibility for anyone interested in experimenting or extending the system, we built the device on the **ESP32 platform** using **ESP-IDF**, chosen for its conectivity (BLE/wifi), flexibility, performance, and strong community support.
 
 ## Team Contributions
+
+**Disclaimer:**Every member actively contributed to the project and is familiar with all its dynamics and inner workings. Some features were developed but were later excluded during integration due to technical issues.
+
 | Member | Contributions |
 |--------|---------------|
-| **Marco Mattiuz** | developed a library for the MAX30102 sensor using I2C protocol. The library also includes signal processing to calculate heart rate. Created the graphs in the web app using (plotly.js). Wrote some of the BLE connectivity functions. Created the task that uses the ADC to measures the voltage of the battery and estimate the charge state. |
-| **Luca Guojie Zhan** | developed a library for the sh1106 oled monitor using I2C protocol. Wrote the code to handle button and wrist rotation events (the button uses interrupts) to change the state of the display and to turn it off. Implemented weather API in the web app.|
-| **Giorgio Marasca** | developed BLE connectivity in esp32 board and web application. TODO: Developed a library for the C02 sensor using I2C protocol.|
-| **Francesco Buscardo** | developed a library for MPU6050 sensor using I2C protocol. The library also calculates step count and detects wrist rotation. TODO: 3D orientation visualization. (with three.js)|
+| **Marco Mattiuz** | developed a library for the MAX30102 sensor using I2C protocol. The library also includes signal processing to calculate heart rate. Created the graphs in the web app using (plotly.js). Wrote some of the BLE connectivity functions. Created the task that uses the ADC to measures the voltage of the battery and estimate the charge state. Printed the 3D models :slightly_smiling_face: |
+| **Luca Guojie Zhan** | developed a library for the sh1106 oled monitor using I2C protocol. Created the screens. Wrote the code to handle button and wrist rotation events (the button uses interrupts) to change the state of the display and to turn it off. Implemented weather API in the web app.|
+| **Giorgio Marasca** | developed BLE connectivity in esp32 board and web application. TODO: Developed a library for the C02 sensor using I2C protocol. Designed 3D models|
+| **Francesco Buscardo** | developed a library for MPU6050 sensor using I2C protocol. The library also calculates step count and detects wrist rotation. 3D orientation visualization (with three.js).|
 
 ## Components
 - **ESP32 board**
 - **MAX30102 ppg sensor**, (works with every MAX3010x sensor)
 - **MPU6050 mpu**
 - **SH1106 oled diplay**
-- TODO: **C02 sensor**
+- **C02 sensor**
 - **3.7V lithium battery**
+- **2 10kΩ for the tension divider**
 
 ## Project structure
 
@@ -57,13 +61,15 @@ EmbeddedProject/
 │   │   └── max30102_api.c / .h
 │   ├── MPU6050/
 │   │   └── mpu6050_api.c / .h
+│   ├── ENS160/
+│   │   └── ens160.c / .h
 │   ├── SHARED/
 │   │   └── common_utils.c / .h
 │   └── ... (other)
 ├── src/
 │   └── main.c
 ├── tools/
-│   └── python_scripts.py
+│   └── ...(python_scripts.py)
 ├── web/
 │   ├── models/
 │   ├── libs/
@@ -79,7 +85,7 @@ EmbeddedProject/
 
 ## Run / debug the project
 - The project was developed using Platformio IDE (vscode extension) for its integrated tools. We suggets to use it to flash the code. 
-- to debug the project we use the serial monitor and to activate the prints it is needed to add the following line in the platformio.ini file: 
+- to debug the project we use the serial monitor and to activate some of the prints it is needed to add the following line (they might be commented out)  in the platformio.ini file: 
 ```ini
 build_flags =
     -DDEBUG
@@ -95,17 +101,8 @@ python3 graph.py
 ⚠️ the python script has **sps** hard coded in, so if you change it in the MAX30102 configuration keep in mind that you will have to change it also there.
 - later in the project we added graphs in the web application, so now you can see there the raw and filtered data of the ppg sensor
 
-## Modify firmware
+## Modify esp firmware
 
 ```bash
 pio run -t menuconfig
 ```
-
-TODO: 
--pullup forse sono da abbassare perchè quelli interni sono troppo alti
--stampato le task, la task_acc non sembra crashare for rimane bloccata al suo interno e basta. perchè l'heartbeat di debug scompare
--modifica impostazioni in menuconfig, anche cose di i2c e watchdog
--ho aumentato il baud rate
--il fatto che funziona a volte mi da pensare che possa essere il pullup per quando da NACK i2c, un quanlcosa di bloccante per la task_acc
--chatgpt ha detto anche che si potrebbe provare a mettere le letture i2c in mutex fra di loro
--la task_acc smette di inviare i dati al bluetooth, si blocca da qualche parte al suo interno mi sa

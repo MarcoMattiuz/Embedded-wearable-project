@@ -208,7 +208,7 @@ input[type="text"]:focus {
   grid-template-areas:
     "graphBPM object"
     "graphRAW graphFILTERED"
-    "graphECO2 graphECO2";
+    "graphECO2 graphTVOC";
 }
 
 #graphBPM {
@@ -235,6 +235,10 @@ input[type="text"]:focus {
 
 #graphFILTERED {
   grid-area: graphFILTERED;
+}
+
+#graphTVOC {
+  grid-area: graphTVOC;
 }
 
 /* 📱 Modalità mobile: layout a UNA colonna */

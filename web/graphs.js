@@ -60,26 +60,8 @@ var layoutFILTERED = {
   },
 };
 var layoutRAW = {
-  autosize: true,
-  height: 300,
+  ...layoutFILTERED,
   title: { text: "RAW signal", font: { color: "white" } },
-  margin: { l: 60, r: 20, t: 40, b: 60 },
-  paper_bgcolor: "rgba(0,0,0,0)",
-  plot_bgcolor: "rgba(0,0,0,0)",
-  xaxis: {
-    title: "Time (s)",
-    titlefont: { color: "white" },
-    tickfont: { color: "white" },
-    showgrid: false,
-    zeroline: true,
-  },
-  yaxis: {
-    title: "IR_AC",
-    titlefont: { color: "white" },
-    tickfont: { color: "white" },
-    showgrid: false,
-    zeroline: true,
-  },
 };
 var layoutBPM = {
   autosize: true,
@@ -146,6 +128,30 @@ var layoutECO2 = {
   },
 };
 
+var layoutECO2 = {
+  autosize: true,
+  height: 300,
+  title: { text: "TVOC (ENS160)", font: { color: "white" } },
+  margin: { l: 60, r: 20, t: 40, b: 60 },
+  paper_bgcolor: "rgba(0,0,0,0)",
+  plot_bgcolor: "rgba(0,0,0,0)",
+  xaxis: {
+    title: "Sample",
+    titlefont: { color: "white" },
+    tickfont: { color: "white" },
+    showgrid: false,
+    zeroline: true,
+  },
+  yaxis: {
+    title: "TVOC (ppb)",
+    titlefont: { color: "white" },
+    tickfont: { color: "white" },
+    showgrid: true,
+    gridcolor: "rgba(255,255,255,0.1)",
+    zeroline: true,
+  },
+};
+
 var config = {
   staticPlot: true,
   displayModeBar: false,
@@ -154,13 +160,15 @@ var config = {
 var config2 = {
   staticPlot: false,
   displayModeBar: false,
-  responsize: true,
+  responsive: true,
 };
 
 Plotly.newPlot("graphFILTERED", [traceFILTERED], layoutFILTERED, config);
 Plotly.newPlot("graphRAW", [traceRAW], layoutRAW, config);
 Plotly.newPlot("graphBPM", [traceBPM, traceAVGBPM], layoutBPM, config2);
 Plotly.newPlot("graphECO2", [traceECO2], layoutECO2, config2);
+Plotly.newPlot("graphTVOC", [traceECO2], layoutECO2, config2);
+
 
 function updateECO2Graph() {
   if (!window.ECO2sampleArr || window.ECO2sampleArr.length === 0) return;
@@ -173,6 +181,20 @@ function updateECO2Graph() {
     x: [ECO2samples],
     y: [ECO2arr],
     customdata: [ECO2timestamps],
+  });
+}
+
+function updateTVOCGraph() {
+  if (!window.TVOCsampleArr || window.TVOCsampleArr.length === 0) return;
+
+  const TVOCarr = window.TVOCsampleArr.map((item) => item.value);
+  const TVOCsamples = TVOCarr.map((_, i) => i);
+  const TVOCtimestamps = window.TVOCsampleArr.map((item) => item.timestamp);
+
+  Plotly.update("graphTVOC", {
+    x: [TVOCsamples],
+    y: [TVOCarr],
+    customdata: [TVOCtimestamps],
   });
 }
 

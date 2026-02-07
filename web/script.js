@@ -41,10 +41,12 @@ window.IRRAWsampleArr = [];
 window.BPMsampleArr = [];
 window.AVGBPMsampleArr = [];
 window.ECO2sampleArr = [];
+window.TVOCsampleArr = [];
 let MAX_SIZE_IRAC_BUFFER = 960;
 let MAX_SIZE_BPM_BUFFER = 200;
 let MAX_SIZE_IRRAW_BUFFER = 960;
 let MAX_SIZE_ECO2_BUFFER = 200;
+let MAX_SIZE_TVOC_BUFFER = 200;
 let weatherTimer = null;
 
 function log(message, type = "info") {
@@ -201,8 +203,19 @@ function handleEns160Notification(event) {
     if (window.ECO2sampleArr.length >= MAX_SIZE_ECO2_BUFFER) {
       window.ECO2sampleArr = [];
     }
+  
+
+    window.TVOCsampleArr.push({
+      value: tvoc,
+      timestamp: timestamp,
+    });
+
+    if (window.TVOCsampleArr.length >= MAX_SIZE_TVOC_BUFFER) {
+      window.TVOCsampleArr = [];
+    }
 
     updateECO2Graph();
+    updateTVOCGraph();
     // log(`eCO2: ${eco2} ppm, TVOC: ${tvoc} ppb, AQI: ${aqi}`);
   }
 
