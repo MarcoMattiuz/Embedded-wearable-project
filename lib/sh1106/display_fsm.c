@@ -238,7 +238,7 @@ void fn_PARTICULATE(esp_lcd_panel_handle_t *panel_handle, struct global_param *p
 
     char buff[36];
 
-    sprintf(buff, "%d ppb", param->CO2);
+    sprintf(buff, "%d ppb", param->particulate);
 
     drawStringToBuffer(buff, buffer_data, 64 + 5, 28);
 
