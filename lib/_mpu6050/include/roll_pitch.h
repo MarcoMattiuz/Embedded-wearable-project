@@ -44,7 +44,7 @@ void verify_motion         (ACC_Three_Axis_t *acc_data, GYRO_Three_Axis_t *gyro_
 
 void update_orientation     (const GYRO_Three_Axis_t *gyro, const ACC_Three_Axis_t  *acc);
 void get_orientation_vector (GYRO_Three_Axis_t *gyro_data, GYRO_Three_Axis_t *tmp);
-void get_rotation_matrix    (RotationMatrix_t *R, GYRO_Three_Axis_t *tmp);
+void get_orientation_matrix (RotationMatrix_t *R, GYRO_Three_Axis_t *tmp);
 
 #endif
 

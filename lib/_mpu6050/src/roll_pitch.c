@@ -162,7 +162,7 @@ void get_orientation_vector(GYRO_Three_Axis_t *gyro_data, GYRO_Three_Axis_t *tmp
     tmp->g_z = sinf(pitch);
 }
 
-void get_rotation_matrix(RotationMatrix_t *R, GYRO_Three_Axis_t *tmp)
+void get_orientation_matrix(RotationMatrix_t *R, GYRO_Three_Axis_t *tmp)
 {
     // ° → rad
     float roll  = orient.roll  * DEG_TO_RAD;
