@@ -128,13 +128,13 @@ void task_acc(void *parameters)
             update_orientation(&gyro_data, &accel_data);
 
             get_orientation_vector(&gyro_data, &tmp);
-            //ESP_LOGI("TASK_ACC", "GYRO: X = %.2f Y = %.2f Z = %.2f", tmp.g_x, tmp.g_y, tmp.g_z);
+            ESP_LOGI("TASK_ACC", "GYRO: X = %.2f Y = %.2f Z = %.2f", tmp.g_x, tmp.g_y, tmp.g_z);
             
             if (ble_manager_is_connected())
                 ble_manager_notify_gyro(ble_manager_get_conn_handle(), &tmp);
         }
 
-        vTaskDelay(pdMS_TO_TICKS(200));
+        vTaskDelay(pdMS_TO_TICKS(20));
     }
 }
 
@@ -630,7 +630,7 @@ void app_main()
 
     add_device_MAX30102(&max30102_device);
     vTaskDelay(pdMS_TO_TICKS(500));
-    // add_device_MPU6050(&mpu6050_device);
+    add_device_MPU6050(&mpu6050_device);
     vTaskDelay(pdMS_TO_TICKS(500));
     add_device_ENS160();
     vTaskDelay(pdMS_TO_TICKS(500));
@@ -657,14 +657,14 @@ void app_main()
 
     // tasks
 
-    // retF = xTaskCreatePinnedToCore(
-    //     task_acc,
-    //     "task_acc_debug",
-    //     4096,
-    //     &mpu6050_device,
-    //     7,
-    //     NULL,
-    //     1);
+    retF = xTaskCreatePinnedToCore(
+        task_acc,
+        "task_acc_debug",
+        4096,
+        &mpu6050_device,
+        7,
+        NULL,
+        1);
     vTaskDelay(pdMS_TO_TICKS(500));
 
     //* Start battery level monitoring task */
@@ -687,7 +687,7 @@ void app_main()
         &parameters_ppg_max30102,
         3,
         &ppg_task_handle,
-        3);
+        0);
     vTaskDelay(pdMS_TO_TICKS(500));
 
     //* Start battery level monitoring task */
@@ -700,11 +700,11 @@ void app_main()
         NULL);
     vTaskDelay(pdMS_TO_TICKS(500));
     /* Start RTC clock display task */
-    xTaskCreate(rtc_clock_task, "rtc_clock", 4096, NULL, 4, NULL);
+    xTaskCreate(rtc_clock_task, "rtc_clock", 4096, NULL, 0, NULL);
     vTaskDelay(pdMS_TO_TICKS(500));
 
     /* Start CO2 check task */
-    xTaskCreate(c02_check_task, "c02_check", 4096, NULL, 3, NULL);
+    xTaskCreate(c02_check_task, "c02_check", 4096, NULL, 5, NULL);
 
     ESP_LOGI(TAG, "Service initialized successfully");
 
@@ -715,7 +715,7 @@ void app_main()
         // print_task_stats();
         vTaskDelay(pdMS_TO_TICKS(2000));
         esp_err_t err0 = i2c_master_probe(i2c_bus_0, I2C_MAX30102_ADDR, 0x7F);
-        esp_err_t err1 = i2c_master_probe(i2c_bus_1, I2C_MPU6050_ADDR, 0x7F);
+        esp_err_t err1 = i2c_master_probe(i2c_bus_0, I2C_MPU6050_ADDR, 0x7F);
         esp_err_t err2 = i2c_master_probe(i2c_bus_0, 0x53, 0x7F);
         esp_err_t err3 = i2c_master_probe(i2c_bus_0, 0x52, 0x7F);
 

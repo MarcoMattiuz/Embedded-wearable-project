@@ -1,6 +1,5 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { STLLoader } from "three/addons/loaders/STLLoader.js";
 
 let container;
 let scene;
@@ -60,41 +59,17 @@ function init3DObject() {
   const gridHelper = new THREE.GridHelper(10, 10, 0x444444, 0x888888);
   scene.add(gridHelper);
 
-  // Load an STL model (place your .stl inside your web folder and update this path)
-  const stlLoader = new STLLoader();
-  const stlPath = "models/mostro.stl"; // <-- change to your STL path (e.g. "hand.stl" or "assets/hand.stl")
+  // Create a cube instead of loading an STL model
+  const cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
+  const cubeMaterial = new THREE.MeshStandardMaterial({
+    color: 0xff6b35,
+    roughness: 0.4,
+    metalness: 0.3,
+  });
 
-  stlLoader.load(
-    stlPath,
-    (geometry) => {
-      // STL is usually in mm and often has no normals; fix both
-      geometry.computeVertexNormals();
-
-      const material = new THREE.MeshStandardMaterial({
-        color: 0xfffdd0,
-        roughness: 0.4,
-        metalness: 0.3,
-      });
-
-      model = new THREE.Mesh(geometry, material);
-
-      // Center the STL so rotations happen around its center
-      geometry.computeBoundingBox();
-      const box = geometry.boundingBox;
-      const center = new THREE.Vector3();
-      box.getCenter(center);
-      geometry.translate(-center.x, -center.y, -center.z);
-
-      // Reasonable default scale (tweak as needed)
-      model.scale.setScalar(0.01);
-      model.position.set(0, 0, 0);
-      scene.add(model);
-    },
-    undefined,
-    (err) => {
-      console.error("Failed to load STL:", stlPath, err);
-    },
-  );
+  model = new THREE.Mesh(cubeGeometry, cubeMaterial);
+  model.position.set(0, 0, 0);
+  scene.add(model);
 
   animate();
 
@@ -122,7 +97,9 @@ function update3DObject(gx, gy, gz)
     console.warn("3D model not loaded yet!");
     return;
   }
-
+  gx = gx * (180 / Math.PI);
+  gy = 0;
+  gz = gz * (180 / Math.PI);
   model.rotation.set(gx, gy, gz);
 }
 
