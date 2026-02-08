@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { STLLoader } from "three/addons/loaders/STLLoader.js";
 
 let container;
 let scene;
@@ -43,15 +44,16 @@ function init3DObject() {
   light.position.set(10, 10, 100);
   scene.add(light);
 
-  const centerGeometry = new THREE.SphereGeometry(0.1, 32, 32);
-  const centerMaterial = new THREE.MeshStandardMaterial({
-    color: 0xff6b35,
-    emissive: 0xff6b35,
-    emissiveIntensity: 0.8,
-  });
-  const centerPoint = new THREE.Mesh(centerGeometry, centerMaterial);
-  centerPoint.position.set(0, 0, 0);
-  scene.add(centerPoint);
+  // Remove the red center point
+  // const centerGeometry = new THREE.SphereGeometry(0.1, 32, 32);
+  // const centerMaterial = new THREE.MeshStandardMaterial({
+  //   color: 0xff6b35,
+  //   emissive: 0xff6b35,
+  //   emissiveIntensity: 0.8,
+  // });
+  // const centerPoint = new THREE.Mesh(centerGeometry, centerMaterial);
+  // centerPoint.position.set(0, 0, 0);
+  // scene.add(centerPoint);
 
   const axesHelper = new THREE.AxesHelper(2);
   scene.add(axesHelper);
@@ -59,17 +61,37 @@ function init3DObject() {
   const gridHelper = new THREE.GridHelper(10, 10, 0x444444, 0x888888);
   scene.add(gridHelper);
 
-  // Create a cube instead of loading an STL model
-  const cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
-  const cubeMaterial = new THREE.MeshStandardMaterial({
-    color: 0xff6b35,
-    roughness: 0.4,
-    metalness: 0.3,
-  });
+  const stlLoader = new STLLoader();
+  const stlPath = "models/mostro.stl";
 
-  model = new THREE.Mesh(cubeGeometry, cubeMaterial);
-  model.position.set(0, 0, 0);
-  scene.add(model);
+  stlLoader.load(
+    stlPath,
+    (geometry) => {
+      geometry.computeVertexNormals();
+
+      const material = new THREE.MeshStandardMaterial({
+        color: 0xffff00, // Changed color to yellow
+        roughness: 0.4,
+        metalness: 0.3,
+      });
+
+      model = new THREE.Mesh(geometry, material);
+
+      geometry.computeBoundingBox();
+      const box = geometry.boundingBox;
+      const center = new THREE.Vector3();
+      box.getCenter(center);
+      geometry.translate(-center.x, -center.y, -center.z);
+
+      model.scale.setScalar(0.025); // Adjusted scale to make the model larger
+      model.position.set(0, 0, 0);
+      scene.add(model);
+    },
+    undefined,
+    (err) => {
+      console.error("Failed to load STL:", stlPath, err);
+    },
+  );
 
   animate();
 

@@ -36,6 +36,15 @@ var traceECO2 = {
   hovertemplate: "eCO2: %{y} ppm<br>Time: %{customdata}<extra></extra>",
   customdata: [],
 };
+var traceTVOC = {
+  type: "scatter",
+  mode: "lines+markers",
+  name: "TVOC",
+  line: { width: 2, color: "#ff6b35" },
+  marker: { size: 6, color: "#ff6b35" },
+  hovertemplate: "TVOC: %{y} ppb<br>Time: %{customdata}<extra></extra>",
+  customdata: [],
+};
 
 var layoutFILTERED = {
   autosize: true,
@@ -128,7 +137,7 @@ var layoutECO2 = {
   },
 };
 
-var layoutECO2 = {
+var layoutTVOC = {
   autosize: true,
   height: 300,
   title: { text: "TVOC (ENS160)", font: { color: "white" } },
@@ -167,7 +176,7 @@ Plotly.newPlot("graphFILTERED", [traceFILTERED], layoutFILTERED, config);
 Plotly.newPlot("graphRAW", [traceRAW], layoutRAW, config);
 Plotly.newPlot("graphBPM", [traceBPM, traceAVGBPM], layoutBPM, config2);
 Plotly.newPlot("graphECO2", [traceECO2], layoutECO2, config2);
-Plotly.newPlot("graphTVOC", [traceECO2], layoutECO2, config2);
+Plotly.newPlot("graphTVOC", [traceTVOC], layoutTVOC, config2);
 
 
 function updateECO2Graph() {

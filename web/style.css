@@ -250,7 +250,8 @@ input[type="text"]:focus {
       "graphBPM"
       "graphRAW"
       "graphFILTERED"
-      "graphECO2";
+      "graphECO2"
+      "graphTVOC";
   }
 }
 
@@ -272,19 +273,19 @@ input[type="text"]:focus {
   z-index: 9999;
 }
 
-/* Stato */
+
 .top-bar .status {
-  margin: 0; /* ELIMINA IL MARGIN-BOTTOM */
-  padding: 6px 14px !important; /* FORZA IL PADDING CORRETTO */
+  margin: 0; 
+  padding: 6px 14px !important;
   border-radius: 6px;
   font-size: 1rem;
   font-weight: 600;
-  line-height: 1; /* ALLINEA PERFETTAMENTE IN VERTICALE */
-  display: flex; /* Permette l'allineamento verticale */
-  align-items: center; /* CENTRA IL TESTO VERTICALMENTE */
+  line-height: 1; 
+  display: flex; 
+  align-items: center; 
 }
 
-/* Colori dinamici */
+
 .status.disconnected {
   background: #5d2e2e;
   color: #ff6b5b;
@@ -445,5 +446,3 @@ button:disabled {
     opacity: 0;
   }
 }
-
-
