@@ -1,74 +1,175 @@
-/********************************************************************************************
- * Project: MPU6050 ESP32 Sensor Interface
- * Author: Muhammad Idrees
- * 
- * Description:
- * This file contains the implementation of roll and pitch calculations using complementary
- * filters. By blending accelerometer and gyroscope data, the code provides smooth and 
- * reliable angle estimations.
- * 
- * Author's Background:
- * Name: Muhammad Idrees
- * Degree: Bachelor's in Electrical and Electronics Engineering
- * Institution: Institute of Space Technology, Islamabad
- * 
- * License:
- * This source file is the intellectual property of Muhammad Idrees and is intended for
- * educational purposes. You may use, share, and modify the code, acknowledging the 
- * author's contribution.
- * 
- * Key Features:
- * - Complementary filter-based roll and pitch calculation.
- * - Integration of sensor data for noise reduction and accuracy.
- * 
- * Date: [28/7/2024]
- ********************************************************************************************/
+#include "../include/roll_pitch.h"
 
+static Rotation_t    rotation = {0.0f, 0};
+static Orientation_t orient   = {0, 0, 0};
 
+static float M_lp = GRAVITY;
+static bool up = false;
+static uint32_t last_step = 0;
+/*
+   MOTION ANALYSIS
+*/
+bool verify_step(ACC_Three_Axis_t *ax)
+{
+    /*
+        COMPUTE MAGNITUDE
 
-#include "roll_pitch.h"
-#include <math.h>
+        M = sqrt(x² + y² + z²)
 
+<<<<<<< HEAD
 // Note: gyro data is already converted to deg/s before calling roll_pitch_update()
 // so we don't need GYRO_SCALE here
 #define ACCEL_SCALE 16384.0f
 #define GRAVITY 9.8f
 #define DT 0.05f // Time step in seconds (matches task delay in main)
+=======
+        It rappresents the lenght of a 3D vector,
+        in this case the acceleration vector composed 
+        by the 3 axis of the accelerometer.
+>>>>>>> new_mpu
 
-static float roll = 0.0f;
-static float pitch = 0.0f;
+        M oscillates around GRAVITY (9.8 m/s²) when 
+        the device is still, but when a step is taken, 
+        M will show a peak that can be detected by 
+        setting a threshold.
 
-// Complementary filter coefficients
-#define ALPHA 0.7f // The weight for the gyroscope data
+        Being in 1D is easier to filtrate noise and detect steps, 
+        but this method is less accurate and can be affected by other movements.
+    */
+    float M = sqrtf(ax->a_x * ax->a_x +
+                    ax->a_y * ax->a_y +
+                    ax->a_z * ax->a_z);
 
-void roll_pitch_init(void) {
-    roll = 0.0f;
-    pitch = 0.0f;
+    uint32_t now = xTaskGetTickCount() * portTICK_PERIOD_MS;
+
+    // low-pass filer esponetional average
+    M_lp = 0.95f * M_lp + 0.05f * M;
+    float M_hp = M - M_lp;
+
+    // avoid double triggers, 500ms is an average step time 
+    // for a normal walking pace (120 steps/min)
+    if ((now - last_step) < 500)
+        return false;
+
+    if (!up && M_hp > THRESHOLD_H)
+    {
+        // rising edge
+        // this means that one step is detected when M 
+        // raises above THRESHOLD_H and up is false (down)
+        up = true;
+        last_step = now;
+        return true;
+    }
+    else if (up && M_hp < THRESHOLD_L)
+    {
+        // falling edge
+        up = false;
+    }
+
+    return false;
 }
 
-void roll_pitch_update(float accel_x, float accel_y, float accel_z, float gyro_x, float gyro_y, float gyro_z) {
-    // Calculate roll and pitch from accelerometer data
-    float accel_roll = atan2f(accel_y, accel_z) * 180.0f / M_PI;
-    float accel_pitch = atan2f(-accel_x, sqrtf(accel_y * accel_y + accel_z * accel_z)) * 180.0f / M_PI;
 
+<<<<<<< HEAD
     // Gyroscope readings are already in degrees per second (converted by mpu6050_convert_gyro)
     float roll_rate = gyro_x;
     float pitch_rate = gyro_y;
+=======
+bool verify_wrist_rotation(GYRO_Three_Axis_t *g)
+{
+    // refractory window, avoid double triggers
+    uint32_t now = xTaskGetTickCount() * portTICK_PERIOD_MS;
+    if ((now - rotation.last_trigger) < REFRACT_MS) 
+    {
+        return false;
+    }
+>>>>>>> new_mpu
 
-    // Update roll and pitch using gyroscope data
-    roll += roll_rate * DT;
-    pitch += pitch_rate * DT;
+    /*
+        angular velocity °/s
+        set wrist rotation axis, in this case Z axis, 
+        but it can be changed depending on the orientation of the device
+    */
+   float w = fabsf(g->g_x);   
+    
+    // °/s * s -> °
+    rotation.integrated_angle += w * DT;   
 
-    // Complementary filter to combine accelerometer and gyroscope data
-    roll = ALPHA * roll + (1.0f - ALPHA) * accel_roll;
-    pitch = ALPHA * pitch + (1.0f - ALPHA) * accel_pitch;
+    // Detect wrist rotation 
+    if (rotation.integrated_angle >= WRIST_ROT_THRESHOLD) 
+    {
+        // reset rotation state
+        rotation.integrated_angle = 0.0f;
+        rotation.last_trigger = now;
+
+        return true;
+    }
+
+    return false;
 }
 
-float roll_get(void) {
-    return roll;
+void verify_motion(ACC_Three_Axis_t *acc_data, GYRO_Three_Axis_t *gyro_data) 
+{
+    bool step  = verify_step(acc_data);
+    bool wrist = verify_wrist_rotation(gyro_data);
+
+    if (wrist) 
+    {
+        ESP_LOGI("VERIFY_MOTION", "WRIST ROTATION DETECTED -----------------------------------------------------------------");
+    }
+
+    if (step) 
+    {
+        global_parameters.step_cntr ++;
+        ESP_LOGI("VERIFY_MOTION", "STEPS: %d -----------------------------------------------------------------------------", 
+            global_parameters.step_cntr);
+    }
 }
 
-float pitch_get(void) {
-    return pitch;
+
+void update_orientation(const GYRO_Three_Axis_t *gyro, const ACC_Three_Axis_t  *acc)
+{
+    // ACC angles 
+    // lateral inclination angle
+    float acc_roll  = atan2f(acc->a_y, acc->a_z) * RAD_TO_DEG;
+    // longitudinal inclination angle
+    float acc_pitch = atan2f(-acc->a_x,
+                       sqrtf(acc->a_y * acc->a_y +
+                             acc->a_z * acc->a_z)) * RAD_TO_DEG;
+
+    // angle = ∫ ω dt
+
+    // GYRO integration 
+    orient.roll  += gyro->g_x * DT;
+    orient.pitch += gyro->g_y * DT;
+
+    // drift becasue we need a magnetometer to correct it
+    // (we don't have it), 
+    orient.yaw += gyro->g_z * DT;
+
+    // Complementary filter 
+    orient.roll  = ALPHA * orient.roll  + (1.0f - ALPHA) * acc_roll;
+    orient.pitch = ALPHA * orient.pitch + (1.0f - ALPHA) * acc_pitch;
 }
 
+void get_orientation_vector(GYRO_Three_Axis_t *gyro_data, GYRO_Three_Axis_t *tmp)
+{
+    /*
+        This function create a versor of gyro data in which:
+        X = cos(pitch) * cos(yaw)
+        Y = cos(pitch) * sin(yaw)
+        Z = sin(pitch)
+
+        Needs to convert the angles from degrees to radians 
+        before applying the trigonometric functions and get
+        a vector that represent the orientation of the device in 3D space.
+    */
+
+    // ° -> rad
+    float pitch = orient.pitch * DEG_TO_RAD;
+    float yaw   = orient.yaw   * DEG_TO_RAD;
+    
+    tmp->g_x = cosf(pitch) * cosf(yaw);
+    tmp->g_y = cosf(pitch) * sinf(yaw);
+    tmp->g_z = sinf(pitch);
+}

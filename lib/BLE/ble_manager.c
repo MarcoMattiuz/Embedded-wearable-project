@@ -27,7 +27,11 @@ static ble_time_write_cb_t time_write_callback = NULL;
 static float current_iracbuffer_value = 0.0f;
 static float current_irrawbuffer_value = 0.0f;
 static ens160_data_t current_ens160_value = {0};
+<<<<<<< HEAD
 static GyroData_t current_gyro_value = {0};
+=======
+static GYRO_Three_Axis_t current_gyro_value = {0};
+>>>>>>> new_mpu
 static int16_t current_bpm_value = 0;
 static int16_t current_avgbpm_value = 0;
 
@@ -146,7 +150,7 @@ static int gatt_svr_chr_access(uint16_t conn_handle, uint16_t attr_handle,
     } 
     else if (uuid == GYRO_CHAR_UUID) {
         if (ctxt->op == BLE_GATT_ACCESS_OP_READ_CHR) {
-            rc = os_mbuf_append(ctxt->om, &current_gyro_value, sizeof(GyroData_t));
+            rc = os_mbuf_append(ctxt->om, &current_gyro_value, sizeof(GYRO_Three_Axis_t));
             return rc == 0 ? 0 : BLE_ATT_ERR_UNLIKELY;
         }
     }
@@ -510,15 +514,15 @@ int ble_manager_notify_ens160(uint16_t conn_handle, const ens160_data_t *ens160_
 }
 
 /* Send notification with Gyro_Axis_t data */
-int ble_manager_notify_gyro(uint16_t conn_handle, const GyroData_t *gyro_data)
+int ble_manager_notify_gyro(uint16_t conn_handle, const GYRO_Three_Axis_t *gyro_data)
 {
     struct os_mbuf *om;
     int rc;
 
     /* Update current value for read operations */
-    memcpy(&current_gyro_value, gyro_data, sizeof(GyroData_t));
+    memcpy(&current_gyro_value, gyro_data, sizeof(GYRO_Three_Axis_t));
 
-    om = ble_hs_mbuf_from_flat(gyro_data, sizeof(GyroData_t));
+    om = ble_hs_mbuf_from_flat(gyro_data, sizeof(GYRO_Three_Axis_t));
     if (om == NULL) {
         ESP_LOGE(TAG, "Error allocating mbuf for gyro");
         return -1;
