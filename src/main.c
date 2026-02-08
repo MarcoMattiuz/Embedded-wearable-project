@@ -155,27 +155,6 @@ void task_acc(void *parameters)
     }
 }
 
-/* Send data to the website */
-// void gyro_ble_task(void *pvParameter)
-// {
-//     struct i2c_device *mpu_device = (struct i2c_device *)pvParameter;
-//     Gyro_Axis_t gyro_raw = {0};
-//     uint8_t gyro_buffer[6] = {0};
-
-//     while (1)
-//     {
-//         if (notify_enabled && ble_manager_is_connected())
-//         {
-
-//             // mpu6050_read_reg(mpu_device, MPU6050_GYRO_XOUT_H, gyro_buffer, 6);
-
-//             ble_manager_notify_gyro(
-//                 ble_manager_get_conn_handle(),
-//                 &gyro_raw);
-//         }
-//         vTaskDelay(pdMS_TO_TICKS(200));
-//     }
-// }
 
 /* Get the current time from the website and set RTC */
 static void on_time_write(current_time_t *time_data)
@@ -582,18 +561,18 @@ static void bettery_level_task(void *pvParameter)
         DBG_PRINTF("Voltage: %.2f V\n", voltage);
         global_parameters.battery_voltage = voltage; // reverse voltage divider
         // 4.2V=2.1V -> 100%
-        // 3.95V= 1.97V -> 75%
+        // 3.96V=1.98V -> 75%
         // 3.7V= 1.85V -> 50%
         // 3.5V= 1.75V -> 25%
         // 3.3V= 1.65V -> 0%
 
-        if (voltage >= 1.95f)
+        if (voltage >= 1.96f)
             global_parameters.battery_state = BATTERY_FULL;
-        else if (voltage >= 1.85f)
+        else if (voltage >= 1.83f)
             global_parameters.battery_state = BATTERY_HIGH;
-        else if (voltage >= 1.75f)
+        else if (voltage >= 1.73f)
             global_parameters.battery_state = BATTERY_MEDIUM;
-        else if (voltage >= 1.7f)
+        else if (voltage >= 1.63f)
             global_parameters.battery_state = BATTERY_LOW;
         else
             global_parameters.battery_state = BATTERY_EMPTY;
@@ -617,15 +596,15 @@ unsigned long ulGetRunTimeCounterValue(void)
 
 void print_task_stats(void)
 {
-    // char buffer[2048];
+    char buffer[2048];
 
-    // printf("\n\n===== TASK LIST =====\n");
-    // vTaskList(buffer);
-    // printf("%s\n", buffer);
+    printf("\n\n===== TASK LIST =====\n");
+    vTaskList(buffer);
+    printf("%s\n", buffer);
 
-    // printf("\n===== RUNTIME STATS =====\n");
-    // vTaskGetRunTimeStats(buffer);
-    // printf("%s\n", buffer);
+    printf("\n===== RUNTIME STATS =====\n");
+    vTaskGetRunTimeStats(buffer);
+    printf("%s\n", buffer);
 }
 
 void app_main()
@@ -648,7 +627,6 @@ void app_main()
     ESP_ERROR_CHECK(ret); */
     esp_task_wdt_deinit();
 
-    // TODO: remove
     // Suppress NimBLE INFO logs (GATT procedure initiated, att_handle, etc.)
     esp_log_level_set("NimBLE", ESP_LOG_WARN);
 
@@ -730,13 +708,13 @@ void app_main()
     vTaskDelay(pdMS_TO_TICKS(500));
 
     //* Start battery level monitoring task */
-    // xTaskCreate(
-    //     bettery_level_task,
-    //     "battery_level_task",
-    //     2048,
-    //     NULL,
-    //     6,
-    //     NULL);
+    xTaskCreate(
+        bettery_level_task,
+        "battery_level_task",
+        2048,
+        NULL,
+        6,
+        NULL);
     vTaskDelay(pdMS_TO_TICKS(500));
     /* Start RTC clock display task */
     xTaskCreate(rtc_clock_task, "rtc_clock", 4096, NULL, 4, NULL);
@@ -751,7 +729,7 @@ void app_main()
     // xTaskCreate(touch_sensor_task, "touch_sensor", 4096, NULL, 10, NULL);
     while (1)
     {
-        print_task_stats();
+        // print_task_stats();
         vTaskDelay(pdMS_TO_TICKS(2000));
         esp_err_t err0 = i2c_master_probe(i2c_bus_0, I2C_MAX30102_ADDR, 0x7F);
         esp_err_t err1 = i2c_master_probe(i2c_bus_1, I2C_MPU6050_ADDR, 0x7F);
