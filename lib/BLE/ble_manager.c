@@ -27,7 +27,10 @@ static ble_time_write_cb_t time_write_callback = NULL;
 static float current_iracbuffer_value = 0.0f;
 static float current_irrawbuffer_value = 0.0f;
 static ens160_data_t current_ens160_value = {0};
+
 static GYRO_Three_Axis_t current_gyro_value = {0};
+// static RotationMatrix_t current_gyro_value = {0};
+
 static int16_t current_bpm_value = 0;
 static int16_t current_avgbpm_value = 0;
 
@@ -150,6 +153,12 @@ static int gatt_svr_chr_access(uint16_t conn_handle, uint16_t attr_handle,
             return rc == 0 ? 0 : BLE_ATT_ERR_UNLIKELY;
         }
     }
+    // else if (uuid == GYRO_CHAR_UUID) {
+    //     if (ctxt->op == BLE_GATT_ACCESS_OP_READ_CHR) {
+    //         rc = os_mbuf_append(ctxt->om, &current_gyro_value, sizeof(RotationMatrix_t));
+    //         return rc == 0 ? 0 : BLE_ATT_ERR_UNLIKELY;
+    //     }
+    // }
     else if (uuid == ENS160_CHAR_UUID) {
         if (ctxt->op == BLE_GATT_ACCESS_OP_READ_CHR) {
             rc = os_mbuf_append(ctxt->om, &current_ens160_value, sizeof(ens160_data_t));
@@ -532,6 +541,28 @@ int ble_manager_notify_gyro(uint16_t conn_handle, const GYRO_Three_Axis_t *gyro_
 
     return 0;
 }
+// int ble_manager_notify_gyro(uint16_t conn_handle, const RotationMatrix_t *R)
+// {
+//     struct os_mbuf *om;
+//     int rc;
+
+//     /* Update current value for read operations */
+//     memcpy(&current_gyro_value, R, sizeof(RotationMatrix_t));
+
+//     om = ble_hs_mbuf_from_flat(R, sizeof(RotationMatrix_t));
+//     if (om == NULL) {
+//         ESP_LOGE(TAG, "Error allocating mbuf for gyro");
+//         return -1;
+//     }
+
+//     rc = ble_gatts_notify_custom(conn_handle, gyro_char_handle, om);
+//     if (rc != 0) {
+//         ESP_LOGE(TAG, "Error sending gyro notification; rc=%d", rc);
+//         return rc;
+//     }
+
+//     return 0;
+// }
 
 /* Send notification with BPM data */
 int ble_manager_notify_bpm(uint16_t conn_handle, int16_t value)

@@ -112,7 +112,6 @@ void verify_motion(ACC_Three_Axis_t *acc_data, GYRO_Three_Axis_t *gyro_data)
     }
 }
 
-
 void update_orientation(const GYRO_Three_Axis_t *gyro, const ACC_Three_Axis_t  *acc)
 {
     // ACC angles 
@@ -146,6 +145,9 @@ void get_orientation_vector(GYRO_Three_Axis_t *gyro_data, GYRO_Three_Axis_t *tmp
         Y = cos(pitch) * sin(yaw)
         Z = sin(pitch)
 
+        The versor represents the orientation of the device in 3D space, 
+        where the angles are obtained from the complementary filter
+
         Needs to convert the angles from degrees to radians 
         before applying the trigonometric functions and get
         a vector that represent the orientation of the device in 3D space.
@@ -158,4 +160,44 @@ void get_orientation_vector(GYRO_Three_Axis_t *gyro_data, GYRO_Three_Axis_t *tmp
     tmp->g_x = cosf(pitch) * cosf(yaw);
     tmp->g_y = cosf(pitch) * sinf(yaw);
     tmp->g_z = sinf(pitch);
+}
+
+void get_rotation_matrix(RotationMatrix_t *R, GYRO_Three_Axis_t *tmp)
+{
+    // ° → rad
+    float roll  = orient.roll  * DEG_TO_RAD;
+    float pitch = orient.pitch * DEG_TO_RAD;
+    float yaw   = orient.yaw   * DEG_TO_RAD;
+
+    float cr = cosf(roll);
+    float sr = sinf(roll);
+    float cp = cosf(pitch);
+    float sp = sinf(pitch);
+    float cy = cosf(yaw);
+    float sy = sinf(yaw);
+
+    // ZYX rotation matrix
+    R->m[0][0] = cy * cp;
+    R->m[0][1] = cy * sp * sr - sy * cr;
+    R->m[0][2] = cy * sp * cr + sy * sr;
+
+    R->m[1][0] = sy * cp;
+    R->m[1][1] = sy * sp * sr + cy * cr;
+    R->m[1][2] = sy * sp * cr - cy * sr;
+
+    R->m[2][0] = -sp;
+    R->m[2][1] = cp * sr;
+    R->m[2][2] = cp * cr;
+
+    // vertical inclination vector (Z axis)
+    // it doesn't show forward direction
+    tmp->g_x = R->m[0][2];
+    tmp->g_y = R->m[1][2];
+    tmp->g_z = R->m[2][2];
+
+    // forward direction vector (X axis)
+    // it doesn't show the roll (rotation around itself)
+    // tmp->g_x = R->m[0][0];
+    // tmp->g_y = R->m[1][0];
+    // tmp->g_z = R->m[2][0];
 }

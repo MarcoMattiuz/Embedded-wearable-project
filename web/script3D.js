@@ -97,9 +97,7 @@ function update3DObject(gx, gy, gz)
     console.warn("3D model not loaded yet!");
     return;
   }
-  gx = gx * (180 / Math.PI);
-  gy = 0;
-  gz = gz * (180 / Math.PI);
+
   model.rotation.set(gx, gy, gz);
 }
 

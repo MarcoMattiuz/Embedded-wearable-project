@@ -78,12 +78,19 @@ void task_acc(void *parameters)
     mpu6050_calibrate(accel_bias, gyro_bias);
     ESP_LOGI("TASK_ACC", "Calibration complete");
 
-    // roll_pitch_init();
-
     int fifo_size = 0;
     int samples   = 0;
 
     GYRO_Three_Axis_t tmp;
+
+    RotationMatrix_t R = {
+        .m = {
+            {1.0f, 0.0f, 0.0f},
+            {0.0f, 1.0f, 0.0f},
+            {0.0f, 0.0f, 1.0f}
+        }
+    };
+
 
     global_parameters.step_cntr = 0;
 
@@ -127,11 +134,18 @@ void task_acc(void *parameters)
             
             update_orientation(&gyro_data, &accel_data);
 
-            get_orientation_vector(&gyro_data, &tmp);
-            ESP_LOGI("TASK_ACC", "GYRO: X = %.2f Y = %.2f Z = %.2f", tmp.g_x, tmp.g_y, tmp.g_z);
+            // get_orientation_vector(&gyro_data, &tmp);
+            // ESP_LOGI("TASK_ACC", "GYRO: X = %.2f Y = %.2f Z = %.2f", tmp.g_x, tmp.g_y, tmp.g_z);
+            get_orientation_matrix(&R, &tmp);
+            ESP_LOGI("TASK_ACC", "Rotation Matrix:\n[%.2f, %.2f, %.2f]\n[%.2f, %.2f, %.2f]\n[%.2f, %.2f, %.2f]",
+                R.m[0][0], R.m[0][1], R.m[0][2],
+                R.m[1][0], R.m[1][1], R.m[1][2],
+                R.m[2][0], R.m[2][1], R.m[2][2]);
             
             if (ble_manager_is_connected())
                 ble_manager_notify_gyro(ble_manager_get_conn_handle(), &tmp);
+            // if (ble_manager_is_connected())
+            //     ble_manager_notify_gyro(ble_manager_get_conn_handle(), &R);
         }
 
         vTaskDelay(pdMS_TO_TICKS(20));

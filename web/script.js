@@ -243,6 +243,25 @@ function handleGyroNotification(event) {
   updateIndicator(3, true);
   setTimeout(() => updateIndicator(3, false), 500);
 }
+// function handleGyroNotification(event) {
+//   const value = event.target.value;
+
+//   if (value.byteLength >= 36) {
+//     const R = [];
+//     for (let i = 0; i < 9; i++) {
+//       R.push(value.getFloat32(i * 4, true));
+//     }
+
+//     if (typeof window.update3DObject === "function") {
+//       window.update3DObject(R);
+//     }
+
+//     console.log(`Gyro Rotation Matrix: [${R.map((v) => v.toFixed(2)).join(", ")}]`);
+//   }
+
+//   updateIndicator(3, true);
+//   setTimeout(() => updateIndicator(3, false), 500);
+// }
 
 async function sendTimeValue(timestamp) {
   if (!timeCharacteristic) {

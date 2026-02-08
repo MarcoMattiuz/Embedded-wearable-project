@@ -1,8 +1,6 @@
 #ifndef __ROLL_PITCH_H__
 #define __ROLL_PITCH_H__
 
-// #include "driver/i2c.h"
-// #include "esp_err.h"
 // #include "freertos/queue.h"
 #include "mpu6050.h"
 
@@ -36,12 +34,17 @@ typedef struct {
     float yaw;
 } Orientation_t;
 
+typedef struct {
+    float m[3][3];
+} RotationMatrix_t;
+
 bool verify_step           (ACC_Three_Axis_t *ax);
 bool verify_wrist_rotation (GYRO_Three_Axis_t *g);
 void verify_motion         (ACC_Three_Axis_t *acc_data, GYRO_Three_Axis_t *gyro_data);
 
 void update_orientation     (const GYRO_Three_Axis_t *gyro, const ACC_Three_Axis_t  *acc);
 void get_orientation_vector (GYRO_Three_Axis_t *gyro_data, GYRO_Three_Axis_t *tmp);
+void get_rotation_matrix    (RotationMatrix_t *R, GYRO_Three_Axis_t *tmp);
 
 #endif
 

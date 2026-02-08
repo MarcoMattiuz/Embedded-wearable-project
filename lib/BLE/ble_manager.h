@@ -12,8 +12,9 @@
 #include "services/gap/ble_svc_gap.h"
 #include "services/gatt/ble_svc_gatt.h"
 #include <string.h>
-#include "reg.h"
+// #include "reg.h"
 #include "../_mpu6050/include/mpu6050.h"
+#include "../_mpu6050/include/roll_pitch.h"
 #include "../ENS160/ens160.h"
 
 /* Device Custom Service UUID */
@@ -66,6 +67,7 @@ int ble_manager_notify_ens160(uint16_t conn_handle, const ens160_data_t *ens160_
 
 /* Send notification with Gyro_Axis_t data */
 int ble_manager_notify_gyro(uint16_t conn_handle, const GYRO_Three_Axis_t *gyro_data);
+// int ble_manager_notify_gyro(uint16_t conn_handle, const RotationMatrix_t *R);
 
 /* Send notification with BPM data */
 int ble_manager_notify_bpm(uint16_t conn_handle, int16_t value);
