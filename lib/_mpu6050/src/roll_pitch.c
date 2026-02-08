@@ -16,17 +16,9 @@ bool verify_step(ACC_Three_Axis_t *ax)
 
         M = sqrt(x² + y² + z²)
 
-<<<<<<< HEAD
-// Note: gyro data is already converted to deg/s before calling roll_pitch_update()
-// so we don't need GYRO_SCALE here
-#define ACCEL_SCALE 16384.0f
-#define GRAVITY 9.8f
-#define DT 0.05f // Time step in seconds (matches task delay in main)
-=======
         It rappresents the lenght of a 3D vector,
         in this case the acceleration vector composed 
         by the 3 axis of the accelerometer.
->>>>>>> new_mpu
 
         M oscillates around GRAVITY (9.8 m/s²) when 
         the device is still, but when a step is taken, 
@@ -70,11 +62,6 @@ bool verify_step(ACC_Three_Axis_t *ax)
 }
 
 
-<<<<<<< HEAD
-    // Gyroscope readings are already in degrees per second (converted by mpu6050_convert_gyro)
-    float roll_rate = gyro_x;
-    float pitch_rate = gyro_y;
-=======
 bool verify_wrist_rotation(GYRO_Three_Axis_t *g)
 {
     // refractory window, avoid double triggers
@@ -83,7 +70,6 @@ bool verify_wrist_rotation(GYRO_Three_Axis_t *g)
     {
         return false;
     }
->>>>>>> new_mpu
 
     /*
         angular velocity °/s

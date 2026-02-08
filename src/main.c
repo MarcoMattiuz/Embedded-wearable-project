@@ -134,7 +134,7 @@ void task_acc(void *parameters)
                 ble_manager_notify_gyro(ble_manager_get_conn_handle(), &tmp);
         }
 
-        vTaskDelay(pdMS_TO_TICKS(20));
+        vTaskDelay(pdMS_TO_TICKS(200));
     }
 }
 
@@ -290,7 +290,7 @@ void add_device_MPU6050(struct i2c_device *device)
     device->i2c_dev_config.device_address = MPU6050_ADDR,
     device->i2c_dev_config.scl_speed_hz = 400000,
 
-    esp_ret = i2c_master_bus_add_device(i2c_bus_1, &device->i2c_dev_config, &device->i2c_dev_handle);
+    esp_ret = i2c_master_bus_add_device(i2c_bus_0, &device->i2c_dev_config, &device->i2c_dev_handle);
     if (esp_ret != ESP_OK)
     {
         ESP_LOGE(TAG, "Failed to add ACC to bus");
@@ -657,14 +657,14 @@ void app_main()
 
     // tasks
 
-    retF = xTaskCreatePinnedToCore(
-        task_acc,
-        "task_acc_debug",
-        4096,
-        &mpu6050_device,
-        7,
-        NULL,
-        1);
+    // retF = xTaskCreatePinnedToCore(
+    //     task_acc,
+    //     "task_acc_debug",
+    //     4096,
+    //     &mpu6050_device,
+    //     7,
+    //     NULL,
+    //     1);
     vTaskDelay(pdMS_TO_TICKS(500));
 
     //* Start battery level monitoring task */
@@ -673,7 +673,7 @@ void app_main()
         "battery_level_task",
         2048,
         NULL,
-        5,
+        0,
         NULL);
     vTaskDelay(pdMS_TO_TICKS(500));
     /* Start RTC clock display task */
@@ -687,7 +687,7 @@ void app_main()
         &parameters_ppg_max30102,
         3,
         &ppg_task_handle,
-        0);
+        3);
     vTaskDelay(pdMS_TO_TICKS(500));
 
     //* Start battery level monitoring task */
@@ -704,7 +704,7 @@ void app_main()
     vTaskDelay(pdMS_TO_TICKS(500));
 
     /* Start CO2 check task */
-    xTaskCreate(c02_check_task, "c02_check", 4096, NULL, 2, NULL);
+    xTaskCreate(c02_check_task, "c02_check", 4096, NULL, 3, NULL);
 
     ESP_LOGI(TAG, "Service initialized successfully");
 

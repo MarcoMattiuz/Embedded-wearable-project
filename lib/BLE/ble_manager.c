@@ -27,11 +27,7 @@ static ble_time_write_cb_t time_write_callback = NULL;
 static float current_iracbuffer_value = 0.0f;
 static float current_irrawbuffer_value = 0.0f;
 static ens160_data_t current_ens160_value = {0};
-<<<<<<< HEAD
-static GyroData_t current_gyro_value = {0};
-=======
 static GYRO_Three_Axis_t current_gyro_value = {0};
->>>>>>> new_mpu
 static int16_t current_bpm_value = 0;
 static int16_t current_avgbpm_value = 0;
 

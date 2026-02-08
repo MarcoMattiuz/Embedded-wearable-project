@@ -112,18 +112,6 @@ function animate() {
   
   requestAnimationFrame(animate);
 
-<<<<<<< HEAD
-  // if (model) {
-  //     update3DObject(
-  //         model.rotation.x + 0.005,
-  //         model.rotation.y + 0.01,
-  //         model.rotation.z + 0.003
-  //     );
-  // }
-
-  if (controls) controls.update();
-=======
->>>>>>> new_mpu
   renderer.render(scene, camera);
 }
 
