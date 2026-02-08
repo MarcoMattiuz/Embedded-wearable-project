@@ -22,8 +22,8 @@
 #include "esp_adc_cal.h"
 #include "../ENS160/ens160.h"
 
-#include "../lib/_mpu6050/include/mpu6050.h"
-#include "../lib/_mpu6050/include/roll_pitch.h"
+#include "mpu6050.h"
+#include "roll_pitch.h"
 
 #define I2C_MASTER_SCL_IO     22        // SCL pin
 #define I2C_MASTER_SDA_IO     21        // SDA pin
