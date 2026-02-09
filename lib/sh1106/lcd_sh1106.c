@@ -90,19 +90,22 @@ void drawBitmapToBuffer(const uint8_t *bitmap, uint8_t *buffer_data,
         {
             // find which byte and bit contain this pixel in the bitmap
             int byteIndex = (j * width + i) / 8;
-            int bitIndex = 7 - ((j * width + i) % 8);
+            int bitIndex = 7 - ((j * width + i) % 8); // 7- ensures pixels are read MSB first
 
             // extract the bit (1 = ON, 0 = OFF)
             // shifts the desired bit 0 position
             // + masks off everything except that single bit.
             uint8_t bit = (bitmap[byteIndex] >> bitIndex) & 0x01;
 
+            //translate to display coordinates
             int pixelX = x + i;
             int pixelY = y + j;
 
+            //check boundaries
             if (pixelX < 0 || pixelX >= SH1106_WIDTH || pixelY < 0 || pixelY >= SH1106_HEIGHT)
                 continue;
 
+            
             int page = pixelY / 8;
             int bitPos = pixelY % 8;
 

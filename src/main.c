@@ -426,22 +426,27 @@ void LCD_task(void *parameters)
 {
     esp_lcd_panel_handle_t panel_handle = *(esp_lcd_panel_handle_t *)parameters;
 
+    //init queue,isr and timers
     GPIO_init();
     memset(buffer_data, 0, sizeof(buffer_data));
 
     EventType evt;
 
+    //disable push button interrupt during loading screen
     gpio_intr_disable(PUSH_BUTTON_GPIO);
+
 
     bool LCD_ON = true;
     TurnLcdOn(panel_handle);
     show_loading_screen(&panel_handle);
 
+    //after loading screen go to BPM screen
     xTimerStart(refresh_timer_handle, 0);
     global_parameters.show_heart = true;
     (*fsm[current_state].state_function)(&panel_handle, &global_parameters);
     xTimerStart(frame_timer_handle, 0);
 
+    //and clear queue and re-enable button interrupt 
     xQueueReset(event_queue);
     gpio_intr_enable(PUSH_BUTTON_GPIO);
 
