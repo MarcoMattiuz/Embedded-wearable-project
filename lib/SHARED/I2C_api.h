@@ -24,13 +24,8 @@ struct i2c_device {
 void init_I2C_bus_PORT0 (i2c_master_bus_handle_t* i2c_bus);
 void init_I2C_bus_PORT1 (i2c_master_bus_handle_t* i2c_bus);
 
-SemaphoreHandle_t i2c_get_mutex_port0(void);
-SemaphoreHandle_t i2c_get_mutex_port1(void);
 
-#define I2C_LOCK_0()   xSemaphoreTake(i2c_get_mutex_port0(), portMAX_DELAY)
-#define I2C_UNLOCK_0() xSemaphoreGive(i2c_get_mutex_port0())
-#define I2C_LOCK_1()   xSemaphoreTake(i2c_get_mutex_port1(), portMAX_DELAY)
-#define I2C_UNLOCK_1() xSemaphoreGive(i2c_get_mutex_port1())
+
 
 esp_err_t add_device_ENS160(void);
 

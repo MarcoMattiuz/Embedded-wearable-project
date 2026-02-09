@@ -15,13 +15,13 @@ esp_err_t max30102_set_register(struct i2c_device *device, uint8_t reg,uint8_t m
     uint8_t txbuf[2];
     txbuf[0] = reg;
     txbuf[1] = mode;
-    I2C_LOCK_0();
+   
     esp_err_t esp_ret = i2c_master_transmit(device->i2c_dev_handle, txbuf, sizeof(txbuf), 1000);
     if (esp_ret != ESP_OK) {
         printf("MAX30102 0 WRITE ERROR: reg=0x%02X err=%s (0x%X)\n",
                reg, esp_err_to_name(esp_ret), esp_ret);
     }
-    I2C_UNLOCK_0();
+ 
     return esp_ret;
 }
 
@@ -135,22 +135,20 @@ bool max30102_i2c_read_multiled_data_burst(struct i2c_device *device)
     uint8_t wr_ptr, rd_ptr;
 
     // Read write pointer
-    I2C_LOCK_0();
+    
     esp_err_t err = i2c_master_transmit_receive(device->i2c_dev_handle, &wr_ptr_addr, 1, &wr_ptr, 1, 1000);
     if (err != ESP_OK) {
         printf("MAX30102 1 READ ERROR: reg=0x%02X err=%s (0x%X)\n",
                wr_ptr_addr, esp_err_to_name(err), err);
     }
-    I2C_UNLOCK_0();
+
     // Read read pointer
-    I2C_LOCK_0();
     err = i2c_master_transmit_receive(device->i2c_dev_handle, &rd_ptr_addr, 1, &rd_ptr, 1, 1000);
     if (err != ESP_OK) {
         printf("MAX30102 2 READ ERROR: reg=0x%02X err=%s (0x%X)\n",
                rd_ptr_addr, esp_err_to_name(err), err);
     }
-    I2C_UNLOCK_0();
-    
+
     int num_samples = (wr_ptr - rd_ptr) & 0x1F; 
 
     if (num_samples == 0)
@@ -168,13 +166,11 @@ bool max30102_i2c_read_multiled_data_burst(struct i2c_device *device)
 
     //trasmit to the fifo address to initialize transmission
     uint8_t fifo_data_addr = MAX30102_FIFO_DATA_ADDR;
-    I2C_LOCK_0();
     err = i2c_master_transmit(device->i2c_dev_handle, &fifo_data_addr, 1, 1000);
     if (err != ESP_OK) {
         printf("MAX30102 3 WRITE ERROR: reg=0x%02X err=%s (0x%X)\n",
                fifo_data_addr, esp_err_to_name(err), err);
     }
-    I2C_UNLOCK_0();
 
     if (err != ESP_OK) {
         DBG_PRINTF("Failed to set FIFO_DATA register\n");
@@ -182,13 +178,11 @@ bool max30102_i2c_read_multiled_data_burst(struct i2c_device *device)
     }
 
     //read all the fifo data into a buffer
-    I2C_LOCK_0();
     err = i2c_master_receive(device->i2c_dev_handle, fifo_buffer, bytes_to_read, 1000);
     if (err != ESP_OK) {
         printf("MAX30102 4 READ ERROR: reg=0x%02X err=%s (0x%X)\n",
                MAX30102_FIFO_DATA_ADDR, esp_err_to_name(err), err);
     }
-    I2C_UNLOCK_0();
     if (err != ESP_OK) {
         DBG_PRINTF("Burst read failed: %d\n", err);
         return false;
