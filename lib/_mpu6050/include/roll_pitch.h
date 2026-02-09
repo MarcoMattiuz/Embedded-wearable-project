@@ -1,8 +1,9 @@
 #ifndef __ROLL_PITCH_H__
 #define __ROLL_PITCH_H__
 
-// #include "freertos/queue.h"
+#include "display_fsm.h"
 #include "mpu6050.h"
+
 
 // Complementary filter coefficients
 /*

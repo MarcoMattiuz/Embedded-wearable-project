@@ -101,6 +101,8 @@ void verify_motion(ACC_Three_Axis_t *acc_data, GYRO_Three_Axis_t *gyro_data)
 
     if (wrist) 
     {
+        // EventType evt = EVT_GYRO;
+        // xQueueSend(event_queue, &evt, 0);
         ESP_LOGI("VERIFY_MOTION", "WRIST ROTATION DETECTED -----------------------------------------------------------------");
     }
 

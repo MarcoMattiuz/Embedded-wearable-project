@@ -8,6 +8,8 @@ let camera;
 let renderer;
 let model;
 let controls;
+const gridHelper = new THREE.GridHelper(10, 10, 0x444444, 0x888888);
+  
 
 function init3DObject() {
   container = document.getElementById("object");
@@ -28,9 +30,9 @@ function init3DObject() {
     0.1,
     1000,
   );
-  camera.position.z = 3;
-  camera.position.y = 0;
-  camera.position.x = 0;
+  // Set camera position for isometric view with a 30-degree angle
+  camera.position.set(3, 3, 3);
+  camera.lookAt(0, 0, 0);
 
   controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
@@ -44,22 +46,13 @@ function init3DObject() {
   light.position.set(10, 10, 100);
   scene.add(light);
 
-  // Remove the red center point
-  // const centerGeometry = new THREE.SphereGeometry(0.1, 32, 32);
-  // const centerMaterial = new THREE.MeshStandardMaterial({
-  //   color: 0xff6b35,
-  //   emissive: 0xff6b35,
-  //   emissiveIntensity: 0.8,
-  // });
-  // const centerPoint = new THREE.Mesh(centerGeometry, centerMaterial);
-  // centerPoint.position.set(0, 0, 0);
-  // scene.add(centerPoint);
 
   const axesHelper = new THREE.AxesHelper(2);
   scene.add(axesHelper);
 
-  const gridHelper = new THREE.GridHelper(10, 10, 0x444444, 0x888888);
+  gridHelper.rotation.set(0, 0, 0);
   scene.add(gridHelper);
+
 
   const stlLoader = new STLLoader();
   const stlPath = "models/mostro.stl";
@@ -70,7 +63,7 @@ function init3DObject() {
       geometry.computeVertexNormals();
 
       const material = new THREE.MeshStandardMaterial({
-        color: 0xffff00, // Changed color to yellow
+        color: 0xffffff, 
         roughness: 0.4,
         metalness: 0.3,
       });
@@ -83,7 +76,7 @@ function init3DObject() {
       box.getCenter(center);
       geometry.translate(-center.x, -center.y, -center.z);
 
-      model.scale.setScalar(0.025); // Adjusted scale to make the model larger
+      model.scale.setScalar(0.025); 
       model.position.set(0, 0, 0);
       scene.add(model);
     },
@@ -105,12 +98,28 @@ function init3DObject() {
   });
 }
 
+function initBLEplane(x, y, z) {
+  // scene.remove(gridHelper);
+  // gridHelper.rotation.set(x, y, z);
+  // scene.add(gridHelper);
+
+  // // Center the camera in x, y, z
+  // camera.position.set(2, 3, 0);
+  // camera.rotation.set(x, y, z);
+  // scene.add(camera);
+
+  
+}
+
 function animate() {
   
   requestAnimationFrame(animate);
 
   renderer.render(scene, camera);
 }
+
+let initialGyroSet = false;
+let initialGyro = { x: 0, y: 0, z: 0 };
 
 function update3DObject(gx, gy, gz) 
 {
@@ -120,9 +129,22 @@ function update3DObject(gx, gy, gz)
     return;
   }
 
-  model.rotation.set(gx, gy, gz);
+  if (!initialGyroSet) 
+  {
+    initialGyro.x = gx;
+    initialGyro.y = gy;
+    initialGyro.z = gz;
+    initialGyroSet = true;
+  }
+
+  const adjustedX = gx - initialGyro.x;
+  const adjustedY = gy - initialGyro.y;
+  const adjustedZ = gz - initialGyro.z;
+
+  model.rotation.set(adjustedX, adjustedY, adjustedZ);
 }
 
 window.update3DObject = update3DObject;
+window.initBLEplane = initBLEplane;
 
 init3DObject();

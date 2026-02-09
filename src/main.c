@@ -25,10 +25,10 @@
 #include "mpu6050.h"
 #include "roll_pitch.h"
 
-#define I2C_MASTER_SCL_IO     22        // SCL pin
-#define I2C_MASTER_SDA_IO     21        // SDA pin
-#define I2C_MASTER_FREQ_HZ    400000
-#define I2C_MASTER_NUM        I2C_NUM_0
+#define I2C_MASTER_SCL_IO 22 // SCL pin
+#define I2C_MASTER_SDA_IO 21 // SDA pin
+#define I2C_MASTER_FREQ_HZ 400000
+#define I2C_MASTER_NUM I2C_NUM_0
 #define ESP_INTR_FLAG_DEFAULT 0
 
 struct ppg_task_params
@@ -53,6 +53,7 @@ static void touch_sensor_task(void *pvParameter);
 static void rtc_clock_task(void *pvParameter);
 static void on_notify_state_changed(bool enabled);
 static void on_time_write(current_time_t *time_data);
+static void ENS160_initCheck_task(void *parameters);
 
 void task_acc(void *parameters)
 {
@@ -60,26 +61,28 @@ void task_acc(void *parameters)
 
     ret = mpu6050_init();
 
-    if(ret != ESP_OK)
+    if (ret != ESP_OK)
     {
         ESP_LOGE("TASK_ACC", "Initialization failed");
         vTaskDelete(NULL);
     }
-    
+
     Raw_Data_acc raw_acc;
     Raw_Data_gyro raw_gyro;
 
-    ACC_Three_Axis_t  accel_data;
+    ACC_Three_Axis_t accel_data;
     GYRO_Three_Axis_t gyro_data;
 
     float accel_bias[3] = {0};
-    float gyro_bias[3]  = {0};
+    float gyro_bias[3] = {0};
 
     mpu6050_calibrate(accel_bias, gyro_bias);
     ESP_LOGI("TASK_ACC", "Calibration complete");
 
+       
+
     int fifo_size = 0;
-    int samples   = 0;
+    int samples = 0;
 
     GYRO_Three_Axis_t tmp;
 
@@ -87,10 +90,7 @@ void task_acc(void *parameters)
         .m = {
             {1.0f, 0.0f, 0.0f},
             {0.0f, 1.0f, 0.0f},
-            {0.0f, 0.0f, 1.0f}
-        }
-    };
-
+            {0.0f, 0.0f, 1.0f}}};
 
     global_parameters.step_cntr = 0;
 
@@ -103,23 +103,23 @@ void task_acc(void *parameters)
         }
 
         fifo_size = get_fifo_size();
-        
+
         if (fifo_size == -1)
         {
             ESP_LOGE("TASK_ACC", "Not enough data in FIFO!");
             continue;
-        } 
+        }
         else if (fifo_size == -2)
         {
             ESP_LOGE("TASK_ACC", "Data misalignment detected!");
             continue;
-        } 
+        }
         else if (fifo_size == -3)
         {
             ESP_LOGE("TASK_ACC", "Failed to read!");
             continue;
         }
-        
+
         samples = fifo_size / FIFO_SAMPLE_SIZE;
 
         for (int i = 0; i < samples; i++)
@@ -129,19 +129,19 @@ void task_acc(void *parameters)
 
             mpu6050_convert_accel(&raw_acc, &accel_data);
             mpu6050_convert_gyro(&raw_gyro, &gyro_data);
-            
+
             verify_motion(&accel_data, &gyro_data);
-            
+
             update_orientation(&gyro_data, &accel_data);
 
             // get_orientation_vector(&gyro_data, &tmp);
             // ESP_LOGI("TASK_ACC", "GYRO: X = %.2f Y = %.2f Z = %.2f", tmp.g_x, tmp.g_y, tmp.g_z);
             get_orientation_matrix(&R, &tmp);
-            ESP_LOGI("TASK_ACC", "Rotation Matrix:\n[%.2f, %.2f, %.2f]\n[%.2f, %.2f, %.2f]\n[%.2f, %.2f, %.2f]",
-                R.m[0][0], R.m[0][1], R.m[0][2],
-                R.m[1][0], R.m[1][1], R.m[1][2],
-                R.m[2][0], R.m[2][1], R.m[2][2]);
-            
+            // ESP_LOGI("TASK_ACC", "Rotation Matrix:\n[%.2f, %.2f, %.2f]\n[%.2f, %.2f, %.2f]\n[%.2f, %.2f, %.2f]",
+            //     R.m[0][0], R.m[0][1], R.m[0][2],
+            //     R.m[1][0], R.m[1][1], R.m[1][2],
+            //     R.m[2][0], R.m[2][1], R.m[2][2]);
+
             if (ble_manager_is_connected())
                 ble_manager_notify_gyro(ble_manager_get_conn_handle(), &tmp);
             // if (ble_manager_is_connected())
@@ -151,7 +151,6 @@ void task_acc(void *parameters)
         vTaskDelay(pdMS_TO_TICKS(20));
     }
 }
-
 
 /* Get the current time from the website and set RTC */
 static void on_time_write(current_time_t *time_data)
@@ -215,60 +214,6 @@ static void rtc_clock_task(void *pvParameter)
     }
 }
 
-static void c02_check_task(void *pvParameter)
-{
-    ens160_data_t data;
-    uint8_t consecutive_errors = 0;
-    const uint8_t MAX_CONSECUTIVE_ERRORS = 3;
-
-    while (1)
-    {
-        esp_err_t ret = ens160_read_data(&data);
-        if (ret == ESP_OK)
-        {
-            consecutive_errors = 0;
-            ESP_LOGI(TAG, "eCO2: %d ppm, TVOC: %d ppb, AQI: %d", data.eco2, data.tvoc, data.aqi);
-            global_parameters.CO2 = data.eco2;
-            global_parameters.CO2_risk_level = data.aqi;
-            global_parameters.particulate = data.tvoc;
-
-            if (notify_enabled && ble_manager_is_connected())
-            {
-                ble_manager_notify_ens160(
-                    ble_manager_get_conn_handle(),
-                    &data);
-            }
-        }
-        else
-        {
-            consecutive_errors++;
-            ESP_LOGE(TAG, "Failed to read ENS160: %s (errors: %d/%d)",
-                     esp_err_to_name(ret), consecutive_errors, MAX_CONSECUTIVE_ERRORS);
-
-            if (consecutive_errors >= MAX_CONSECUTIVE_ERRORS)
-            {
-                ESP_LOGW(TAG, "Performing ENS160 full reset");
-                global_parameters.CO2 = 0;
-                global_parameters.CO2_risk_level = 0;
-                
-                esp_err_t reset_ret = ens160_full_reset();
-                if (reset_ret != ESP_OK)
-                {
-                    ESP_LOGE(TAG, "ENS160 Full reset failed: %s", esp_err_to_name(reset_ret));
-                    ens160_deinit();
-                    vTaskDelay(pdMS_TO_TICKS(1000));
-                    add_device_ENS160();
-                }
-                else
-                {
-                    ESP_LOGI(TAG, "ENS160 Full reset completed successfully");
-                    consecutive_errors = 0;
-                }
-            }
-        }
-        vTaskDelay(pdMS_TO_TICKS(3000));
-    }
-}
 
 void add_device_MAX30102(struct i2c_device *device)
 {
@@ -312,18 +257,77 @@ void add_device_MPU6050(struct i2c_device *device)
     mpu6050_set_handle(device->i2c_dev_handle);
 }
 
-esp_err_t add_device_ENS160()
+void ENS160_initCheck_task(void *parameters)
 {
     esp_err_t esp_ret;
-
     // initialize ENS160 on the bus
     esp_ret = ens160_init(i2c_bus_0);
     if (esp_ret != ESP_OK)
     {
         ESP_LOGE(TAG, "Failed to initialize ENS160: %s", esp_err_to_name(esp_ret));
     }
-    return esp_ret;
+   
+
+    ens160_data_t data;
+    uint8_t consecutive_errors = 0;
+    const uint8_t MAX_CONSECUTIVE_ERRORS = 3;
+
+    while (1)
+    {
+        esp_err_t ret = ens160_read_data(&data);
+        if (ret == ESP_OK)
+        {
+            consecutive_errors = 0;
+            ESP_LOGI(TAG, "eCO2: %d ppm, TVOC: %d ppb, AQI: %d", data.eco2, data.tvoc, data.aqi);
+            global_parameters.CO2 = data.eco2;
+            global_parameters.CO2_risk_level = data.aqi;
+            global_parameters.particulate = data.tvoc;
+
+            if (notify_enabled && ble_manager_is_connected())
+            {
+                ble_manager_notify_ens160(
+                    ble_manager_get_conn_handle(),
+                    &data);
+            }
+        }
+        else
+        {
+            consecutive_errors++;
+            ESP_LOGE(TAG, "Failed to read ENS160: %s (errors: %d/%d)",
+                     esp_err_to_name(ret), consecutive_errors, MAX_CONSECUTIVE_ERRORS);
+
+            if (consecutive_errors >= MAX_CONSECUTIVE_ERRORS)
+            {
+                ESP_LOGW(TAG, "Performing ENS160 full reset");
+                global_parameters.CO2 = 0;
+                global_parameters.CO2_risk_level = 0;
+
+                esp_err_t reset_ret = ens160_full_reset();
+                if (reset_ret != ESP_OK)
+                {
+                    ESP_LOGE(TAG, "ENS160 Full reset failed: %s", esp_err_to_name(reset_ret));
+                    ens160_deinit();
+                    vTaskDelay(pdMS_TO_TICKS(1000));
+                    // Try reinitializing
+                    esp_ret = ens160_init(i2c_bus_0);
+                    if (esp_ret != ESP_OK)
+                    {
+                        ESP_LOGE(TAG, "Failed to initialize ENS160: %s", esp_err_to_name(esp_ret));
+                    }
+                }
+                else
+                {
+                    ESP_LOGI(TAG, "ENS160 Full reset completed successfully");
+                    consecutive_errors = 0;
+                }
+            }
+        }
+        vTaskDelay(pdMS_TO_TICKS(3000));
+    }
 }
+
+ 
+
 
 void send_ppg_data_task(void *parameters)
 {
@@ -612,13 +616,13 @@ void print_task_stats(void)
 void app_main()
 {
     // Enable detailed I2C logging to catch NACK sources
-    /* esp_log_level_set("i2c", ESP_LOG_VERBOSE);
+    esp_log_level_set("i2c", ESP_LOG_VERBOSE);
     esp_log_level_set("i2c_master", ESP_LOG_VERBOSE);
     esp_log_level_set("i2c.common", ESP_LOG_VERBOSE);
-    esp_log_level_set("i2c.master", ESP_LOG_VERBOSE);     // questo è IL tag che ti interessa
+    esp_log_level_set("i2c.master", ESP_LOG_VERBOSE); // questo è IL tag che ti interessa
     esp_log_level_set("lcd_panel.io.i2c", ESP_LOG_VERBOSE);
     esp_log_level_set("lcd_panel", ESP_LOG_VERBOSE);
-    esp_log_level_set("*", ESP_LOG_INFO);  */
+    esp_log_level_set("*", ESP_LOG_INFO);
     // non alzare tutto a VERBOSE o diventi cieco
 
     /* esp_err_t ret = nvs_flash_init();
@@ -643,7 +647,7 @@ void app_main()
         "LCD_task_debug",
         4096,
         &panel_handle,
-        7,
+        21,
         NULL);
     vTaskDelay(pdMS_TO_TICKS(500));
 
@@ -651,9 +655,9 @@ void app_main()
     vTaskDelay(pdMS_TO_TICKS(500));
     add_device_MPU6050(&mpu6050_device);
     vTaskDelay(pdMS_TO_TICKS(500));
-    add_device_ENS160();
+    //initialize ENS160 in a separate task to avoid blocking main during its long warm-up time
+    xTaskCreate(ENS160_initCheck_task, "init_ENS160", 4096, NULL, 1, NULL);
     vTaskDelay(pdMS_TO_TICKS(500));
-
     // ppg parameters init
     parameters_ppg_max30102.bus = i2c_bus_0;
     parameters_ppg_max30102.device = &max30102_device;
@@ -695,9 +699,7 @@ void app_main()
         0,
         NULL);
     vTaskDelay(pdMS_TO_TICKS(500));
-    /* Start RTC clock display task */
-    xTaskCreate(rtc_clock_task, "rtc_clock", 4096, NULL, 4, NULL);
-    vTaskDelay(pdMS_TO_TICKS(500));
+  
 
     xTaskCreatePinnedToCore(
         PPG_sensor_task,
@@ -709,21 +711,9 @@ void app_main()
         0);
     vTaskDelay(pdMS_TO_TICKS(500));
 
-    //* Start battery level monitoring task */
-    xTaskCreate(
-        bettery_level_task,
-        "battery_level_task",
-        2048,
-        NULL,
-        6,
-        NULL);
-    vTaskDelay(pdMS_TO_TICKS(500));
     /* Start RTC clock display task */
     xTaskCreate(rtc_clock_task, "rtc_clock", 4096, NULL, 0, NULL);
     vTaskDelay(pdMS_TO_TICKS(500));
-
-    /* Start CO2 check task */
-    xTaskCreate(c02_check_task, "c02_check", 4096, NULL, 5, NULL);
 
     ESP_LOGI(TAG, "Service initialized successfully");
 
@@ -731,7 +721,7 @@ void app_main()
     // xTaskCreate(touch_sensor_task, "touch_sensor", 4096, NULL, 10, NULL);
     while (1)
     {
-        // print_task_stats();
+        print_task_stats();
         vTaskDelay(pdMS_TO_TICKS(2000));
         esp_err_t err0 = i2c_master_probe(i2c_bus_0, I2C_MAX30102_ADDR, 0x7F);
         esp_err_t err1 = i2c_master_probe(i2c_bus_0, I2C_MPU6050_ADDR, 0x7F);
