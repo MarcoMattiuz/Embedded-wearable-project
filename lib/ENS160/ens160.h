@@ -3,6 +3,7 @@
 
 #include "driver/i2c_master.h"
 #include "esp_err.h"
+#include "global_param.h"
 
 /* I2C address when ADDR pin is LOW */
 #define ENS160_ADDR_L                   0x52

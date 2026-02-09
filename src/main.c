@@ -53,6 +53,7 @@ static void touch_sensor_task(void *pvParameter);
 static void rtc_clock_task(void *pvParameter);
 static void on_notify_state_changed(bool enabled);
 static void on_time_write(current_time_t *time_data);
+static void ENS160_initCheck_task(void *parameters);
 
 void task_acc(void *parameters)
 {
@@ -213,60 +214,6 @@ static void rtc_clock_task(void *pvParameter)
     }
 }
 
-static void c02_check_task(void *pvParameter)
-{
-    ens160_data_t data;
-    uint8_t consecutive_errors = 0;
-    const uint8_t MAX_CONSECUTIVE_ERRORS = 3;
-
-    while (1)
-    {
-        esp_err_t ret = ens160_read_data(&data);
-        if (ret == ESP_OK)
-        {
-            consecutive_errors = 0;
-            ESP_LOGI(TAG, "eCO2: %d ppm, TVOC: %d ppb, AQI: %d", data.eco2, data.tvoc, data.aqi);
-            global_parameters.CO2 = data.eco2;
-            global_parameters.CO2_risk_level = data.aqi;
-            global_parameters.particulate = data.tvoc;
-
-            if (notify_enabled && ble_manager_is_connected())
-            {
-                ble_manager_notify_ens160(
-                    ble_manager_get_conn_handle(),
-                    &data);
-            }
-        }
-        else
-        {
-            consecutive_errors++;
-            ESP_LOGE(TAG, "Failed to read ENS160: %s (errors: %d/%d)",
-                     esp_err_to_name(ret), consecutive_errors, MAX_CONSECUTIVE_ERRORS);
-
-            if (consecutive_errors >= MAX_CONSECUTIVE_ERRORS)
-            {
-                ESP_LOGW(TAG, "Performing ENS160 full reset");
-                global_parameters.CO2 = 0;
-                global_parameters.CO2_risk_level = 0;
-
-                esp_err_t reset_ret = ens160_full_reset();
-                if (reset_ret != ESP_OK)
-                {
-                    ESP_LOGE(TAG, "ENS160 Full reset failed: %s", esp_err_to_name(reset_ret));
-                    ens160_deinit();
-                    vTaskDelay(pdMS_TO_TICKS(1000));
-                    add_device_ENS160();
-                }
-                else
-                {
-                    ESP_LOGI(TAG, "ENS160 Full reset completed successfully");
-                    consecutive_errors = 0;
-                }
-            }
-        }
-        vTaskDelay(pdMS_TO_TICKS(3000));
-    }
-}
 
 void add_device_MAX30102(struct i2c_device *device)
 {
@@ -310,18 +257,77 @@ void add_device_MPU6050(struct i2c_device *device)
     mpu6050_set_handle(device->i2c_dev_handle);
 }
 
-esp_err_t add_device_ENS160()
+void ENS160_initCheck_task(void *parameters)
 {
     esp_err_t esp_ret;
-
     // initialize ENS160 on the bus
     esp_ret = ens160_init(i2c_bus_0);
     if (esp_ret != ESP_OK)
     {
         ESP_LOGE(TAG, "Failed to initialize ENS160: %s", esp_err_to_name(esp_ret));
     }
-    return esp_ret;
+   
+
+    ens160_data_t data;
+    uint8_t consecutive_errors = 0;
+    const uint8_t MAX_CONSECUTIVE_ERRORS = 3;
+
+    while (1)
+    {
+        esp_err_t ret = ens160_read_data(&data);
+        if (ret == ESP_OK)
+        {
+            consecutive_errors = 0;
+            ESP_LOGI(TAG, "eCO2: %d ppm, TVOC: %d ppb, AQI: %d", data.eco2, data.tvoc, data.aqi);
+            global_parameters.CO2 = data.eco2;
+            global_parameters.CO2_risk_level = data.aqi;
+            global_parameters.particulate = data.tvoc;
+
+            if (notify_enabled && ble_manager_is_connected())
+            {
+                ble_manager_notify_ens160(
+                    ble_manager_get_conn_handle(),
+                    &data);
+            }
+        }
+        else
+        {
+            consecutive_errors++;
+            ESP_LOGE(TAG, "Failed to read ENS160: %s (errors: %d/%d)",
+                     esp_err_to_name(ret), consecutive_errors, MAX_CONSECUTIVE_ERRORS);
+
+            if (consecutive_errors >= MAX_CONSECUTIVE_ERRORS)
+            {
+                ESP_LOGW(TAG, "Performing ENS160 full reset");
+                global_parameters.CO2 = 0;
+                global_parameters.CO2_risk_level = 0;
+
+                esp_err_t reset_ret = ens160_full_reset();
+                if (reset_ret != ESP_OK)
+                {
+                    ESP_LOGE(TAG, "ENS160 Full reset failed: %s", esp_err_to_name(reset_ret));
+                    ens160_deinit();
+                    vTaskDelay(pdMS_TO_TICKS(1000));
+                    // Try reinitializing
+                    esp_ret = ens160_init(i2c_bus_0);
+                    if (esp_ret != ESP_OK)
+                    {
+                        ESP_LOGE(TAG, "Failed to initialize ENS160: %s", esp_err_to_name(esp_ret));
+                    }
+                }
+                else
+                {
+                    ESP_LOGI(TAG, "ENS160 Full reset completed successfully");
+                    consecutive_errors = 0;
+                }
+            }
+        }
+        vTaskDelay(pdMS_TO_TICKS(3000));
+    }
 }
+
+ 
+
 
 void send_ppg_data_task(void *parameters)
 {
@@ -644,9 +650,9 @@ void app_main()
     vTaskDelay(pdMS_TO_TICKS(500));
     add_device_MPU6050(&mpu6050_device);
     vTaskDelay(pdMS_TO_TICKS(500));
-    add_device_ENS160();
+    //initialize ENS160 in a separate task to avoid blocking main during its long warm-up time
+    xTaskCreate(ENS160_initCheck_task, "init_ENS160", 4096, NULL, 1, NULL);
     vTaskDelay(pdMS_TO_TICKS(500));
-
     // ppg parameters init
     parameters_ppg_max30102.bus = i2c_bus_0;
     parameters_ppg_max30102.device = &max30102_device;
@@ -703,9 +709,6 @@ void app_main()
     /* Start RTC clock display task */
     xTaskCreate(rtc_clock_task, "rtc_clock", 4096, NULL, 0, NULL);
     vTaskDelay(pdMS_TO_TICKS(500));
-
-    /* Start CO2 check task */
-    xTaskCreate(c02_check_task, "c02_check", 4096, NULL, 8, NULL);
 
     ESP_LOGI(TAG, "Service initialized successfully");
 

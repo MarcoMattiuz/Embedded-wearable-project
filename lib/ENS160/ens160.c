@@ -131,8 +131,14 @@ esp_err_t ens160_full_reset(void) {
     }
     
     // Step 7: Wait for warm-up (3 minutes per datasheet)
-    ESP_LOGI(TAG, "Waiting for warm-up period (3 seconds)...");
-    vTaskDelay(pdMS_TO_TICKS(3000));
+    ESP_LOGI(TAG, "Waiting for warm-up period (3 minutes)...");
+    for (int i = 0; i < 180; i++) // 180 seconds = 3 minutes
+    {
+        global_parameters.CO2_init_percentage = (i * 100) / 180; // Update global parameter for UI
+        ESP_LOGI(TAG, "Warm-up progress: %d%%", (i * 100) / 180);
+        vTaskDelay(pdMS_TO_TICKS(1000)); // Delay for 1 second
+    }
+    
     
     ESP_LOGI(TAG, "Full reset sequence completed");
     return ESP_OK;

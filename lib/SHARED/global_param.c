@@ -13,4 +13,5 @@ struct global_param global_parameters = {
     .CO2_risk_level = 0,
     .temperature = 20.0,
     .particulate = 0,
+    .CO2_init_percentage = 0
 };

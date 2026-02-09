@@ -61,6 +61,7 @@ struct global_param
     int CO2_risk_level;
     int particulate;
     float battery_voltage;
+    int CO2_init_percentage;
 };
 
 extern struct global_param global_parameters;
