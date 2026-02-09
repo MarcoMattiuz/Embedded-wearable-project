@@ -6,6 +6,7 @@
 #include "esp_err.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "freertos/queue.h"
 #include "../SHARED/global_param.h"
 #include <stdint.h>
 #include <math.h>

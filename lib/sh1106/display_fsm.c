@@ -217,6 +217,7 @@ void fn_CO2(esp_lcd_panel_handle_t *panel_handle, struct global_param *param)
         sprintf(level, "Bad");
         break;
     default:
+        sprintf(level, "Unknown");
         break;
     }
     sprintf(buff, "%d ppm\n%s", param->CO2,level);

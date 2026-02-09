@@ -17,6 +17,7 @@ let bpmCharateristic = null;
 let avgbpmCharateristic = null;
 let float32Characteristic = null;
 let weatherCharacteristic = null;
+let firstMessageReceived = true;
 
 let latitude = 0.0;
 let longitude = 0.0;
@@ -226,18 +227,24 @@ function handleEns160Notification(event) {
 function handleGyroNotification(event) {
   
   const value = event.target.value;
-
+  let gx, gy, gz;
   if (value.byteLength >= 12) 
   {
-    const gx = value.getFloat32(0, true);
-    const gy = value.getFloat32(4, true);
-    const gz = value.getFloat32(8, true);
+    gx = value.getFloat32(0, true);
+    gy = value.getFloat32(4, true);
+    gz = value.getFloat32(8, true);
 
     if (typeof window.update3DObject === "function") {
       window.update3DObject(gx, gy, gz);
     }
     
     console.log(`Gyro - X: ${gx.toFixed(2)}, Y: ${gy.toFixed(2)}, Z: ${gz.toFixed(2)}`);
+  }
+
+  if(firstMessageReceived){
+    window.initBLEplane(gx, gy, gz);
+    firstMessageReceived = false;
+    console.log("Initialized BLE plane with first gyro data");
   }
 
   updateIndicator(3, true);
