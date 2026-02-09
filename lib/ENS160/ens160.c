@@ -188,15 +188,26 @@ esp_err_t ens160_init(i2c_master_bus_handle_t bus_handle) {
     
     ESP_LOGI(TAG, "ENS160 found, Part ID: 0x%04X", part_id);
 
-    // Perform FULL reset
-    ret = ens160_full_reset();
+    // Simple startup sequence that preserves baseline data
+    // Step 1: Set to IDLE to ensure clean state
+    ret = ens160_set_opmode(ENS160_OPMODE_IDLE);
     if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Full reset failed");
+        ESP_LOGE(TAG, "Failed to enter IDLE mode");
+        ens160_deinit();
+        return ret;
+    }
+    vTaskDelay(pdMS_TO_TICKS(50));
+    
+    // Step 2: Set to STANDARD mode to start measuring
+    ret = ens160_set_opmode(ENS160_OPMODE_STD);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to enter STANDARD mode");
         ens160_deinit();
         return ret;
     }
     
-    ESP_LOGI(TAG, "ENS160 initialized successfully");
+    ESP_LOGI(TAG, "ENS160 initialized successfully (baseline preserved)");
+    ESP_LOGI(TAG, "Sensor will warm up dynamically - check validity flags");
     return ESP_OK;
 }
 
