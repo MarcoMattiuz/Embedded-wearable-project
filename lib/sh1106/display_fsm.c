@@ -251,6 +251,8 @@ void fn_PARTICULATE(esp_lcd_panel_handle_t *panel_handle, struct global_param *p
     if (param->CO2 == 0)
     {
         drawBitmapToBuffer(circleArrowBitmap, buffer_data, 112, 0, 16, 16);
+        sprintf(buff, "%d%%", param->CO2_init_percentage);
+        drawStringToBuffer(buff, buffer_data, 112-20, 3);
     }
     drawBufferToLcd(buffer_data, *panel_handle);
 }
