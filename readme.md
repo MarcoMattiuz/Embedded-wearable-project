@@ -115,13 +115,14 @@ EmbeddedProject/
 ```
 
 ## Run / debug the project
-- The project was developed using Platformio IDE (vscode extension) for its integrated tools. We suggets to use it to flash the code. 
-- to debug the project we use the serial monitor and to activate some of the prints it is needed to add the following line (they might be commented out)  in the platformio.ini file: 
+- The project was developed using Platformio IDE (vscode extension) for its integrated tools. We suggets to use it to flash the code.
+- To print we use a macro called **DBG_PRINTF()** that is enable only when the flag -DDEBUG.
+- to debug the project we use the serial monitor and to activate some of the prints it is needed to add the following line (they might be commented out)  in the platformio.ini file:
 ```ini
 build_flags =
     -DDEBUG
 ```
-- To check if the data of the MAX30102 sensor was good we wanted so save the logs and check them later. To do so you just have to use this command: `pio device monitor -b 115200 | tee serialmonitor.log`.
+- To check if the data of the MAX30102 sensor was good we wanted so save the logs and check them later. To do so you just have to use this command (baud rate might be different): `pio device monitor -b 921600 | tee serialmonitor.log`.
 - in the tools folder there is a python script that generates a graph of a sample taken by the sensor. The script already reads the serialmonitor.log file, to use it do this (for macOs and linux):
 
 ### create and istall the venv
