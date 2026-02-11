@@ -142,6 +142,9 @@ python3 graph.py
 ⚠️ the python script has **sps** hard coded in, so if you change it in the MAX30102 configuration keep in mind that you will have to change it also there.
 - later in the project we added graphs in the web application, so now you can see there the raw and filtered data of the ppg sensor
 
+### Web application deployment
+The web app is automatically deployed via GitHub Actions whenever a commit is pushed to the master branch.
+
 ## Modify esp firmware
 
 ```bash
