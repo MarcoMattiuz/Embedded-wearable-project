@@ -3,7 +3,7 @@
 **Course:** Introduction to Embedded systems and IoT [145996]
 
 ### Group Members
-**Marco Mattiuz**, **Guojie Zhan**, **Giorgio Marasca**, **Francesco Buscardo**
+**Marco Mattiuz**, **Luca Guojie Zhan**, **Giorgio Marasca**, **Francesco Buscardo**
 
 ### Presentation and Video links
 #### ([Video](#))
@@ -36,29 +36,30 @@ TODO: put photos and graphs here
 
 
 
-### Project flow
+### Project flow (user guide)
 
 - Start the device by connecting the battery.
-- The device runs a startup sequence where it initializes the sensors and the OLED display on the I2C bus and starts the related tasks. The ENS160 (CO2) task waits 3 minutes before starting, as specified in the datasheet. All other tasks can operate normally during this time.
+- The device runs a startup sequence where it initializes the sensors and the OLED display on the I2C bus and starts the related tasks. The ENS160 (CO2) task waits some time before starting. All other tasks can operate normally during this time.
 - Once the loading screen ends, the device can connect to the ([web-app](https://marcomattiuz.github.io/Embedded-wearable-project/)). There, it is possible to view data plots from the MAX30102 and ENS160 sensors, as well as a 3D object that follows the movement of the MPU6050. Since quaternions were not implemented, the movement tracking is not perfectly precise.
 - Using the button, you can switch between the different screens shown on the OLED display. A long press toggles the display on and off.
 
 
+
 ## Team Contributions
 
-**Disclaimer:** Every member actively contributed to the project and is familiar with all its dynamics and inner workings. Some features were developed but were later excluded during integration due to technical issues (ex. wrist rotation).
+**Disclaimer:** Every member actively contributed to the project and is familiar with all its dynamics and inner workings. Some features were developed but later excluded during integration due to technical issues (ex. wrist rotation).
 
 | Member | Contributions |
 |--------|---------------|
 | **Marco Mattiuz** | developed a library for the MAX30102 sensor using I2C protocol. The library also includes signal processing to calculate heart rate. Created the graphs in the web app using (plotly.js). Wrote some of the BLE connectivity functions. Created the task that uses the ADC to measures the voltage of the battery and estimate the charge state. Printed the 3D models 🙂|
-| **Luca Guojie Zhan** | developed a library for the sh1106 oled monitor using I2C protocol. Created the screens. Wrote the code to handle button and wrist rotation events (the button uses interrupts) to change the state of the display and to turn it off. Implemented weather API in the web app.|
+| **Luca Guojie Zhan** | developed a library for the sh1106 oled monitor using I2C protocol. Created the screens. Wrote the code to handle button and wrist rotation events (the button uses interrupts) to change the state of the display and to turn it off. Implemented weather API in the web app and sent data with BLE.|
 | **Giorgio Marasca** | developed BLE connectivity in esp32 board and web application. Developed a library for the C02 sensor using I2C protocol. Designed the 3D models|
 | **Francesco Buscardo** | developed a library for MPU6050 sensor using I2C protocol. The library also calculates step count and detects wrist rotation. 3D orientation visualization (with three.js).|
 
 ## Components
 - **ESP32 board**
 - **MAX30102 ppg sensor**, (works with every MAX3010x sensor) (ppg -> Photoplethysmography)
-- **MPU6050 mpu** (3-axis gyroscope and accelerometer)
+- **MPU6050 mpu** (3-axis gyroscope and accellerometer)
 - **SH1106 oled diplay**
 - **Button**
 - **ENS160 sensor** (CO2, particles...)
@@ -117,16 +118,20 @@ EmbeddedProject/
 ```
 
 ## Run / debug the project
-- The project was developed using Platformio IDE (vscode extension) for its integrated tools. We suggets to use it to flash the code. 
-- to debug the project we use the serial monitor and to activate some of the prints it is needed to add the following line (they might be commented out)  in the platformio.ini file: 
+- The project was developed using Platformio IDE (vscode extension) for its integrated tools. We suggets to use it to flash the code. With Platformio CLI tools to compile and burn the code in the microcontroller use:
+```bash
+pio run -t upload
+```
+- To print we use a macro called **DBG_PRINTF()** that is enable only when the flag -DDEBUG.
+- to debug the project we use the serial monitor and to activate some of the prints it is needed to add the following line (they might be commented out)  in the platformio.ini file:
 ```ini
 build_flags =
     -DDEBUG
 ```
-- To check if the data of the MAX30102 sensor was good we wanted so save the logs and check them later. To do so you just have to use this command: `pio device monitor -b 115200 | tee serialmonitor.log`.
+- To check if the data of the MAX30102 sensor was good we wanted so save the logs and check them later. To do so you just have to use this command (baud rate might be different): `pio device monitor -b 921600 | tee serialmonitor.log`.
 - in the tools folder there is a python script that generates a graph of a sample taken by the sensor. The script already reads the serialmonitor.log file, to use it do this (for macOs and linux):
 
-### create and istall the venv
+### create and install the venv
 ```bash
 python3 -m venv venv
 source venv/bin/activate
@@ -140,6 +145,9 @@ python3 graph.py
 ```
 ⚠️ the python script has **sps** hard coded in, so if you change it in the MAX30102 configuration keep in mind that you will have to change it also there.
 - later in the project we added graphs in the web application, so now you can see there the raw and filtered data of the ppg sensor
+
+### Web application deployment
+The web app is automatically deployed via GitHub Actions whenever a commit is pushed to the master branch.
 
 ## Modify esp firmware
 
