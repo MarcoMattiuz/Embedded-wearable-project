@@ -32,24 +32,23 @@ TODO: put photos and graphs here
 
 
 
-### Project flow
+### Project flow (user guide)
 
 - Start the device by connecting the battery.
-- The device runs a startup sequence where it initializes the sensors and the OLED display on the I2C bus and starts the related tasks. The ENS160 (CO2) task waits 3 minutes before starting, as specified in the datasheet. All other tasks can operate normally during this time.
+- The device runs a startup sequence where it initializes the sensors and the OLED display on the I2C bus and starts the related tasks. The ENS160 (CO2) task waits some time before starting. All other tasks can operate normally during this time.
 - Once the loading screen ends, the device can connect to the ([web-app](https://marcomattiuz.github.io/Embedded-wearable-project/)). There, it is possible to view data plots from the MAX30102 and ENS160 sensors, as well as a 3D object that follows the movement of the MPU6050. Since quaternions were not implemented, the movement tracking is not perfectly precise.
 - Using the button, you can switch between the different screens shown on the OLED display. A long press toggles the display on and off.
 
 
 
-
 ## Team Contributions
 
-**Disclaimer:** Every member actively contributed to the project and is familiar with all its dynamics and inner workings. Some features were developed but were later excluded during integration due to technical issues (ex. wrist rotation).
+**Disclaimer:** Every member actively contributed to the project and is familiar with all its dynamics and inner workings. Some features were developed but later excluded during integration due to technical issues (ex. wrist rotation).
 
 | Member | Contributions |
 |--------|---------------|
 | **Marco Mattiuz** | developed a library for the MAX30102 sensor using I2C protocol. The library also includes signal processing to calculate heart rate. Created the graphs in the web app using (plotly.js). Wrote some of the BLE connectivity functions. Created the task that uses the ADC to measures the voltage of the battery and estimate the charge state. Printed the 3D models 🙂|
-| **Luca Guojie Zhan** | developed a library for the sh1106 oled monitor using I2C protocol. Created the screens. Wrote the code to handle button and wrist rotation events (the button uses interrupts) to change the state of the display and to turn it off. Implemented weather API in the web app.|
+| **Luca Guojie Zhan** | developed a library for the sh1106 oled monitor using I2C protocol. Created the screens. Wrote the code to handle button and wrist rotation events (the button uses interrupts) to change the state of the display and to turn it off. Implemented weather API in the web app and sent data with BLE.|
 | **Giorgio Marasca** | developed BLE connectivity in esp32 board and web application. Developed a library for the C02 sensor using I2C protocol. Designed the 3D models|
 | **Francesco Buscardo** | developed a library for MPU6050 sensor using I2C protocol. The library also calculates step count and detects wrist rotation. 3D orientation visualization (with three.js).|
 
