@@ -91,10 +91,6 @@ typedef struct {
  *   ESP_ERR_NOT_FOUND: Part ID verification failed
  *   ESP_FAIL: Operation mode setting failed
  *   Other ESP_ERR codes from I2C operations
- * 
- * Note: The sensor will warm up dynamically (up to 3 minutes for full accuracy).
- * Check validity flags in ens160_read_data() return codes to monitor warm-up status.
- * Baseline data is preserved across power cycles for improved accuracy.
  */
 esp_err_t ens160_init(i2c_master_bus_handle_t bus_handle);
 
@@ -115,18 +111,16 @@ esp_err_t ens160_read_data(ens160_data_t *data);
 
 /*
  * Perform full reset including NVM baseline clear
- * WARNING: This clears the sensor's learned baseline data stored in NVM.
- * Only use this for error recovery or factory reset - NOT for normal initialization.
- * After this function, the sensor will require a full 3-minute warm-up period.
  * 
  * Returns:
  *   ESP_OK: Success
  *   ESP_ERR_INVALID_STATE: Sensor not initialized
  *   Other ESP_ERR codes from I2C operations
- * 
- * Note: This function blocks for approximately 3 minutes during warm-up.
  */
 esp_err_t ens160_full_reset(void);
+
+/* Set the I2C device handle for ENS160 */
+void ens160_set_handle(i2c_master_dev_handle_t handle);
 
 /* Deinitialize the ENS160 sensor */
 esp_err_t ens160_deinit(void);

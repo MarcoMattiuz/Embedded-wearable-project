@@ -6,6 +6,10 @@
 static const char *TAG = "ENS160";
 static i2c_master_dev_handle_t ens160_dev_handle = NULL;
 
+void ens160_set_handle(i2c_master_dev_handle_t handle) {
+    ens160_dev_handle = handle;
+}
+
 static esp_err_t ens160_write_reg(uint8_t reg, uint8_t value) {
     uint8_t cmd[] = {reg, value};
     esp_err_t ret = i2c_master_transmit(ens160_dev_handle, cmd, sizeof(cmd), 
@@ -46,7 +50,6 @@ static esp_err_t ens160_set_opmode(uint8_t opmode) {
     return ret;
 }
 
-// Clear GPR registers (including baseline data)
 static esp_err_t ens160_clear_gpr(void) {
     esp_err_t ret;
     
@@ -73,7 +76,6 @@ static esp_err_t ens160_clear_gpr(void) {
     return ESP_OK;
 }
 
-// Full reset procedure
 esp_err_t ens160_full_reset(void) {
     if (ens160_dev_handle == NULL) {
         ESP_LOGE(TAG, "Device not initialized");
@@ -130,46 +132,61 @@ esp_err_t ens160_full_reset(void) {
         return ret;
     }
     
-    // Step 7: Wait for warm-up (3 minutes per datasheet)
-    ESP_LOGI(TAG, "Waiting for warm-up period (3 minutes)...");
-    for (int i = 0; i < 180; i++) // 180 seconds = 3 minutes
-    {
-        global_parameters.CO2_init_percentage = (i * 100) / 180; // Update global parameter for UI
-        ESP_LOGI(TAG, "Warm-up progress: %d%%", (i * 100) / 180);
-        vTaskDelay(pdMS_TO_TICKS(1000)); // Delay for 1 second
+    // Step 7: Wait for sensor readiness
+    int elapsed_sec = 0;
+    const int MAX_TIMEOUT_SEC = 500;
+    const int PERCENTAGE_INTERVAL_SEC = 5;
+    bool ready = false;
+
+    while (elapsed_sec < MAX_TIMEOUT_SEC) {
+        uint8_t status = 0;
+        ret = ens160_read_reg(ENS160_REG_DATA_STATUS, &status, 1);
+        
+        if (ret == ESP_OK) {
+            // Check Validity Flag (Bits 2:3)
+            // 00 = Normal Operation
+            // 01 = Warm-Up
+            // 10 = Initial Start-Up
+            // 11 = Invalid
+            uint8_t validity = status & ENS160_STATUS_VALIDITY_MASK;
+
+            if (validity == ENS160_STATUS_VALIDITY_NORMAL) {
+                ESP_LOGI(TAG, "Sensor Ready! Status: 0x%02X", status);
+                ready = true;
+                break;
+            }
+        } else {
+            ESP_LOGW(TAG, "Failed to read status during warm-up");
+        }
+
+        // Every 5 seconds, increase percentage by 1
+        if (elapsed_sec > 0 && (elapsed_sec % PERCENTAGE_INTERVAL_SEC) == 0) {
+            int percentage = elapsed_sec / PERCENTAGE_INTERVAL_SEC;
+            if (percentage > 99) percentage = 99;
+            global_parameters.CO2_init_percentage = percentage;
+        }
+
+        vTaskDelay(pdMS_TO_TICKS(1000));
+        elapsed_sec++;
     }
-    
-    
-    ESP_LOGI(TAG, "Full reset sequence completed");
-    return ESP_OK;
+
+    if (ready) {
+        global_parameters.CO2_init_percentage = 100;
+        ESP_LOGI(TAG, "Full reset sequence completed successfully");
+        return ESP_OK;
+    } else {
+        ESP_LOGE(TAG, "Sensor warm-up timed out after %d seconds", MAX_TIMEOUT_SEC);
+        return ESP_ERR_TIMEOUT;
+    }
 }
 
 esp_err_t ens160_init(i2c_master_bus_handle_t bus_handle) {
-    if (bus_handle == NULL) {
-        ESP_LOGE(TAG, "Invalid bus handle");
-        return ESP_ERR_INVALID_ARG;
-    }
-
-    // Configure device with address (ADDR pin HIGH = 0x53)
-    i2c_device_config_t ens160_dev_cfg = {
-        .dev_addr_length = I2C_ADDR_BIT_LEN_7,
-        .device_address = ENS160_ADDR_H,
-        .scl_speed_hz = 100000,
-    };
-    
-    esp_err_t ret = i2c_master_bus_add_device(bus_handle, &ens160_dev_cfg, &ens160_dev_handle);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to add device at address 0x%02X: %s", 
-                 ENS160_ADDR_L, esp_err_to_name(ret));
-        return ret;
-    }
-
     // Wait for sensor startup (datasheet specifies 100ms)
     vTaskDelay(pdMS_TO_TICKS(500));
 
     // Read Part ID to verify device presence
     uint8_t buf[2];
-    ret = ens160_read_reg(ENS160_REG_PART_ID, buf, 2);
+    esp_err_t ret = ens160_read_reg(ENS160_REG_PART_ID, buf, 2);
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "Failed to read Part ID");
         i2c_master_bus_rm_device(ens160_dev_handle);
@@ -188,7 +205,6 @@ esp_err_t ens160_init(i2c_master_bus_handle_t bus_handle) {
     
     ESP_LOGI(TAG, "ENS160 found, Part ID: 0x%04X", part_id);
 
-    // Simple startup sequence that preserves baseline data
     // Step 1: Set to IDLE to ensure clean state
     ret = ens160_set_opmode(ENS160_OPMODE_IDLE);
     if (ret != ESP_OK) {
@@ -206,8 +222,7 @@ esp_err_t ens160_init(i2c_master_bus_handle_t bus_handle) {
         return ret;
     }
     
-    ESP_LOGI(TAG, "ENS160 initialized successfully (baseline preserved)");
-    ESP_LOGI(TAG, "Sensor will warm up dynamically - check validity flags");
+    ESP_LOGI(TAG, "ENS160 initialized successfully");
     return ESP_OK;
 }
 
@@ -231,21 +246,26 @@ esp_err_t ens160_read_data(ens160_data_t *data) {
         return ret;
     }
 
-    // Check data ready flag
-    if (!(status & ENS160_STATUS_NEWDAT)) {
-        ESP_LOGD(TAG, "Data not ready");
-        return ESP_ERR_NOT_FINISHED;
-    }
-    
-    // Check validity
+    // Check validity flags
     uint8_t validity = status & ENS160_STATUS_VALIDITY_MASK;
+    
     if (validity == ENS160_STATUS_VALIDITY_INVALID) {
         ESP_LOGE(TAG, "Sensor output invalid");
         return ESP_ERR_INVALID_RESPONSE;
-    } else if (validity == ENS160_STATUS_VALIDITY_WARMUP) {
+    } 
+    else if (validity == ENS160_STATUS_VALIDITY_WARMUP) {
         ESP_LOGW(TAG, "Sensor in warm-up phase");
-    } else if (validity == ENS160_STATUS_VALIDITY_STARTUP) {
+        return ESP_ERR_NOT_FINISHED; 
+    } 
+    else if (validity == ENS160_STATUS_VALIDITY_STARTUP) {
         ESP_LOGW(TAG, "Sensor in initial start-up phase");
+        return ESP_ERR_NOT_FINISHED;
+    }
+
+    // Check data ready flag for normal operation
+    if (!(status & ENS160_STATUS_NEWDAT)) {
+        ESP_LOGD(TAG, "Data not ready");
+        return ESP_ERR_NOT_FINISHED;
     }
 
     // Read eCO2 (2 bytes, little-endian)
@@ -265,6 +285,9 @@ esp_err_t ens160_read_data(ens160_data_t *data) {
 
     // Read AQI
     ret = ens160_read_reg(ENS160_REG_DATA_AQI, &data->aqi, 1);
+    if (ret != ESP_OK) {
+        return ret;
+    }
     data->aqi &= 0x07;  // Only lower 3 bits are valid
     
     return ret;

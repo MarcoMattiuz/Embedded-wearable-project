@@ -45,6 +45,7 @@ static esp_lcd_panel_handle_t panel_handle;
 static struct ppg_task_params parameters_ppg_max30102;
 static struct i2c_device max30102_device;
 static struct i2c_device mpu6050_device;
+static struct i2c_device ens160_device;
 static const char *TAG = "MAIN";
 static const char *device_name = "ESP32_BLE";
 static bool notify_enabled = false;
@@ -214,7 +215,6 @@ static void rtc_clock_task(void *pvParameter)
     }
 }
 
-
 void add_device_MAX30102(struct i2c_device *device)
 {
 
@@ -257,53 +257,50 @@ void add_device_MPU6050(struct i2c_device *device)
     mpu6050_set_handle(device->i2c_dev_handle);
 }
 
-void ENS160_init_check_task(void *parameters)
+void add_device_ENS160(struct i2c_device *device)
 {
-    esp_err_t esp_ret = ens160_init(i2c_bus_0);
+    esp_err_t esp_ret;
+
+    // Setup device configuration
+    device->i2c_dev_config.dev_addr_length = I2C_ADDR_BIT_LEN_7;
+    device->i2c_dev_config.device_address = 0x53;
+    device->i2c_dev_config.scl_speed_hz = 100000;
+
+    // Initialize ENS160 device on the bus
+    esp_ret = i2c_master_bus_add_device(i2c_bus_0, &device->i2c_dev_config, &device->i2c_dev_handle);
     if (esp_ret != ESP_OK)
     {
-        ESP_LOGE(TAG, "Failed to initialize ENS160: %s", esp_err_to_name(esp_ret));
+        ESP_LOGE(TAG, "Failed to add ENS160 to I2C bus: %s", esp_err_to_name(esp_ret));
     }
+    else
+    {
+        ESP_LOGI(TAG, "ENS160 added to I2C bus successfully");
+        ens160_set_handle(device->i2c_dev_handle);
+    }
+}
 
+void ENS160_check_task(void *parameters)
+{
     ens160_data_t data;
     uint8_t consecutive_errors = 0;
-    const uint8_t MAX_CONSECUTIVE_ERRORS = 3;
-    bool is_warming_up = true;
-
+    const uint8_t MAX_CONSECUTIVE_ERRORS = 10;
+    
     while (1)
     {
         esp_err_t ret = ens160_read_data(&data);
         if (ret == ESP_OK)
         {
             consecutive_errors = 0;
-            is_warming_up = false;
-            ESP_LOGI(TAG, "eCO2: %d ppm, TVOC: %d ppb, AQI: %d", data.eco2, data.tvoc, data.aqi);
+            // ESP_LOGI(TAG, "eCO2: %d ppm, TVOC: %d ppb, AQI: %d", data.eco2, data.tvoc, data.aqi);
             global_parameters.CO2 = data.eco2;
             global_parameters.CO2_risk_level = data.aqi;
             global_parameters.particulate = data.tvoc;
-            global_parameters.CO2_init_percentage = 100; // Mark as fully ready
 
             if (notify_enabled && ble_manager_is_connected())
             {
                 ble_manager_notify_ens160(
                     ble_manager_get_conn_handle(),
                     &data);
-            }
-        }
-        else if (ret == ESP_ERR_NOT_FINISHED)
-        {
-            // Data not ready yet - this is normal, don't count as error
-            ESP_LOGD(TAG, "ENS160 data not ready");
-        }
-        else if (ret == ESP_ERR_INVALID_RESPONSE)
-        {
-            // Sensor in warm-up or startup phase
-            if (is_warming_up)
-            {
-                ESP_LOGI(TAG, "ENS160 warming up... (this may take up to 3 minutes)");
-                // Update UI to show warming up state
-                global_parameters.CO2 = 0;
-                global_parameters.CO2_risk_level = 0;
             }
         }
         else
@@ -314,7 +311,7 @@ void ENS160_init_check_task(void *parameters)
 
             if (consecutive_errors >= MAX_CONSECUTIVE_ERRORS)
             {
-                ESP_LOGW(TAG, "Performing ENS160 full reset (baseline will be cleared)");
+                ESP_LOGW(TAG, "Performing ENS160 full reset");
                 global_parameters.CO2 = 0;
                 global_parameters.CO2_risk_level = 0;
                 global_parameters.CO2_init_percentage = 0;
@@ -323,29 +320,17 @@ void ENS160_init_check_task(void *parameters)
                 if (reset_ret != ESP_OK)
                 {
                     ESP_LOGE(TAG, "ENS160 Full reset failed: %s", esp_err_to_name(reset_ret));
-                    ens160_deinit();
-                    vTaskDelay(pdMS_TO_TICKS(1000));
-                    // Try reinitializing
-                    esp_ret = ens160_init(i2c_bus_0);
-                    if (esp_ret != ESP_OK)
-                    {
-                        ESP_LOGE(TAG, "Failed to initialize ENS160: %s", esp_err_to_name(esp_ret));
-                    }
                 }
                 else
                 {
                     ESP_LOGI(TAG, "ENS160 Full reset completed successfully");
-                    consecutive_errors = 0;
-                    is_warming_up = true;
                 }
+                consecutive_errors = 0;
             }
         }
-        vTaskDelay(pdMS_TO_TICKS(3000));
+        vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }
-
- 
-
 
 void send_ppg_data_task(void *parameters)
 {
@@ -615,15 +600,15 @@ unsigned long ulGetRunTimeCounterValue(void)
 
 void print_task_stats(void)
 {
-    char buffer[2048];
+    // char buffer[2048];
 
-    printf("\n\n===== TASK LIST =====\n");
-    vTaskList(buffer);
-    printf("%s\n", buffer);
+    // printf("\n\n===== TASK LIST =====\n");
+    // vTaskList(buffer);
+    // printf("%s\n", buffer);
 
-    printf("\n===== RUNTIME STATS =====\n");
-    vTaskGetRunTimeStats(buffer);
-    printf("%s\n", buffer);
+    // printf("\n===== RUNTIME STATS =====\n");
+    // vTaskGetRunTimeStats(buffer);
+    // printf("%s\n", buffer);
 }
 
 void app_main()
@@ -668,8 +653,7 @@ void app_main()
     vTaskDelay(pdMS_TO_TICKS(500));
     add_device_MPU6050(&mpu6050_device);
     vTaskDelay(pdMS_TO_TICKS(500));
-    //initialize ENS160 in a separate task to avoid blocking main during its long warm-up time
-    xTaskCreate(ENS160_init_check_task, "init_ENS160", 4096, NULL, 1, NULL);
+    add_device_ENS160(&ens160_device);
     vTaskDelay(pdMS_TO_TICKS(500));
     // ppg parameters init
     parameters_ppg_max30102.bus = i2c_bus_0;
@@ -723,6 +707,11 @@ void app_main()
         &ppg_task_handle,
         0);
     vTaskDelay(pdMS_TO_TICKS(500));
+
+
+    xTaskCreate(ENS160_check_task, "read_ENS160", 4096, NULL, 1, NULL);
+    vTaskDelay(pdMS_TO_TICKS(500));
+
 
     /* Start RTC clock display task */
     xTaskCreate(rtc_clock_task, "rtc_clock", 4096, NULL, 0, NULL);

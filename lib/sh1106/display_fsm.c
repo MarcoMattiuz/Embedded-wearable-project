@@ -226,7 +226,7 @@ void fn_CO2(esp_lcd_panel_handle_t *panel_handle, struct global_param *param)
 
     drawBitmapToBuffer(co2Bitmap, buffer_data, 0, 0, 64, 64);
 
-    if (param->CO2 == 0){
+    if (param->CO2_init_percentage != 100){
         drawBitmapToBuffer(circleArrowBitmap, buffer_data, 112, 0, 16, 16);
         sprintf(buff, "%d%%", param->CO2_init_percentage);
         drawStringToBuffer(buff, buffer_data, 112-20, 3);

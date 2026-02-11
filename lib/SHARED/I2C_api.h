@@ -32,6 +32,4 @@ SemaphoreHandle_t i2c_get_mutex_port1(void);
 #define I2C_LOCK_1()   xSemaphoreTake(i2c_get_mutex_port1(), portMAX_DELAY)
 #define I2C_UNLOCK_1() xSemaphoreGive(i2c_get_mutex_port1())
 
-esp_err_t add_device_ENS160(void);
-
 #endif
