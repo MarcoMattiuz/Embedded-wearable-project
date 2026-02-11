@@ -125,7 +125,7 @@ build_flags =
 - To check if the data of the MAX30102 sensor was good we wanted so save the logs and check them later. To do so you just have to use this command (baud rate might be different): `pio device monitor -b 921600 | tee serialmonitor.log`.
 - in the tools folder there is a python script that generates a graph of a sample taken by the sensor. The script already reads the serialmonitor.log file, to use it do this (for macOs and linux):
 
-### create and istall the venv
+### create and install the venv
 ```bash
 python3 -m venv venv
 source venv/bin/activate
