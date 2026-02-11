@@ -23,7 +23,7 @@ We focused on features that are essential for modern wearables, such as:
 - Weather data (using API) 
 - A display to show real-time information  
 - Data plots in the web-app
-- CO2/TVOC/Air-quality measurement
+- CO2/TVOC/Air-quality measurement (maybe not essential for wearables 🙂)
 - TODO: implementing temperature/umidity sensor
 - 3D model that follows device rotation (in the web-app) **quaternion implementation is needed**
 - battery level measurement 
@@ -32,8 +32,52 @@ To ensure maintainability and accessibility for anyone interested in experimenti
 
 ## Project overview
 
-TODO: put photos and graphs here
+### Hardware wiring
 
+```ascii
+                         ┌───────────────────────────┐
+                         │        ESP32 DevKit       │
+                         │                           │
+  3.3V ──────────────────┤ 3V3                       │
+  GND  ──────────────────┤ GND                       │
+  SDA  ──────────────────┤ GPIO21  (I2C SDA)         │
+  SCL  ──────────────────┤ GPIO22  (I2C SCL)         │
+                         │                           │
+  ADC node ──────────────┤ GPIO32 (ADC1 CH4)         │
+  Button ────────────────┤ GPIO18                    │
+                         │                           │
+  Battery + ─────────────┤ VIN                       │
+  Battery - ─────────────┤ GND                       │
+                         └───────────────────────────┘
+
+
+        I2C BUS (all devices in parallel: SDA=21, SCL=22, 3.3V, GND)
+   ┌─────────────┐   ┌─────────────┐   ┌─────────────┐   ┌─────────────┐
+   │  MAX30102   │   │  MPU6050    │   │   ENS160    │   │  SH1106     │
+   │ VCC ─ 3.3V  │   │ VCC ─ 3.3V  │   │ VCC ─ 3.3V  │   │ VCC ─ 3.3V  │
+   │ GND ─ GND   │   │ GND ─ GND   │   │ GND ─ GND   │   │ GND ─ GND   │
+   │ SDA ─ GPIO21│   │ SDA ─ GPIO21│   │ SDA ─ GPIO21│   │ SDA ─ GPIO21│
+   │ SCL ─ GPIO22│   │ SCL ─ GPIO22│   │ SCL ─ GPIO22│   │ SCL ─ GPIO22│
+   └─────────────┘   └─────────────┘   └─────────────┘   └─────────────┘
+
+
+        BATTERY + VOLTAGE DIVIDER (for ADC measurement on GPIO32)
+   Battery +
+      │
+      ├───────────────> VIN (ESP32)
+      │
+     [R1 10kΩ]
+      │───────────────> ADC node (Vout) ───────────> GPIO32 (ADC1)
+     [R2 10kΩ]
+      │
+      └───────────────> GND (ESP32)  <────────────── Battery -
+
+
+        BUTTON
+   GPIO18 ────────[  push button  ]─────── GND
+```
+
+TODO: images...
 
 
 ### Project flow (user guide)
