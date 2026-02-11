@@ -22,6 +22,7 @@ We focused on features that are essential for modern wearables, such as:
 - CO2/TVOC/Air-quality measurement
 - TODO: implementing temperature/umidity sensor
 - 3D model that follows device rotation (in the web-app) **quaternion implementation is needed**
+- battery level measurement 
 
 To ensure maintainability and accessibility for anyone interested in experimenting or extending the system, we built the device on the **ESP32 platform** using **ESP-IDF**, chosen for its conectivity (BLE/wifi), flexibility, performance, and strong community support.
 
