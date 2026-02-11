@@ -3,7 +3,11 @@
 **Course:** Introduction to Embedded systems and IoT [145996]
 
 ### Group Members
-**Marco Mattiuz**, **Luca Guojie Zhan**, **Giorgio Marasca**, **Francesco Buscardo**
+**Marco Mattiuz**, **Guojie Zhan**, **Giorgio Marasca**, **Francesco Buscardo**
+
+### Presentation and Video links
+#### ([Video](#))
+#### ([Presentation](https://www.canva.com/design/DAHBCtbX71E/7lhA4Xd-Q39TREjt6f52yw/view?utm_content=DAHBCtbX71E&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hd3142368d5))
 
 ## Introduction and Features
 The goal of this project is to design and implement a low-cost, open-source wearable device using widely available and easily upgradeable components.
@@ -40,8 +44,6 @@ TODO: put photos and graphs here
 - Using the button, you can switch between the different screens shown on the OLED display. A long press toggles the display on and off.
 
 
-
-
 ## Team Contributions
 
 **Disclaimer:** Every member actively contributed to the project and is familiar with all its dynamics and inner workings. Some features were developed but were later excluded during integration due to technical issues (ex. wrist rotation).
@@ -56,7 +58,7 @@ TODO: put photos and graphs here
 ## Components
 - **ESP32 board**
 - **MAX30102 ppg sensor**, (works with every MAX3010x sensor) (ppg -> Photoplethysmography)
-- **MPU6050 mpu** (3-axis gyroscope and accellerometer)
+- **MPU6050 mpu** (3-axis gyroscope and accelerometer)
 - **SH1106 oled diplay**
 - **Button**
 - **ENS160 sensor** (CO2, particles...)
