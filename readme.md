@@ -115,7 +115,10 @@ EmbeddedProject/
 ```
 
 ## Run / debug the project
-- The project was developed using Platformio IDE (vscode extension) for its integrated tools. We suggets to use it to flash the code.
+- The project was developed using Platformio IDE (vscode extension) for its integrated tools. We suggets to use it to flash the code. With Platformio CLI tools to compile and burn the code in the microcontroller use:
+```bash
+pio run -t upload
+```
 - To print we use a macro called **DBG_PRINTF()** that is enable only when the flag -DDEBUG.
 - to debug the project we use the serial monitor and to activate some of the prints it is needed to add the following line (they might be commented out)  in the platformio.ini file:
 ```ini
