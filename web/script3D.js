@@ -30,22 +30,28 @@ function init3DObject() {
     0.1,
     1000,
   );
-  // Set camera position for isometric view with a 30-degree angle
-  camera.position.set(3, 3, 3);
-  camera.lookAt(0, 0, 0);
+  camera.position.set(3, 3, 2);
+  camera.rotation.set(0, 0, 0);
 
   controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   controls.dampingFactor = 0.05;
   controls.autoRotate = false;
 
-  const ambient = new THREE.AmbientLight(0xffffff, 0.6);
+  const ambient = new THREE.AmbientLight(0xffffff, 1.6);
   scene.add(ambient);
 
   const light = new THREE.DirectionalLight(0xffffff, 1.2);
   light.position.set(10, 10, 100);
   scene.add(light);
 
+  const light2 = new THREE.DirectionalLight(0xffffff, 1.2);
+  light2.position.set(-10, -10, -100);
+  scene.add(light2);
+
+  const light3 = new THREE.DirectionalLight(0xffffff, 1.2);
+  light3.position.set(0, 0, -100);
+  scene.add(light3);
 
   const axesHelper = new THREE.AxesHelper(2);
   scene.add(axesHelper);
@@ -63,7 +69,7 @@ function init3DObject() {
       geometry.computeVertexNormals();
 
       const material = new THREE.MeshStandardMaterial({
-        color: 0xffffff, 
+        color: 0xffa500, // orange
         roughness: 0.4,
         metalness: 0.3,
       });
@@ -78,6 +84,7 @@ function init3DObject() {
 
       model.scale.setScalar(0.025); 
       model.position.set(0, 0, 0);
+      model.rotation.set(0, 0, 0);
       scene.add(model);
     },
     undefined,
@@ -107,8 +114,6 @@ function initBLEplane(x, y, z) {
   // camera.position.set(2, 3, 0);
   // camera.rotation.set(x, y, z);
   // scene.add(camera);
-
-  
 }
 
 function animate() {
@@ -141,7 +146,7 @@ function update3DObject(gx, gy, gz)
   const adjustedY = gy - initialGyro.y;
   const adjustedZ = gz - initialGyro.z;
 
-  model.rotation.set(adjustedX, adjustedY, adjustedZ);
+  model.rotation.set(-adjustedX, adjustedY, adjustedZ);
 }
 
 window.update3DObject = update3DObject;

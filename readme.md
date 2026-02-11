@@ -132,7 +132,6 @@ pip install -r requirements.txt
 ### use it
 ```bash
 cd tools/pyHrGraphs
-python3 -m venv venv #before create the venv use the
 source venv/bin/activate
 python3 graph.py
 ```

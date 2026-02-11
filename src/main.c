@@ -134,18 +134,10 @@ void task_acc(void *parameters)
 
             update_orientation(&gyro_data, &accel_data);
 
-            // get_orientation_vector(&gyro_data, &tmp);
-            // ESP_LOGI("TASK_ACC", "GYRO: X = %.2f Y = %.2f Z = %.2f", tmp.g_x, tmp.g_y, tmp.g_z);
             get_orientation_matrix(&R, &tmp);
-            // ESP_LOGI("TASK_ACC", "Rotation Matrix:\n[%.2f, %.2f, %.2f]\n[%.2f, %.2f, %.2f]\n[%.2f, %.2f, %.2f]",
-            //     R.m[0][0], R.m[0][1], R.m[0][2],
-            //     R.m[1][0], R.m[1][1], R.m[1][2],
-            //     R.m[2][0], R.m[2][1], R.m[2][2]);
 
             if (ble_manager_is_connected())
                 ble_manager_notify_gyro(ble_manager_get_conn_handle(), &tmp);
-            // if (ble_manager_is_connected())
-            //     ble_manager_notify_gyro(ble_manager_get_conn_handle(), &R);
         }
 
         vTaskDelay(pdMS_TO_TICKS(20));
@@ -393,16 +385,15 @@ void PPG_sensor_task(void *parameters)
         abort();
     }
 
-    uint8_t ovf_cntr = MAX30102_FIFO_OVF_CTR_ADDR;
-    uint8_t wr_ptr;
     while (1)
     {
-        // ESP_LOGI("PPG", "Remaining stack: %u bytes", uxTaskGetStackHighWaterMark(NULL));
         if (max30102_i2c_read_multiled_data_burst(device))
         {
             for (int i = 0; i < MAX30102_BPM_SAMPLES_SIZE; i++)
             {
-                // DBG_PRINTF("%d - IR_RAW: %lu - IR_AC: %d\n", i, IR_buffer[i], IR_ac_buffer[i]);
+                DBG_PRINTF("IR_RAW: %ld\n", IR_buffer[i]);
+                DBG_PRINTF("IR_AC: %d", IR_ac_buffer[i]);
+
                 calculateBPM(IR_ac_buffer[i], &global_parameters.BPM, &global_parameters.AVG_BPM);
             }
 
@@ -416,11 +407,6 @@ void PPG_sensor_task(void *parameters)
                 1,
                 NULL);
         }
-        // i2c_master_transmit_receive(device->i2c_dev_handle, &ovf_cntr, 1, &wr_ptr, 1, 1000);
-        // DBG_PRINTF("overflow: %d\n",wr_ptr);
-        // if(wr_ptr>=1){
-        //     DBG_PRINTF("OVERFLOW!\n");
-        // }
 
         vTaskDelay(300 / portTICK_PERIOD_MS);
     }
@@ -714,7 +700,7 @@ void app_main()
     /* Start RTC clock display task */
     xTaskCreate(rtc_clock_task, "rtc_clock", 4096, NULL, 0, NULL);
     vTaskDelay(pdMS_TO_TICKS(500));
-
+        
     ESP_LOGI(TAG, "Service initialized successfully");
 
     /* Start touch sensor task */

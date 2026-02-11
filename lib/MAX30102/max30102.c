@@ -195,16 +195,20 @@ bool max30102_i2c_read_multiled_data_burst(struct i2c_device *device)
         uint32_t red = ((uint32_t)fifo_buffer[base] << 16) |
                        ((uint32_t)fifo_buffer[base+1] << 8) |
                         fifo_buffer[base+2];
+                        
+        //red = [ byte0 ][ byte1 ][ byte2 ]
+        //       23..16    15..8     7..0
 
         uint32_t ir  = ((uint32_t)fifo_buffer[base+3] << 16) |
                        ((uint32_t)fifo_buffer[base+4] << 8) |
                         fifo_buffer[base+5];
 
+        // Mask to 18 bits
+        // 0011 1111 1111 1111 1111
         red &= 0x3FFFF;
         ir  &= 0x3FFFF;
 
-        // Debug
-        // DBG_PRINTF("RED_RAW: %lu IR_RAW: %lu\n", red, ir);
+        
 
         update_red_buffers(red);
         if (update_ir_buffers(ir)) { //used to calculate bpm

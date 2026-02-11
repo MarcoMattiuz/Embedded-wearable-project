@@ -104,13 +104,11 @@ bool beat_detected(int16_t ir_ac) {
     IR_AC_Signal_Previous = IR_AC_Signal_Current;
     IR_AC_Signal_Current = ir_ac;
 
-    // Zero crossing positivo → potenziale beat
+    // a positive zero crossing potential beat
     if (IR_AC_Signal_Previous < 0 && IR_AC_Signal_Current >= 0) {
         
-        // Ampiezza del ciclo misurata in modo semplice
         int amplitude = IR_AC_Max - IR_AC_Min;
         // DBG_PRINTF("AMPLITUDE: %d\n",amplitude);
-
 
         // Refractory period: distanza minima tra due beat
         uint32_t delta = sample_counter - lastBeatSample;
@@ -118,7 +116,6 @@ bool beat_detected(int16_t ir_ac) {
             return false;   // troppo vicino → SCARTO
         }
 
-        // Deve superare una soglia minima
         if (amplitude > 100 && amplitude < 2000) {
             beat = true;
         }
@@ -128,16 +125,17 @@ bool beat_detected(int16_t ir_ac) {
         IR_AC_Min = 2000;
     }
 
-    // Durante la fase positiva -> trova max
+    // find max positive
     if (IR_AC_Signal_Current > IR_AC_Max)
         IR_AC_Max = IR_AC_Signal_Current;
 
-    // Durante la fase negativa -> trova min
+    // find min negative
     if (IR_AC_Signal_Current < IR_AC_Min)
         IR_AC_Min = IR_AC_Signal_Current;
 
     return beat;
 }
+
 
 /*
     Calculates bpm: the first time it senses a beat it saves the sample_counter,
@@ -163,9 +161,7 @@ void calculateBPM(int16_t ir_ac, int16_t *BPM, int16_t *AVG_BPM) {
         oldBPM = currBPM;
         if (currBPM > 40 && currBPM < 210) {
 
-            // rate_size = (2 + (int) (deltaBPM / 3));
-            // if(rate_size >= MAX_RATE_SIZE) rate_size = MAX_RATE_SIZE;
-            // Memorizza BPM e crea media scorrevole
+            // moving avg
             rates[rates_index] = currBPM;
             rates_index = (rates_index + 1) % rate_size;
 
@@ -175,7 +171,7 @@ void calculateBPM(int16_t ir_ac, int16_t *BPM, int16_t *AVG_BPM) {
 
             *BPM = currBPM;
             *AVG_BPM = sum / rate_size;
-            DBG_PRINTF(">--BEAT--< BPM: %d | AVG: %d\n - deltaBPM: %d - rate_size: %d\n", *BPM, *AVG_BPM, deltaBPM, rate_size);
+            // DBG_PRINTF(">--BEAT--< BPM: %d | AVG: %d\n - deltaBPM: %d - rate_size: %d\n", *BPM, *AVG_BPM, deltaBPM, rate_size);
             // DBG_PRINTF(">-----BEAT-----<\n");
         }
     }

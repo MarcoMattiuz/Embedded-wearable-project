@@ -62,6 +62,8 @@ bool verify_step(ACC_Three_Axis_t *ax)
 }
 
 
+
+
 bool verify_wrist_rotation(GYRO_Three_Axis_t *g)
 {
     // refractory window, avoid double triggers
