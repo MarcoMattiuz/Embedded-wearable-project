@@ -200,6 +200,58 @@ esp_err_t ens160_init(i2c_master_bus_handle_t bus_handle) {
     return ESP_OK;
 }
 
+esp_err_t ens160_init(i2c_master_bus_handle_t bus_handle) {
+    if (bus_handle == NULL) {
+        ESP_LOGE(TAG, "Invalid bus handle");
+        return ESP_ERR_INVALID_ARG;
+    }
+
+    i2c_device_config_t ens160_dev_cfg = {
+        .dev_addr_length = I2C_ADDR_BIT_LEN_7,
+        .device_address = ENS160_ADDR_H,
+        .scl_speed_hz = 100000,
+    };
+    
+    esp_err_t ret = i2c_master_bus_add_device(bus_handle, &ens160_dev_cfg, &ens160_dev_handle);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to add device at address 0x%02X: %s", 
+                 ENS160_ADDR_L, esp_err_to_name(ret));
+        return ret;
+    }
+
+    vTaskDelay(pdMS_TO_TICKS(500));
+
+    uint8_t buf[2];
+    ret = ens160_read_reg(ENS160_REG_PART_ID, buf, 2);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to read Part ID");
+        i2c_master_bus_rm_device(ens160_dev_handle);
+        ens160_dev_handle = NULL;
+        return ret;
+    }
+    
+    uint16_t part_id = (buf[1] << 8) | buf[0];
+    if (part_id != ENS160_PART_ID_VAL) {
+        ESP_LOGE(TAG, "Part ID mismatch. Expected 0x%04X, got 0x%04X", 
+                 ENS160_PART_ID_VAL, part_id);
+        i2c_master_bus_rm_device(ens160_dev_handle);
+        ens160_dev_handle = NULL;
+        return ESP_ERR_NOT_FOUND;
+    }
+
+    ret = ens160_full_reset();
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Full reset failed");
+        ens160_deinit();
+        return ret;
+    }
+    ESP_LOGI(TAG, "ENS160 initialized successfully");
+    return ESP_OK;
+}
+
+
+
+
 esp_err_t ens160_read_data(ens160_data_t *data) {
     if (data == NULL) {
         ESP_LOGE(TAG, "NULL data pointer");

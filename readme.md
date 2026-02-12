@@ -32,6 +32,12 @@ To ensure maintainability and accessibility for anyone interested in experimenti
 
 ## Project overview
 
+![Project overview photo 1](./images/IMG_8240.jpg)
+
+### Website
+![Project overview photo 2](./images/Screenshot%202026-02-12%20at%2018.48.50.png)
+
+
 ### Hardware wiring
 
 ```ascii
@@ -77,7 +83,6 @@ To ensure maintainability and accessibility for anyone interested in experimenti
    GPIO18 ────────[  push button  ]─────── GND
 ```
 
-TODO: images...
 
 
 ### Project flow (user guide)
@@ -87,6 +92,9 @@ TODO: images...
 - Once the loading screen ends, the device can connect to the ([web-app](https://marcomattiuz.github.io/Embedded-wearable-project/)). There, it is possible to view data plots from the MAX30102 and ENS160 sensors, as well as a 3D object that follows the movement of the MPU6050. Since quaternions were not implemented, the movement tracking is not perfectly precise.
 - Using the button, you can switch between the different screens shown on the OLED display. A long press toggles the display on and off.
 
+### prototypes
+
+![Project overview photo 3](./images/IMG_8239.png)
 
 
 ## Team Contributions

@@ -88,14 +88,12 @@ int16_t lowPassFIRFilterRED(int16_t din)
 // functions to get AC filtered signals
 int16_t get_RED_AC(uint32_t sample) {
     int16_t dc_estimate = averageDCEstimator(&RED_dc_estimate, sample);
-    return lowPassFIRFilterRED(sample - dc_estimate); //TODO: FIR fileter uses the same array for both
+    return lowPassFIRFilterRED(sample - dc_estimate);
 }
 
 int16_t get_IR_AC(uint32_t sample) {
-    // int16_t dc_estimate = DCEstimatorWithMean(sample);
     int16_t dc_estimate = averageDCEstimator(&IR_dc_estimate, sample);
     return lowPassFIRFilterIR(sample - dc_estimate);
-    // return sample - dc_estimate;
 }
 
 bool beat_detected(int16_t ir_ac) {
@@ -157,7 +155,7 @@ void calculateBPM(int16_t ir_ac, int16_t *BPM, int16_t *AVG_BPM) {
         lastBeatSample = now;
         // calculate current BPM
         float currBPM = 60.0f * SAMPLE_RATE / delta;
-        deltaBPM = currBPM-oldBPM >= 0 ? currBPM-oldBPM : -(currBPM-oldBPM);
+        // deltaBPM = currBPM-oldBPM >= 0 ? currBPM-oldBPM : -(currBPM-oldBPM);
         oldBPM = currBPM;
         if (currBPM > 40 && currBPM < 210) {
 
