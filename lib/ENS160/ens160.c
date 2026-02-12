@@ -100,7 +100,7 @@ esp_err_t ens160_full_reset(void) {
     }
     vTaskDelay(pdMS_TO_TICKS(100));
     
-    // Step 3: Clear GPR (baseline data)
+    // Step 3: Clear GPR
     ret = ens160_clear_gpr();
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "Failed to clear GPR");
@@ -132,7 +132,7 @@ esp_err_t ens160_full_reset(void) {
     
     // Step 7: Wait for warm-up (3 minutes per datasheet)
     ESP_LOGI(TAG, "Waiting for warm-up period (3 minutes)...");
-    for (int i = 0; i < 180; i++) // 180 seconds = 3 minutes
+    for (int i = 0; i < 30; i++) // 180 seconds = 3 minutes
     {
         global_parameters.CO2_init_percentage = (i * 100) / 180; // Update global parameter for UI
         ESP_LOGI(TAG, "Warm-up progress: %d%%", (i * 100) / 180);
