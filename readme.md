@@ -6,7 +6,7 @@
 **Marco Mattiuz**, **Luca Guojie Zhan**, **Giorgio Marasca**, **Francesco Buscardo**
 
 ### Presentation and Video links
-#### ([Video]([#](https://youtu.be/ByliZmJKJFA)))
+#### ([Video](https://youtu.be/ByliZmJKJFA)
 #### ([Presentation](https://www.canva.com/design/DAHBCtbX71E/7lhA4Xd-Q39TREjt6f52yw/view?utm_content=DAHBCtbX71E&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hd3142368d5))
 
 ## Introduction and Features
