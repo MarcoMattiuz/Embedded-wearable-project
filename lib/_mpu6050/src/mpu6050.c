@@ -1,7 +1,7 @@
 #include "../include/mpu6050.h"
 
-static float accel_bias[3]  = {1.12f, -0.30f, -0.55f};
-static float gyro_bias[3]   = {-0.27f, 0.24f, 0.16f};
+static float accel_bias[3]  = {0.0f, 0.0f, 0.0f};
+static float gyro_bias[3]   = {0.0f, 0.0f, 0.0f};
 
 // Handle for the new I2C device
 static i2c_master_dev_handle_t mpu6050_dev = NULL;
