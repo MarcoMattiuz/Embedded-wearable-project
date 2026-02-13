@@ -221,6 +221,7 @@ This function builds up the **3D rotation matrix (ZYX convention)** from roll, p
     tmp->g_y = R->m[1][0];
     tmp->g_z = R->m[2][0];
     ```
+5. Y (rappresents the lateral inclination)
 
 Where:
 ```c
