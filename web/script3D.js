@@ -146,7 +146,7 @@ function update3DObject(gx, gy, gz)
   const adjustedY = gy - initialGyro.y;
   const adjustedZ = gz - initialGyro.z;
 
-  model.rotation.set(-adjustedX, adjustedY, adjustedZ);
+  model.rotation.set(adjustedY, adjustedX, adjustedZ);
 }
 
 window.update3DObject = update3DObject;
