@@ -15,7 +15,7 @@ The goal of this project is to design and implement a low-cost, open-source wear
 We focused on features that are essential for modern wearables, such as:
 
 - Heart rate monitoring  
-- TODO: Sp02 measurement
+- **TODO**: Sp02 measurement
 - digital clock (updated using the web-app through BLE connectivity)
 - Step counting  
 - wrist rotation (to toggle the display)
@@ -24,9 +24,11 @@ We focused on features that are essential for modern wearables, such as:
 - A display to show real-time information  
 - Data plots in the web-app
 - CO2/TVOC/Air-quality measurement (maybe not essential for wearables 🙂)
-- TODO: implementing temperature/umidity sensor
-- 3D model that follows device rotation (in the web-app) **quaternion implementation is needed**
-- battery level measurement 
+- **TODO**: implementing temperature/umidity sensor
+- 3D model that follows device rotation (in the web-app) **TODO: quaternion implementation is needed**
+- battery level measurement
+- **TODO**: G-force measurement
+- **TODO**: Timer feature
 
 To ensure maintainability and accessibility for anyone interested in experimenting or extending the system, we built the device on the **ESP32 platform** using **ESP-IDF**, chosen for its conectivity (BLE/wifi), flexibility, performance, and strong community support.
 
